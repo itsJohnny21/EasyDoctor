@@ -15,8 +15,8 @@ public class StartController {
 	@FXML Button doctorNurseButton;
 	@FXML Button patientButton;
 	
-	@FXML
-	public void handlePatientButtonAction(ActionEvent event) {
+
+	@FXML public void handlePatientButtonAction(ActionEvent event) {
         try {        	
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/views/PatientPortalLoginView.fxml"));
             Parent root = loader.load();
@@ -31,8 +31,8 @@ public class StartController {
         }
 	}
 	
-	@FXML
-	public void handleDoctorNurseButtonAction(ActionEvent event) {
+	
+	@FXML public void handleDoctorNurseButtonAction(ActionEvent event) {
         try {        	
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/views/WorkPortalLoginView.fxml"));
             Parent root = loader.load();
