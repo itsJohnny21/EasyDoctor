@@ -25,7 +25,7 @@ public class App extends Application {
             Scene scene = new Scene(root);
             primaryStage.setScene(scene);
 
-            stage.setTitle("Start");
+            stage.setTitle("Who Am I");
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
