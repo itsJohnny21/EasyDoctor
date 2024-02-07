@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controllers.PatientPortalLoginController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controllers.LoginController">
    <center>
       <AnchorPane style="-fx-background-color: #595959;" BorderPane.alignment="CENTER">
          <children>
@@ -26,7 +26,7 @@
                   <Font size="12.0" />
                </font>
             </Label>
-            <Text fill="WHITE" layoutX="241.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Patient Portal">
+            <Text fill="WHITE" layoutX="246.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Easy Doctor">
                <font>
                   <Font size="21.0" />
                </font>
@@ -44,7 +44,7 @@
                </font>
             </Text>
             <CheckBox fx:id="rememberMeCheckbox" layoutX="219.0" layoutY="291.0" mnemonicParsing="false" onAction="#handleRememberMeButtonAction" text="Remember me" textFill="WHITE" />
-            <Button fx:id="goBackButton" layoutX="219.0" layoutY="352.0" mnemonicParsing="false" onAction="#handleGoBackButtonAction" prefHeight="26.0" prefWidth="161.0" text="Go back" />
+            <CheckBox fx:id="doctorNurseCheckbox" layoutX="219.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleDoctorNurseCheckboxAction" text="I am a doctor/nurse" textFill="WHITE" />
          </children>
       </AnchorPane>
    </center>

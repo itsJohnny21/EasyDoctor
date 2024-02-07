@@ -2,6 +2,7 @@ package application;
 	
 import java.io.IOException;
 
+import application.controllers.Controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,19 +18,28 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		stage = primaryStage;
-		
+		loadPage("/application/views/LoginView.fxml");
+	}
+	
+	public static void loadPage(String resource) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/views/StartView.fxml"));
+        	
+            FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
             Parent root = loader.load();
             
             Scene scene = new Scene(root);
-            primaryStage.setScene(scene);
-
-            stage.setTitle("Who Am I");
-            stage.show();
+            App.stage.setScene(scene);
+            
+            Controller controller = loader.getController();
+            App.stage.setTitle(controller.getTitle());
+            App.stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
+	}
+	
+	public static void logout() {
+		loadPage("/application/views/LoginView.fxml");
 	}
 	
 	public static void main(String[] args) {

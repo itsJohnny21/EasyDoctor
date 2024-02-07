@@ -12,8 +12,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
-public class WorkPortalController {
+public class WorkPortalController extends Controller {
 	
+	String title = "Work Portal";
+		
 	@FXML Button patientsButton;
 	@FXML Button tasksButton;
 	@FXML Button visitsButton;
@@ -22,37 +24,18 @@ public class WorkPortalController {
 	@FXML Label usernameLabel;
 	@FXML GridPane contentGridPane;
 	
+	
 	@FXML public void handleMenuButtonAction(ActionEvent event) {
 		Button button = (Button) event.getSource();
 		String resource = String.format("/application/views/%sView.fxml", button.getText());
-		
-        try {        	
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(resource));
-            Parent root = loader.load();
-            
-            Scene scene = new Scene(root);
-            App.stage.setScene(scene);
-
-            App.stage.setTitle("PatientPortal Login");
-            App.stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		App.loadPage(resource);
 	}
 	
 	@FXML public void handleLogoutButtonAction(ActionEvent event) {
-        try {        	
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/views/WorkPortalLoginView.fxml"));
-            Parent root = loader.load();
-            
-            Scene scene = new Scene(root);
-            App.stage.setScene(scene);
-
-            App.stage.setTitle("WorkPortal Login");
-            App.stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		App.logout();
 	}
-
+	
+	public String getTitle() {
+		return this.title;
+	}
 }
