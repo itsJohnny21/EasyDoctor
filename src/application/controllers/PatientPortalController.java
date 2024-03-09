@@ -1,39 +1,35 @@
 package application.controllers;
 
-import java.io.IOException;
-
 import application.App;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 public class PatientPortalController extends Controller {
 	
-	String title = "Patient Portal";
+	@FXML public Button contactInfoButton;
+	@FXML public Button scheduleVisitButton;
+	@FXML public Button myVisitsButton;
+	@FXML public Button inboxButton;
+	@FXML public Button logoutButton;
+	@FXML public Label usernameLabel;
+	@FXML public GridPane contentGridPane;
 
-
-	@FXML Button contactInfoButton;
-	@FXML Button scheduleVisitButton;
-	@FXML Button myVisitsButton;
-	@FXML Button inboxButton;
-	@FXML Button logoutButton;
-	@FXML Label usernameLabel;
-	@FXML GridPane contentGridPane;
+	public void initialize() {
+		title = "Patient Portal";
+	}
 	
 	
 	@FXML public void handleMenuButtonAction(ActionEvent event) {
 		Button button = (Button) event.getSource();
-		String resource = String.format("/application/views/%sView.fxml", button.getText());
-		App.loadPage(resource);
+		String resource = String.format("%sView", button.getText());
+		App.loadPage(resource, stage);
 	}
 	
 	@FXML public void handleLogoutButtonAction(ActionEvent event) {
-		App.logout();
+		App.logout(stage);
 	}
 	
 	public String getTitle() {

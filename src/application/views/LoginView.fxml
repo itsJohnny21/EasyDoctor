@@ -43,8 +43,8 @@
                   <Font size="10.0" />
                </font>
             </Text>
-            <CheckBox fx:id="rememberMeCheckbox" layoutX="219.0" layoutY="291.0" mnemonicParsing="false" onAction="#handleRememberMeButtonAction" text="Remember me" textFill="WHITE" />
-            <CheckBox fx:id="doctorNurseCheckbox" layoutX="219.0" layoutY="314.0" mnemonicParsing="false" onAction="#handleDoctorNurseCheckboxAction" text="I am a doctor/nurse" textFill="WHITE" />
+            <CheckBox fx:id="rememberMeCheckbox" layoutX="219.0" layoutY="291.0" mnemonicParsing="false" text="Remember me" textFill="WHITE" />
+            <CheckBox fx:id="doctorNurseCheckbox" layoutX="219.0" layoutY="314.0" mnemonicParsing="false" text="I am a doctor/nurse" textFill="WHITE" />
          </children>
       </AnchorPane>
    </center>

@@ -1,38 +1,35 @@
 package application.controllers;
 
-import java.io.IOException;
-
 import application.App;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 public class WorkPortalController extends Controller {
 	
-	String title = "Work Portal";
-		
-	@FXML Button patientsButton;
-	@FXML Button tasksButton;
-	@FXML Button visitsButton;
-	@FXML Button inboxButton;
-	@FXML Button logoutButton;
-	@FXML Label usernameLabel;
-	@FXML GridPane contentGridPane;
+	@FXML public Button patientsButton;
+	@FXML public Button tasksButton;
+	@FXML public Button visitsButton;
+	@FXML public Button inboxButton;
+	@FXML public Button logoutButton;
+	@FXML public Label usernameLabel;
+	@FXML public GridPane contentGridPane;
+
+	public void initialize() {
+		title = "Work Portal";
+	}
 	
 	
 	@FXML public void handleMenuButtonAction(ActionEvent event) {
 		Button button = (Button) event.getSource();
-		String resource = String.format("/application/views/%sView.fxml", button.getText());
-		App.loadPage(resource);
+		String resource = String.format("%sView", button.getText());
+		App.loadPage(resource, stage);
 	}
 	
 	@FXML public void handleLogoutButtonAction(ActionEvent event) {
-		App.logout();
+		App.logout(stage);
 	}
 	
 	public String getTitle() {
