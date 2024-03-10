@@ -1,0 +1,10 @@
+CREATE TABLE signOuts (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    userID INT NOT NULL,
+    sourceIP VARCHAR(100),
+    FOREIGN KEY (userID) REFERENCES users(ID)
+);
+
+INSERT INTO signOuts (userID, sourceIP)
+VALUES (3, '127.0.0.1');
