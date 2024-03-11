@@ -9,13 +9,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
-
 public class App extends Application {
 		
 	@Override
 	public void start(Stage primaryStage) {
-		loadPage("LoginView", primaryStage);
+		loadPage("SignInView", primaryStage);
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) {
@@ -38,8 +36,8 @@ public class App extends Application {
         }
 	}
 	
-	public static void logout(Stage primaryStage) {
-		loadPage("LoginView", primaryStage);
+	public static void signOut(Stage primaryStage) {
+		loadPage("SignInView", primaryStage);
 	}
 	
 	public static void main(String[] args) {

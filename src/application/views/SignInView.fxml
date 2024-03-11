@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controllers.LoginController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controllers.SignInController">
    <center>
       <AnchorPane style="-fx-background-color: #595959;" BorderPane.alignment="CENTER">
          <children>
@@ -37,7 +37,7 @@
                   <Font size="8.0" />
                </font>
             </Hyperlink>
-            <Button fx:id="loginButton" layoutX="219.0" layoutY="244.0" mnemonicParsing="false" onAction="#handleLoginButtonAction" prefHeight="26.0" prefWidth="161.0" text="Log In" />
+            <Button fx:id="SignInButton" layoutX="219.0" layoutY="244.0" mnemonicParsing="false" onAction="#handleSignInButtonAction" prefHeight="26.0" prefWidth="161.0" text="Sign In" />
             <Text fx:id="invalidCredentialsText" fill="#ff4444" layoutX="220.0" layoutY="287.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" visible="false" wrappingWidth="160">
                <font>
                   <Font size="10.0" />

@@ -13,7 +13,7 @@ public class PatientPortalController extends Controller {
 	@FXML public Button scheduleVisitButton;
 	@FXML public Button myVisitsButton;
 	@FXML public Button inboxButton;
-	@FXML public Button logoutButton;
+	@FXML public Button signOutButton;
 	@FXML public Label usernameLabel;
 	@FXML public GridPane contentGridPane;
 
@@ -28,8 +28,8 @@ public class PatientPortalController extends Controller {
 		App.loadPage(resource, stage);
 	}
 	
-	@FXML public void handleLogoutButtonAction(ActionEvent event) {
-		App.logout(stage);
+	@FXML public void handleSignOutButtonAction(ActionEvent event) {
+		App.signOut(stage);
 	}
 	
 	public String getTitle() {

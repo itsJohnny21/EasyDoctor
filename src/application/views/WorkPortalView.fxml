@@ -44,7 +44,7 @@
                   <Font name="Arial" size="15.0" />
                </font>
             </Button>
-            <Button fx:id="logoutButton" alignment="CENTER" mnemonicParsing="false" onAction="#handleLogoutButtonAction" prefHeight="30.0" prefWidth="150.0" style="-fx-background-color: #4287f5; -fx-background-radius: 5;" text="Logout" textAlignment="CENTER" textFill="WHITE" wrapText="true" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <Button fx:id="signOutButton" alignment="CENTER" mnemonicParsing="false" onAction="#handleSignOutButtonAction" prefHeight="30.0" prefWidth="150.0" style="-fx-background-color: #4287f5; -fx-background-radius: 5;" text="Sign Out" textAlignment="CENTER" textFill="WHITE" wrapText="true" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Arial" size="15.0" />
                </font>

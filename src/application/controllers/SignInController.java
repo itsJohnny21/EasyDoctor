@@ -11,19 +11,19 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-public class LoginController extends Controller {
+public class SignInController extends Controller {
 	
-	private static Preferences preferences = Preferences.userNodeForPackage(LoginController.class);
+	private static Preferences preferences = Preferences.userNodeForPackage(SignInController.class);
 
 	@FXML public TextField usernameTextField;
 	@FXML public PasswordField passwordTextField;
-	@FXML public Button loginButton;
+	@FXML public Button SignInButton;
 	@FXML public Hyperlink forgotUsernamePasswordHyperlink;
 	@FXML public CheckBox rememberMeCheckbox;
 	@FXML public CheckBox doctorNurseCheckbox;
 	
 	public void initialize() {
-		title = "Login";
+		title = "Sign In";
 		usernameTextField.setText(preferences.get("username", ""));
 		passwordTextField.setText(preferences.get("password", ""));
 		rememberMeCheckbox.setSelected(preferences.getBoolean("rememberMeChecked", false));
@@ -31,14 +31,12 @@ public class LoginController extends Controller {
 	}
 	
 	
-	@FXML public void handleLoginButtonAction(ActionEvent event) {
+	@FXML public void handleSignInButtonAction(ActionEvent event) {
 		if (rememberMeCheckbox.isSelected()) {
-			rememberMe();
+			rememberMe(true);
 		} else {
-			forgetMe();
+			rememberMe(false);
 		}
-
-		System.out.println(stage.toString());
 
         if (doctorNurseCheckbox.isSelected()) {
 			App.loadPage("WorkPortalView", stage);
@@ -57,18 +55,18 @@ public class LoginController extends Controller {
 		return this.title;
 	}
 
-	public void rememberMe() {
-		preferences.put("username", usernameTextField.getText());
-		preferences.put("password", passwordTextField.getText());
-		preferences.putBoolean("rememberMeChecked", rememberMeCheckbox.isSelected());
-		preferences.putBoolean("doctorNurseChecked", doctorNurseCheckbox.isSelected());
-	}
-
-	public void forgetMe() {
-		preferences.remove("username");
-		preferences.remove("password");
-		preferences.remove("rememberMeChecked");
-		preferences.remove("doctorNurseChecked");
+	public void rememberMe(boolean rememberMe) {
+		if (rememberMe) {
+			preferences.put("username", usernameTextField.getText());
+			preferences.put("password", passwordTextField.getText());
+			preferences.putBoolean("rememberMeChecked", rememberMeCheckbox.isSelected());
+			preferences.putBoolean("doctorNurseChecked", doctorNurseCheckbox.isSelected());
+		} else {
+			preferences.remove("username");
+			preferences.remove("password");
+			preferences.remove("rememberMeChecked");
+			preferences.remove("doctorNurseChecked");
+		}
 	}
 	
 }
