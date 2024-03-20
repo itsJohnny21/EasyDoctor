@@ -3,11 +3,13 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    username VARCHAR(100) NOT NULL,
-    password VARCHAR(100) NOT NULL,
-    role ENUM('ADMIN', 'DOCTOR', 'NURSE' 'PATIENT') NOT NULL
+    username VARCHAR(100) NOT NULL UNIQUE,
+    passwordHash VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    role ENUM('DOCTOR', 'NURSE', 'PATIENT') NOT NULL
 );
-
 
 INSERT INTO users (username, password, role)
 VALUES ('jonis6421', SHA2('123', 256), 'ADMIN');
+
+SELECT * FROM users;

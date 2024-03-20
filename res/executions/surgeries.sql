@@ -11,11 +11,12 @@ CREATE TABLE surgeries (
 );
 
 INSERT INTO surgeries (patientID, doctorID, type, date, location, notes)
-VALUES (2, 1, 'Knee replacement', '2021-01-01', '123 Main St', 'Patient is allergic to anesthesia');
+VALUES (2, 3, 'Knee replacement', '2021-01-01', '123 Main St', 'Patient is allergic to anesthesia');
 
-UPDATE surgeries SET notes = 'Patient is allergic to anesthesia. Patient died on the operating table.' WHERE patientID = 2;
+UPDATE surgeries SET notes = 'Successfully removed brain tumor.' WHERE ID = 2;
 
-INSERT INTO surgeries (patientID, doctorID, type, date, location, notes)
-VALUES (2, 1, 'Brain surgery', '2021-01-01', '123 Main St', 'Brains are worth a lot of money on the black market.');
 
-UPDATE surgeries SET notes = 'Performed brain surgery on the dead patient. Sold the brain on the black market.' WHERE patientID = 2;
+UPDATE surgeries SET notes = 'Clean procedure, no issues.' WHERE ID = 1;
+use easydoctor;
+SELECT * FROM surgeries;
+use easydoctor;

@@ -28,4 +28,5 @@ UPDATE conversations SET readStatus = TRUE WHERE ID = 3;
 INSERT INTO conversations (message, senderID, receiverID)
 VALUES ('Thank you. I appreciate your cooperation.', 3, 2);
 
-UPDATE conversations SET readStatus = TRUE WHERE ID = 4;
+UPDATE conversations SET message = "i dont feel good" WHERE message = "i need more drugs";
+SELECT * FROM conversations;

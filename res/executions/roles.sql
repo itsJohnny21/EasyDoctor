@@ -48,6 +48,7 @@ CREATE USER 'neutral' IDENTIFIED BY 'neutral123';
 GRANT SELECT ON users TO 'neutral';
 
 SELECT DISTINCT User FROM mysql.user;
+DROP USER 'admin'@'%';
 SELECT CURRENT_ROLE();
 SELECT CURRENT_USER();
 
@@ -66,3 +67,94 @@ SHOW GRANTS FOR 'neutral';
 
 CREATE USER 'joniboi21' IDENTIFIED BY 'Grapes6421!';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, PROCESS, REFERENCES, INDEX, ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER, EVENT, TRIGGER ON *.* TO `joniboi21`@`%` WITH GRANT OPTION;
+
+GRANT SELECT ON employees TO 'neutral';
+REVOKE SELECT ON users FROM 'neutral';
+GRANT SELECT (ID, username, role) ON users TO 'neutral'@'%';
+GRANT SELECT (passwordHash) ON users TO 'neutral'@'%';
+
+REVOKE ALL PRIVILEGES ON *.* FROM 'patient'@'%';
+SHOW GRANTS FOR 'neutral';
+
+
+SHOW GRANTS FOR 'nurse'@'%';
+REVOKE ALL PRIVILEGES ON *.* FROM 'nurse'@'%';
+REVOKE INSERT ON logbook FROM 'neutral'@'%';
+
+GRANT SELECT ON patients TO 'doctor';
+GRANT SELECT, UPDATE ON employees TO 'doctor';
+GRANT SELECT, INSERT ON conversations TO 'doctor';
+GRANT UPDATE, INSERT, SELECT ON allergies TO 'doctor';
+GRANT UPDATE, INSERT, SELECT ON surgeries TO 'doctor';
+GRANT UPDATE, INSERT, SELECT ON visits TO 'doctor';
+GRANT INSERT, SELECT ON logbook TO 'doctor';
+GRANT UPDATE, INSERT ON drugs TO 'doctor';
+GRANT SELECT, UPDATE, INSERT ON immunizations TO 'doctor';
+GRANT UPDATE, SELECT, INSERT on healthConditions TO 'doctor';
+GRANT SELECT (ID, role, username) ON users TO 'doctor';
+
+
+GRANT UPDATE, SELECT, INSERT on prescriptions TO 'doctor';
+GRANT UPDATE, SELECT, INSERT on drugs TO 'doctor';
+GRANT UPDATE (preferredDoctorID, bloodType, weight, height, insuranceProvider, insuranceID) ON patients TO 'nurse';
+
+GRANT SELECT on prescriptions TO 'nurse';
+GRANT SELECT on drugs TO 'nurse';
+GRANT SELECT (ID, role, username) ON users TO 'nurse';
+
+
+
+GRANT SELECT (firstName, lastName, phone, email) ON employees TO 'patient';
+GRANT SELECT ON patients TO 'patient';
+GRANT UPDATE (firstName, lastName, sex, phone, email, address, preferredDoctorID, insuranceProvider, insuranceID) ON patients TO 'patient';
+GRANT SELECT ON allergies TO 'patient';
+GRANT SELECT ON surgeries TO 'patient';
+GRANT SELECT ON immunizations TO 'patient';
+GRANT INSERT, SELECT ON conversations TO 'patient';
+GRANT INSERT, SELECT ON visits TO 'patient';
+GRANT INSERT ON logbook TO 'patient';
+GRANT SELECT ON healthConditions TO 'patient';
+GRANT SELECT ON drugs TO 'patient';
+GRANT SELECT ON prescriptions TO 'patient';
+GRANT SELECT (ID, role, username) ON users TO 'patient';
+GRANT SELECT (ID) ON visits TO 'patient';
+
+SHOW TABLES;
+
+SELECT COLUMN_NAME 
+FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES 
+WHERE TABLE_NAME = 'patients' 
+AND PRIVILEGE_TYPE = 'UPDATE' 
+AND GRANTEE = "'patient'@'%'";
+
+SHOW GRANTS FOR 'doctor'@'%';
+SHOW GRANTS FOR 'nurse'@'%';
+SHOW GRANTS FOR 'patient'@'%';
+
+SELECT * FROM patients;
+
+SELECT users.username, users.role, patients.* FROM users JOIN patients ON users.ID = patients.userID WHERE users.ID = 2;
+
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'patients' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
+
+SELECT CURRENT_USER();
+
+SELECT 
+    COLUMN_NAME AS column_name,
+    CASE 
+        WHEN PRIVILEGE_TYPE IS NOT NULL THEN TRUE
+        ELSE FALSE
+    END AS can_update
+FROM 
+    INFORMATION_SCHEMA.COLUMNS 
+LEFT JOIN 
+    INFORMATION_SCHEMA.COLUMN_PRIVILEGES 
+ON 
+    INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA = INFORMATION_SCHEMA.COLUMN_PRIVILEGES.TABLE_SCHEMA 
+    AND INFORMATION_SCHEMA.COLUMNS.TABLE_NAME = INFORMATION_SCHEMA.COLUMN_PRIVILEGES.TABLE_NAME 
+    AND INFORMATION_SCHEMA.COLUMNS.COLUMN_NAME = INFORMATION_SCHEMA.COLUMN_PRIVILEGES.COLUMN_NAME 
+    AND INFORMATION_SCHEMA.COLUMN_PRIVILEGES.GRANTEE = "'patient'@'%'"
+    AND INFORMATION_SCHEMA.COLUMN_PRIVILEGES.PRIVILEGE_TYPE = 'UPDATE';
+
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS;
