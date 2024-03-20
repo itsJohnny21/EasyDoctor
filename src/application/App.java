@@ -48,9 +48,6 @@ public class App extends Application {
 		primaryStage.centerOnScreen();
 		primaryStage.setTitle(controller.getTitle());
 		primaryStage.show();
-
-		System.out.printf("role: %s\n", Database.role);
-		System.out.printf("userID: %d\n", Database.userID);
 	}
 
 	public static void loadPopup(String filename) throws Exception {
