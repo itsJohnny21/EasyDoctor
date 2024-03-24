@@ -24,8 +24,8 @@ CREATE TABLE patients (
     motherLastName VARCHAR(255),
     fatherFirstName VARCHAR(255),
     fatherLastName VARCHAR(255),
-    FOREIGN KEY (userID) REFERENCES users(ID),
-    FOREIGN KEY (preferredDoctorID) REFERENCES users(ID)
+    FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
+    FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
 
 

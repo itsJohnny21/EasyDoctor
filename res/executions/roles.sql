@@ -176,6 +176,14 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 
 GRANT SELECT (userID, firstName, lastName, sex, birthDate, email, phone, address, preferredDoctorID, bloodType, height, weight, race, ethnicity, insuranceProvider, insuranceID, emergencyContactName, emergencyContactPhone, motherFirstName, motherLastName, fatherFirstName, fatherLastName) ON patients TO 'doctor'@'%';
 GRANT SELECT (userID, firstName, lastName, gender, birthDate, email, phone, address, managerID) ON employees TO 'doctor'@'%';
 GRANT UPDATE (gender, email, phone, address) ON employees TO 'doctor'@'%';
-GRANT UPDATE (preferredDoctorID, bloodType, weight, height, insuranceProvider, insuranceID) ON patients TO 'doctor'@'%';
-REVOKE UPDATE (fatherLastName, fatherFirstName, lastName, firstName, race, ethnicity, preferredDoctorID, motherLastName, motherFirstName, race) ON patients FROM 'doctor';
-SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'patients' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'doctor'@'%'";
+GRANT SELECT (ID) ON users TO 'neutral'@'%';
+GRANT SELECT (ID) ON patients TO 'neutral'@'%';
+GRANT SELECT (ID) ON employees TO 'neutral'@'%';
+GRANT UPDATE (fatherLastName, fatherFirstName, lastName, firstName, race, ethnicity, preferredDoctorID, motherLastName, motherFirstName, race) ON patients TO 'doctor';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'employees' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'patients' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'neutral'@'%'";
+use easydoctor;
+select * from patients;
+select * from employees;
+select * from users;
+delete from users where userID = 27;

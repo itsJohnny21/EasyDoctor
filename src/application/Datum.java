@@ -15,6 +15,8 @@ public class Datum {
         this.newValue = originalValue;
     }
 
+    public Datum() {}
+
     public ValueField createValueField() {
         return new ValueField(this);
     }

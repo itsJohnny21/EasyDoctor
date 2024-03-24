@@ -31,10 +31,27 @@ public abstract class Database {
         NEUTRAL, DOCTOR, NURSE, PATIENT;
     }
 
+    public enum Sex {
+        MALE, FEMALE, OTHER;
+    }
+
+    public enum Race {
+        WHITE, BLACK, HISPANIC, ASIAN, NATIVE, AMERICAN, PACIFIC, ISLANDER, OTHER;
+    }
+
+    public enum Ethnicity {
+        HISPANIC, NON_HISPANIC;
+    }
+
+
+
     public static Connection connection;
     public static Integer userID;
     public static Role role;
     public static HashMap<String, HashMap<String, Boolean>> updatePermissions;
+    public static HashMap<String, HashMap<String, Boolean>> selectPermissions;
+    public static HashMap<String, HashMap<String, Boolean>> insertPermissions;
+    public static HashMap<String, HashMap<String, Boolean>> deletePermissions;
 
     static {
         updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
@@ -42,16 +59,21 @@ public abstract class Database {
 
     public static void connectAs(Role role) throws SQLException {
 
-        if (role == Role.DOCTOR) {
-            connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=doctor&password=doctor123"); //! hide
-        } else if (role == Role.NURSE) {
-            connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=nurse&password=nurse123"); //! hide
-        } else if (role == Role.PATIENT) {
-            connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=patient&password=patient123"); //! hide
-        } else if (role == Role.NEUTRAL) {
-            connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=neutral&password=neutral123"); //! hide
-        } else {
-            throw new SQLException("Invalid role");
+        switch (role) {
+            case DOCTOR:
+                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=doctor&password=doctor123");
+                break;
+            case NURSE:
+                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=nurse&password=nurse123");
+                break;
+            case PATIENT:
+                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=patient&password=patient123");
+                break;
+            case NEUTRAL:
+                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=neutral&password=neutral123");
+                break;
+            default:
+                throw new SQLException("Invalid role");
         }
 
         if (connection == null) {
@@ -72,24 +94,41 @@ public abstract class Database {
         }
     }
 
-    public static ResultSet selectFor(int userID, String tableName) throws Exception {
-        String grantee = String.format("'%s'@'%%'", role.toString().toLowerCase());
-        PreparedStatement statement = connection.prepareStatement(String.format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = ? AND PRIVILEGE_TYPE = ? AND GRANTEE = \"%s\";", grantee));
-        String operation = "SELECT"; //! do something here
+    public static String getGrantee() {
+        return String.format("\"'%s'@'%%'\"", role.toString().toLowerCase());
+    }
+
+    public static String getPermissedColumns(String tableName, String operation) throws Exception {
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = ? AND PRIVILEGE_TYPE = ? AND GRANTEE = %s;", getGrantee()));
         statement.setString(1, tableName);
         statement.setString(2, operation);
-
         ResultSet resultSet = statement.executeQuery();
+        
         ArrayList<String> columnNames = new ArrayList<String>();
         
         while (resultSet.next()) {
             columnNames.add(resultSet.getString("COLUMN_NAME"));
+            System.out.println(resultSet.getString("COLUMN_NAME"));
         }
-
-        String columnNamesString = String.join(", ", columnNames);
         
-        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE userID = ?;", columnNamesString, tableName));
-        statement2.setInt(1, userID);
+        return String.join(", ", columnNames);
+    }
+
+
+    public static ResultSet selectAllDoctors() throws Exception {
+        String permissionColumns = getPermissedColumns("employees", "SELECT");
+        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM employees WHERE role = 'DOCTOR';", permissionColumns));
+        ResultSet resultSet2 = statement2.executeQuery();
+
+        return resultSet2;
+    }
+
+    public static ResultSet selectRow(int rowID, String tableName) throws Exception {
+        String colummns = getPermissedColumns(tableName, "SELECT");
+        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE ID = ?;", colummns, tableName));
+        statement2.setInt(1, rowID);
+        System.out.println(statement2.toString());
+        System.out.println(role.toString());
 
         ResultSet resultSet2 = statement2.executeQuery();
 
@@ -97,7 +136,7 @@ public abstract class Database {
     }
 
     public static void updateRow(int rowID, String table, String column, String newValue) throws Exception {
-        PreparedStatement statement = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE userID = ?;", table, column));
+        PreparedStatement statement = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE ID = ?;", table, column));
         statement.setString(1, newValue);
         statement.setInt(2, rowID);
         System.out.println(statement.toString());
@@ -105,14 +144,91 @@ public abstract class Database {
         statement.executeUpdate();
     }
 
-    public static void refreshPermissions() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS Updatable FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = \"'%s'@'%%'\";", role.toString().toLowerCase()));
+        // INSERT INTO users (username, password, role)
+        // VALUES ('barb123', SHA2('123', 256), 'PATIENT');
+        // SET @userID = LAST_INSERT_ID();
+        // INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+        // VALUES (@userID, 'Barbara', 'Williams',  'FEMALE', '2000-01-01', 'barb123@gmail.com', '1234567890', '123 Test St', 'WHITE', 'NON-HISPANIC');
+
+    public static int insertUser(String username, String password, Role role) throws Exception {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, SHA2(?, 256), ?);");
+        statement.setString(1, username);
+        statement.setString(2, password);
+        statement.setString(3, role.toString());
+        statement.executeUpdate();
+
+        if (statement.getUpdateCount() == 0) {
+            throw new SQLException("User not created");
+        }
+
+        statement = connection.prepareStatement("SELECT LAST_INSERT_ID();");
+        ResultSet resultSet = statement.executeQuery();
+
+        resultSet.next();
+        int userID = resultSet.getInt(1);
+
+        return userID;
+    }
+
+    public static void insertEmployee(String username, String password, Role role, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, String managerID) throws Exception {
+        if (role != Role.DOCTOR && role != Role.NURSE) {
+            throw new SQLException("Invalid role");
+        }
+
+        int userID = insertUser(username, password, role);
+
+        PreparedStatement statement2 = connection.prepareStatement("INSERT INTO employees (ID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?);");
+        statement2.setInt(1, userID);
+        statement2.setString(2, firstName);
+        statement2.setString(3, lastName);
+        statement2.setString(4, sex.toString());
+        statement2.setString(5, birthDate);
+        statement2.setString(6, email);
+        statement2.setString(7, phone);
+        statement2.setString(8, address);
+        statement2.setString(9, managerID);
+
+        statement2.executeUpdate();
+
+        if (statement2.getUpdateCount() == 0) {
+            throw new SQLException("Employee not created");
+        }
+    }
+
+    public static void insertPatient(String username, String password, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, Race race, Ethnicity ethnicity) throws Exception {
+        int userID = insertUser(username, password, Role.PATIENT);
+        System.out.println(userID);
+
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setString(2, firstName);
+        statement.setString(3, lastName);
+        statement.setString(4, sex.toString());
+        statement.setString(5, birthDate);
+        statement.setString(6, email);
+        statement.setString(7, phone);
+        statement.setString(8, address);
+        statement.setString(9, race.toString());
+        statement.setString(10, ethnicity.toString());
+
+        statement.executeUpdate();
+
+        if (statement.getUpdateCount() == 0) {
+            throw new SQLException("Patient not created");
+        }
+    }
+
+    public static void refreshPermissionsFor(String operation) throws SQLException {
+        String permissionsColumn = String.format("CAN_%s", operation);
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = ?, true, false) AS %s FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = %s;", permissionsColumn, getGrantee()));
+        statement.setString(1, operation);
+        System.out.println(statement.toString());
         ResultSet resultSet = statement.executeQuery();
 
         while (resultSet.next()) {
             String tableName = resultSet.getString("TABLE_NAME");
             String columnName = resultSet.getString("COLUMN_NAME");
-            Boolean updatable = resultSet.getBoolean("Updatable");
+            Boolean updatable = resultSet.getBoolean(permissionsColumn);
 
             if (!updatePermissions.containsKey(tableName)) {
                 updatePermissions.put(tableName, new HashMap<String, Boolean>());
@@ -122,10 +238,22 @@ public abstract class Database {
         }
     }
 
+    public static void refreshAllPermissions() throws Exception {
+        refreshPermissionsFor("UPDATE");
+    }
+
+    public static boolean canUpdate(String tableName, String columnName) {
+        if (!updatePermissions.get(tableName).containsKey(columnName)) {
+            return false;
+        }
+
+        return updatePermissions.get(tableName).get(columnName);
+    }
+
     public static boolean signIn(String username, String password) throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
         boolean successful = false;
 
-        PreparedStatement statement = connection.prepareStatement("SELECT userID, username, role FROM users WHERE username = ? AND password = SHA2(?, 256);");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, username, role FROM users WHERE username = ? AND password = SHA2(?, 256);");
         statement.setString(1, username);
         statement.setString(2, password);
 
@@ -144,19 +272,18 @@ public abstract class Database {
             statement.setString(2, IP);
             statement.setString(3, "SIGN_IN");
             statement.executeUpdate();
-
-            refreshPermissions();
-
+            refreshAllPermissions();
+            
             System.out.println(username + " signed in");
         }
         
         return successful;
     }
-
-    public static void signOut() throws SQLException, UnknownHostException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO logbook (userID, IP, type) VALUES (?, ?, ?);");
-        String IP = InetAddress.getLocalHost().getHostAddress();
     
+    public static void signOut() throws SQLException, UnknownHostException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO logbook (ID, IP, type) VALUES (?, ?, ?);");
+        String IP = InetAddress.getLocalHost().getHostAddress();
+        
         statement.setInt(1, userID);
         statement.setString(2, IP);
         statement.setString(3, "SIGN_OUT");
@@ -167,16 +294,9 @@ public abstract class Database {
         reconnectAs(Role.NEUTRAL);
     }
 
-    public static boolean isUpdatable(String tableName, String columnName) {
-        if (!updatePermissions.get(tableName).containsKey(columnName)) {
-            return false;
-        }
-
-        return updatePermissions.get(tableName).get(columnName);
-    }
 
     public static ResultSet getEmployeeInfo(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, employees.* FROM users JOIN employees ON users.ID = employees.userID WHERE users.ID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, employees.* FROM users JOIN employees ON users.ID = employees.ID WHERE users.ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -189,7 +309,7 @@ public abstract class Database {
     }
 
     public static ResultSet getPatientInfo(int userID) throws SQLException{
-        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, patients.* FROM users JOIN patients ON users.ID = patients.userID WHERE users.ID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, patients.* FROM users JOIN patients ON users.ID = patients.ID WHERE users.ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -210,7 +330,7 @@ public abstract class Database {
     }
 
     public static ResultSet getContactInformationFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT patients.firstName AS 'First Name', patients.lastName AS 'Last Name', patients.sex AS 'Sex', patients.birthDate AS 'Birth Date', patients.phone AS 'Phone', patients.email AS 'Email', patients.address AS 'Address', users.username AS 'Username', patients.race AS 'Race', patients.ethnicity AS 'Ethnicity', patients.emergencyContactName AS 'Emergency Contact Name', patients.emergencyContactPhone AS 'Emergency Contact Phone', patients.motherFirstName AS 'Mother First Name', patients.motherLastName AS 'Mother Last Name', patients.fatherFirstName AS 'Father First Name', patients.fatherLastName AS 'Father Last Name' FROM patients JOIN users ON users.ID = patients.userID WHERE patients.userID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.firstName AS 'First Name', patients.lastName AS 'Last Name', patients.sex AS 'Sex', patients.birthDate AS 'Birth Date', patients.phone AS 'Phone', patients.email AS 'Email', patients.address AS 'Address', users.username AS 'Username', patients.race AS 'Race', patients.ethnicity AS 'Ethnicity', patients.emergencyContactName AS 'Emergency Contact Name', patients.emergencyContactPhone AS 'Emergency Contact Phone', patients.motherFirstName AS 'Mother First Name', patients.motherLastName AS 'Mother Last Name', patients.fatherFirstName AS 'Father First Name', patients.fatherLastName AS 'Father Last Name' FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -222,7 +342,7 @@ public abstract class Database {
     }
 
     public static ResultSet getMedicalInformationFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT CONCAT(employees.firstName, ' ', employees.lastName) AS 'Preferred Doctor', patients.insuranceProvider AS 'Insurance Provider', patients.insuranceID AS 'Insurance ID', patients.bloodType AS 'Blood Type', patients.height AS 'Height', patients.weight AS 'Weight' FROM patients JOIN employees ON patients.preferredDoctorID = employees.userID WHERE patients.userID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT CONCAT(employees.firstName, ' ', employees.lastName) AS 'Preferred Doctor', patients.insuranceProvider AS 'Insurance Provider', patients.insuranceID AS 'Insurance ID', patients.bloodType AS 'Blood Type', patients.height AS 'Height', patients.weight AS 'Weight' FROM patients JOIN employees ON patients.preferredDoctorID = employees.ID WHERE patients.ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -270,7 +390,7 @@ public abstract class Database {
     }
 
     public static ResultSet getSurgeriesFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, type, location, notes FROM surgeries JOIN employees ON surgeries.doctorID = employees.userID WHERE surgeries.patientID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, type, location, notes FROM surgeries JOIN employees ON surgeries.doctorID = employees.ID WHERE surgeries.patientID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -297,7 +417,7 @@ public abstract class Database {
     // }
 
     public static ResultSet getVisitsFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.userID WHERE visits.patientID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.ID WHERE visits.patientID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -305,7 +425,7 @@ public abstract class Database {
     }
 
     public static ResultSet getMyVisits() throws Exception { //! Make sure that the proper time zones are used to compare the date and time and check if the visits have been missed, completed, or are upcoming
-        PreparedStatement statement = connection.prepareStatement("employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.userID WHERE visits.patientID = ?;");
+        PreparedStatement statement = connection.prepareStatement("employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.ID WHERE visits.patientID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -350,8 +470,8 @@ public abstract class Database {
             return ecnryptedString;
         }
     }
-    
-    public static class Table {
+
+    public abstract static class Table {
         public String tableName;
         public int rowID;
     
@@ -359,7 +479,7 @@ public abstract class Database {
         }
     
         public Table() throws Exception {}
-    
+
         public static class User extends Table {
             public final static String TABLE_NAME = "users";
             public Datum userID;
@@ -367,7 +487,7 @@ public abstract class Database {
             public Datum username;
     
             public static User getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectFor(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
     
                 if (!resultSet.next()) {
                     return null;
@@ -380,8 +500,8 @@ public abstract class Database {
             public User(ResultSet resultSet) throws Exception {
                 this.tableName = TABLE_NAME;
     
-                String rowIDColumn = "userID";
-                String userIDColumn = "userID";
+                String rowIDColumn = "ID";
+                String userIDColumn = "ID";
                 String roleColumn = "role";
                 String usernameColumn = "username";
     
@@ -402,7 +522,7 @@ public abstract class Database {
             public Datum notes;
     
             public static ArrayList<Allergy> getAllFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectFor(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
                 ArrayList<Allergy> allergies = new ArrayList<Allergy>();
                 
                 while (resultSet.next()) {
@@ -469,8 +589,8 @@ public abstract class Database {
             public Patient(ResultSet resultSet) throws Exception {
                 this.tableName = TABLE_NAME;
 
-                String rowIDColumn = "userID";
-                String userIDColumn = "userID";
+                String rowIDColumn = "ID";
+                String userIDColumn = "ID";
                 String firstNameColumn = "firstName";
                 String lastNameColumn = "lastName";
                 String sexColumn = "sex";
@@ -519,7 +639,7 @@ public abstract class Database {
             }
 
             public static Patient getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectFor(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
 
                 if (!resultSet.next()) {
                     return null;
@@ -532,44 +652,31 @@ public abstract class Database {
 
         public static class Employee extends Table {
             public final static String TABLE_NAME = "employees";
-            public Datum userID;
-            public Datum firstName;
-            public Datum lastName;
-            public Datum gender;
-            public Datum birthDate;
-            public Datum email;
-            public Datum phone;
-            public Datum address;
-            public Datum mangerID;
+            public Datum userID = new Datum();
+            public Datum firstName = new Datum();
+            public Datum lastName = new Datum();
+            public Datum sex = new Datum();
+            public Datum birthDate = new Datum();
+            public Datum email = new Datum();
+            public Datum phone = new Datum();
+            public Datum address = new Datum();
+            public Datum managerID = new Datum();
 
             public Employee(ResultSet resultSet) throws Exception {
                 this.tableName = TABLE_NAME;
+                this.rowID = resultSet.getInt("ID");
 
-                String rowIDColumn = "userID";
-                String userIDColumn = "userID";
-                String firstNameColumn = "firstName";
-                String lastNameColumn = "lastName";
-                String genderColumn = "gender";
-                String birthDateColumn = "birthDate";
-                String emailColumn = "email";
-                String phoneColumn = "phone";
-                String addressColumn = "address";
-                String managerIDColumn = "managerID";
+                Datum[] data = {userID, firstName, lastName, sex, birthDate, email, phone, address, managerID};
+                String[] columns = new String[]{"ID", "firstName", "lastName", "sex", "birthDate", "email", "phone", "address", "managerID"};
 
-                this.rowID = resultSet.getInt(rowIDColumn);
-                this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
-                this.firstName = new Datum(this, resultSet.getString(firstNameColumn), firstNameColumn);
-                this.lastName = new Datum(this, resultSet.getString(lastNameColumn), lastNameColumn);
-                this.gender = new Datum(this, resultSet.getString(genderColumn), genderColumn);
-                this.birthDate = new Datum(this, resultSet.getString(birthDateColumn), birthDateColumn);
-                this.email = new Datum(this, resultSet.getString(emailColumn), emailColumn);
-                this.phone = new Datum(this, resultSet.getString(phoneColumn), phoneColumn);
-                this.address = new Datum(this, resultSet.getString(addressColumn), addressColumn);
-                this.mangerID = new Datum(this, resultSet.getString(managerIDColumn), managerIDColumn);
+                for (int i = 0; i < data.length; i++) {
+                    String value = resultSet.getString(columns[i]);
+                    data[i] = resultSet.wasNull() ? null : new Datum(this, value, columns[i]);
+                }
             }
 
             public static Employee getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectFor(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
 
                 if (!resultSet.next()) {
                     return null;
@@ -579,16 +686,17 @@ public abstract class Database {
                 return employee;
             }
 
-            public static ArrayList<String> getDoctors() throws Exception {
-                PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName FROM employees JOIN users ON employees.userID = users.userID WHERE role = 'DOCTOR';");
+            public static ArrayList<Employee> getAllDoctors() throws Exception {
+                PreparedStatement statement = connection.prepareStatement("SELECT (username, employees.ID, role) FROM employees JOIN users ON employees.ID = users.ID WHERE users.role = 'DOCTOR';");
                 ResultSet resultSet = statement.executeQuery();
-                ArrayList<String> doctors = new ArrayList<String>();
-        
+
+                ArrayList<Employee> doctors = new ArrayList<Employee>();
+
                 while (resultSet.next()) {
-                    String doctor = resultSet.getString("firstName") + " " + resultSet.getString("lastName");
-                    doctors.add(doctor);
+                    Employee employee = new Employee(resultSet);
+                    doctors.add(employee);
                 }
-        
+
                 return doctors;
             }
         }

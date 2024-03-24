@@ -12,7 +12,7 @@ public class ValueOption extends ChoiceBox<String> {
     public ValueOption(Datum datum) {
         super();
         this.datum = datum;
-        updatable = Database.isUpdatable(datum.parent.tableName, datum.columnName);
+        updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
         updatable = true;
         setDisable(true);
     }

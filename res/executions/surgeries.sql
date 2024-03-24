@@ -9,7 +9,6 @@ CREATE TABLE surgeries (
     notes TEXT,
     FOREIGN KEY (patientID) REFERENCES users(ID)
 );
-
 INSERT INTO surgeries (patientID, doctorID, type, date, location, notes)
 VALUES (2, 3, 'Knee replacement', '2021-01-01', '123 Main St', 'Patient is allergic to anesthesia');
 
