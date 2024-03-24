@@ -54,6 +54,22 @@ public class TestController extends Controller {
             .build();
 
         contentPane.getChildren().add(contactInformationForm);
+
+        View surgeriesTable = UI.surgeriesTableBaseFor(2)
+            .withHeader("Surgeon", "Date", "Type", "Location", "Notes")
+            .withRowAction(row -> {
+                row.setOnMouseClicked(e -> {
+                    ValueLabel value = (ValueLabel) row.getChildren().get(0);
+                    System.out.println(value.datum.parent.rowID);
+                });
+            })
+            .withWidth(Screen.getPrimary().getVisualBounds().getWidth())
+            .withRowHeight(50)
+            .withTitle("Surgeries")
+            .connectedTo(ubg)
+            .build();
+
+        contentPane.getChildren().add(surgeriesTable);
     }
 
     public String getTitle() {

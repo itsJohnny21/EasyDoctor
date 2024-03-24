@@ -1,14 +1,14 @@
 package application;
 
-import application.Database.Table;
+import application.Database.Row;
 
 public class Datum {
     public String originalValue;
     public String newValue;
     public String columnName;
-    public Table parent;
+    public Row parent;
 
-    public Datum(Table parent, String originalValue, String columnName) {
+    public Datum(Row parent, String originalValue, String columnName) {
         this.parent = parent;
         this.originalValue = originalValue;
         this.columnName = columnName;

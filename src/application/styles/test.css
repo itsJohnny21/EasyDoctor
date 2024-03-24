@@ -24,6 +24,10 @@
     -fx-alignment: center;
 }
 
+.table-field {
+    -fx-alignment: center;
+}
+
 .table-value {
     -fx-alignment: center;
 }
@@ -38,6 +42,10 @@
     -fx-background-radius: 0;
     -fx-font-size: 14pt;
     -fx-alignment: center;
+}
+
+.form {
+    -fx-background-color:   #fff6eb;
 }
 
 .form-label {

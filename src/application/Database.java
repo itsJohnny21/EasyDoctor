@@ -22,7 +22,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import application.Database.Table.User;
+import application.Database.Row.User;
 
 public abstract class Database {
 
@@ -114,9 +114,11 @@ public abstract class Database {
     }
 
 
-    public static ResultSet selectAllDoctors() throws Exception {
-        String permissionColumns = getPermissedColumns("employees", "SELECT");
-        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM employees WHERE role = 'DOCTOR';", permissionColumns));
+    public static ResultSet selectAllWithRole(Role role) throws Exception {
+        String tableName = "users";
+        String columns = getPermissedColumns(tableName, "SELECT");
+        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE role = ?;", columns, tableName));
+        statement2.setString(1, role.toString());
         ResultSet resultSet2 = statement2.executeQuery();
 
         return resultSet2;
@@ -130,6 +132,16 @@ public abstract class Database {
         ResultSet resultSet2 = statement2.executeQuery();
 
         return resultSet2;
+    }
+
+    public static ResultSet selectMultiRow(int userID, String tableName) throws Exception {
+        String colummns = getPermissedColumns(tableName, "SELECT");
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE userID = ?;", colummns, tableName));
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+
+        return resultSet;
     }
 
     public static void updateRow(int rowID, String table, String column, String newValue) throws Exception {
@@ -458,23 +470,22 @@ public abstract class Database {
         }
     }
 
-    public abstract static class Table {
+    public abstract static class Row {
         public String tableName;
         public int rowID;
     
-        public Table(ResultSet resultSet) throws Exception {
+        public Row(ResultSet resultSet) throws Exception {
         }
     
-        public Table() throws Exception {}
+        public Row() throws Exception {}
 
-        public static class User extends Table {
-            public final static String TABLE_NAME = "users";
+        public static class User extends Row {
             public Datum userID;
             public Datum role;
             public Datum username;
     
             public static User getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, "users");
     
                 if (!resultSet.next()) {
                     return null;
@@ -485,7 +496,7 @@ public abstract class Database {
             }
     
             public User(ResultSet resultSet) throws Exception {
-                this.tableName = TABLE_NAME;
+                this.tableName = "users";
     
                 String rowIDColumn = "ID";
                 String userIDColumn = "ID";
@@ -499,8 +510,7 @@ public abstract class Database {
             }
         }
     
-        public static class Allergy extends Table {
-            public final static String TABLE_NAME = "allergies";
+        public static class Allergy extends Row {
             public Datum userID;
             public Datum allergen;
             public Datum commonSource;
@@ -509,7 +519,7 @@ public abstract class Database {
             public Datum notes;
     
             public static ArrayList<Allergy> getAllFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectMultiRow(userID, "allergies");
                 ArrayList<Allergy> allergies = new ArrayList<Allergy>();
                 
                 while (resultSet.next()) {
@@ -524,7 +534,7 @@ public abstract class Database {
             }
     
             public Allergy(ResultSet resultSet) throws Exception {
-                this.tableName = TABLE_NAME;
+                this.tableName = "allergies";
     
                 String userIDColumn = "userID";
                 String allergenColumn = "allergen";
@@ -542,14 +552,52 @@ public abstract class Database {
                 this.type = new Datum(this, resultSet.getString(typeColumn), typeColumn);
                 this.notes = new Datum(this, resultSet.getString(notesColumn), notesColumn);
             }
+        }
+
+        public static class Surgery extends Row {
+            public Datum userID;
+            public Datum doctorID;
+            public Datum date;
+            public Datum type;
+            public Datum location;
+            public Datum notes;
+
+            public static ArrayList<Surgery> getAllFor(int userID) throws Exception {
+                ResultSet resultSet = Database.selectMultiRow(userID, "surgeries");
+                ArrayList<Surgery> surgeries = new ArrayList<Surgery>();
                 
-            public Datum[] getData() {
-                return new Datum[]{userID, allergen, commonSource, severity, type, notes};
+                while (resultSet.next()) {
+                    surgeries.add(new Surgery(resultSet));
+                }
+    
+                if (surgeries.size() == 0) {
+                    return null;
+                }
+    
+                return surgeries;
+            }
+
+            public Surgery(ResultSet resultSet) throws Exception {
+                this.tableName = "surgeries";
+
+                String userIDColumn = "userID";
+                String doctorIDColumn = "doctorID";
+                String typeColumn = "type";
+                String dateColumn = "date";
+                String locationColumn = "location";
+                String notesColumn = "notes";
+
+                this.rowID = resultSet.getInt("ID");
+                this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
+                this.doctorID = new Datum(this, resultSet.getString(doctorIDColumn), doctorIDColumn);
+                this.type = new Datum(this, resultSet.getString(typeColumn), typeColumn);
+                this.date = new Datum(this, resultSet.getString(dateColumn), dateColumn);
+                this.location = new Datum(this, resultSet.getString(locationColumn), locationColumn);
+                this.notes = new Datum(this, resultSet.getString(notesColumn), notesColumn);
             }
         }
 
-        public static class Patient extends Table {
-            public final static String TABLE_NAME = "patients";
+        public static class Patient extends Row {
             public Datum userID;
             public Datum firstName;
             public Datum lastName;
@@ -574,7 +622,7 @@ public abstract class Database {
             public Datum fatherLastName;
 
             public Patient(ResultSet resultSet) throws Exception {
-                this.tableName = TABLE_NAME;
+                this.tableName = "patients";
 
                 String rowIDColumn = "ID";
                 String userIDColumn = "ID";
@@ -626,7 +674,7 @@ public abstract class Database {
             }
 
             public static Patient getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, "patients");
 
                 if (!resultSet.next()) {
                     return null;
@@ -637,8 +685,7 @@ public abstract class Database {
             }
         }
 
-        public static class Employee extends Table {
-            public final static String TABLE_NAME = "employees";
+        public static class Employee extends Row {
             public Datum userID;
             public Datum firstName;
             public Datum lastName;
@@ -650,7 +697,7 @@ public abstract class Database {
             public Datum managerID;
 
             public Employee(ResultSet resultSet) throws Exception {
-                this.tableName = TABLE_NAME;
+                this.tableName = "employees";
 
                 String rowIDColumn = "ID";
                 String userIDColumn = "ID";
@@ -676,7 +723,7 @@ public abstract class Database {
             }
 
             public static Employee getFor(int userID) throws Exception {
-                ResultSet resultSet = Database.selectRow(userID, TABLE_NAME);
+                ResultSet resultSet = Database.selectRow(userID, "employees");
 
                 if (!resultSet.next()) {
                     return null;
@@ -687,16 +734,12 @@ public abstract class Database {
             }
 
             public static ArrayList<Datum> getAllDoctors() throws Exception {
-                String colummns = getPermissedColumns(TABLE_NAME, "SELECT");
-                PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON employees.ID = users.ID WHERE users.role = 'DOCTOR';", colummns));
-        
-                ResultSet resultSet = statement.executeQuery();
-        
+                ResultSet resultSet = Database.selectAllWithRole(Role.DOCTOR);
                 ArrayList<Datum> doctors = new ArrayList<Datum>();
 
                 while (resultSet.next()) {
-                    Employee employee = new Employee(resultSet);
-                    doctors.add(employee.userID);
+                    User doctor = new User(resultSet);
+                    doctors.add(doctor.userID);
                 }
 
                 return doctors;

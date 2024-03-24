@@ -19,6 +19,8 @@ public class ValueField extends TextField implements Value {
     }
     
     public void onSave() throws Exception {
+        if (!updatable) return;
+
         if (!getText().equals(datum.originalValue))  {
             datum.newValue = getText();
             Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);

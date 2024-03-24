@@ -3,9 +3,10 @@ package application;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import application.Database.Table.Allergy;
-import application.Database.Table.Employee;
-import application.Database.Table.Patient;
+import application.Database.Row.Allergy;
+import application.Database.Row.Employee;
+import application.Database.Row.Patient;
+import application.Database.Row.Surgery;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -140,6 +141,7 @@ public class UI {
                     row = new HBox();
                     row.setMinHeight(rowHeight);
                     row.setPrefWidth(width);
+                    row.getStyleClass().add("form-row");
                 }
 
                 if (ubg != null) {
@@ -220,14 +222,30 @@ public class UI {
             row.getStyleClass().add("table-row");
 
             for (int i = 0; i < values.size(); i++) {
-                ValueLabel value = ((ValueLabel)values.get(i));
-                value.setMinHeight(rowHeight);
-                value.setPrefWidth(width / columnCount);
-                value.getStyleClass().add("table-value");
-                
-                row.getChildren().add(value);
+                Value value = values.get(i);
+
+                if (value instanceof ValueField) {
+                    ((ValueField) value).setMinHeight(rowHeight);
+                    ((ValueField) value).setPrefWidth(width / columnCount);
+                    ((ValueField) value).getStyleClass().add("table-field");
+
+                    row.getChildren().add(((ValueField) value));
+
+                    if (ubg != null) {
+                        ((ValueField) value).connectedTo(ubg);
+                    }
+
+                } else if (value instanceof ValueLabel) {
+                    ((ValueLabel) value).setMinHeight(rowHeight);
+                    ((ValueLabel) value).setPrefWidth(width / columnCount);
+                    ((ValueLabel) value).getStyleClass().add("table-value");
+                    
+                    row.getChildren().add(((ValueLabel) value));
+                }
+
 
                 if (i % columnCount == columnCount - 1) {
+
                     if (rowAction != null) {
                         rowAction.accept(row);
                     }
@@ -236,6 +254,7 @@ public class UI {
                     row = new HBox();
                     row.setMinHeight(rowHeight);
                     row.setPrefWidth(width);
+                    row.getStyleClass().add("table-row");
                 }
             }
 
@@ -265,7 +284,7 @@ public class UI {
     }
 
     public static Table allergiesTableBaseFor(int userID) throws Exception {
-        ArrayList<Allergy> allergies = Database.Table.Allergy.getAllFor(userID);
+        ArrayList<Allergy> allergies = Database.Row.Allergy.getAllFor(userID);
         Table allergiesTable = new Table();
 
         for (Allergy allergy : allergies) {
@@ -280,7 +299,7 @@ public class UI {
     }
 
     public static Form contactInformationFormBaseFor(int userID) throws Exception {
-        Patient patient = Database.Table.Patient.getFor(userID);
+        Patient patient = Database.Row.Patient.getFor(userID);
         Form contactInformationForm = new Form();
 
         contactInformationForm
@@ -297,7 +316,7 @@ public class UI {
                         @Override
                         public String toString(Datum datum) {
                             try {
-                                Employee doctor = Database.Table.Employee.getFor(Integer.parseInt(datum.originalValue));
+                                Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(datum.originalValue));
                                 datum.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
                                 return datum.newValue;
                             } catch (Exception e) {
@@ -311,7 +330,7 @@ public class UI {
                             return null;
                         }
                     })
-                    .withData(Database.Table.Employee.getAllDoctors()),
+                    .withData(Database.Row.Employee.getAllDoctors()),
                 patient.bloodType.createValueField().withLabel("Blood Type: "),
                 patient.height.createValueField().withLabel("Height: "),
                 patient.weight.createValueField().withLabel("Weight: "),
@@ -328,5 +347,25 @@ public class UI {
             );
 
         return contactInformationForm;
+    }
+
+    public static Table surgeriesTableBaseFor(int userID) throws Exception {
+        ArrayList<Surgery> surgeries = Database.Row.Surgery.getAllFor(userID);
+        Table surgeriesTable = new Table();
+
+        for (Surgery surgery : surgeries) {
+            Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
+            doctor.userID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+
+            surgeriesTable.withValues(
+                doctor.userID.createValueField(),
+                surgery.date.createValueField(),
+                surgery.type.createValueField(),
+                surgery.location.createValueField(),
+                surgery.notes.createValueField()
+            );
+        }
+
+        return surgeriesTable;
     }
 }
