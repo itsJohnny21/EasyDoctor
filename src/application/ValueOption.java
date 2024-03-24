@@ -8,6 +8,7 @@ import javafx.util.StringConverter;
 public class ValueOption extends ChoiceBox<Datum> implements Value {
     public Datum datum;
     public boolean updatable;
+    public String label;
     
     public ValueOption(Datum datum) {
         super();
@@ -45,7 +46,7 @@ public class ValueOption extends ChoiceBox<Datum> implements Value {
     }
 
     public ValueOption connectedTo(UpdateButtonGroup updateButtonGroup) {
-        updateButtonGroup.options.add(this);
+        updateButtonGroup.values.add(this);
         return this;
     }
 
@@ -55,5 +56,10 @@ public class ValueOption extends ChoiceBox<Datum> implements Value {
 
     public String toString() {
         return datum.newValue;
+    }
+
+    public ValueOption withLabel(String label) {
+        this.label = label;
+        return this;
     }
 }

@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controllers.TestController">
    <children>
@@ -26,18 +27,7 @@
       </GridPane>
       <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
-               <children>
-                  <GridPane fx:id="contentPane" prefHeight="627.0" prefWidth="583.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.5">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
-                  </GridPane>
-               </children>
-            </AnchorPane>
+            <VBox fx:id="contentPane" prefHeight="350.0" prefWidth="598.0" />
          </content>
       </ScrollPane>
    </children>

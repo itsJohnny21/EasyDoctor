@@ -7,19 +7,47 @@
     -fx-background-color:  #ab5b67;
     -fx-control-inner-background:  #ab5b67;
     -fx-background-radius: 0;
+    -fx-font-size: 14pt;
+    -fx-alignment: center;
 }
 
 .table-header {
     -fx-background-color:  #ab5b67;
     -fx-background-radius: 0;
+    -fx-alignment: center;
 }
 
 .table-row {
     -fx-background-color:   #fff6eb;
     -fx-text-fill: #000000;
     -fx-background-radius: 0;
+    -fx-alignment: center;
+}
+
+.table-value {
+    -fx-alignment: center;
 }
 
 .table-row:hover {
     -fx-background-color: #f7d9c4;
+}
+
+.form-title {
+    -fx-background-color:  #ab5b67;
+    -fx-control-inner-background:  #ab5b67;
+    -fx-background-radius: 0;
+    -fx-font-size: 14pt;
+    -fx-alignment: center;
+}
+
+.form-label {
+    -fx-alignment: center-right;
+}
+
+.form-field {
+    -fx-alignment: center-left;
+}
+
+.form-option {
+    -fx-aligntment: center;
 }

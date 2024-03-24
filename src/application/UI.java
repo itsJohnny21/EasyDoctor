@@ -16,28 +16,82 @@ import javafx.util.StringConverter;
 
 public class UI {
 
-    public static class Form extends GridPane {
+    public static abstract class View extends GridPane {
         public String titleString;
-        public ArrayList<Value> fieldValues;
-        public ArrayList<String> labelStrings;
-        public UpdateButtonGroup ubg;
-        public int columnCount;
-
         public GridPane title;
-
         public double width;
         public double rowHeight;
         public int rowCount;
+        public int columnCount;
+        public UpdateButtonGroup ubg;
+        public ArrayList<Value> values;
 
-        public Form() {
+        public View() {
             super();
             this.setAlignment(Pos.TOP_CENTER);
 
-            this.fieldValues = new ArrayList<Value>();
-            this.labelStrings = new ArrayList<String>();
-            this.width = Screen.getPrimary().getVisualBounds().getWidth();
             this.rowCount = 0;
-            this.columnCount = 2;
+            this.columnCount = 1;
+            this.values = new ArrayList<Value>();
+            this.width = Screen.getPrimary().getVisualBounds().getWidth();
+        }
+
+        public View connectedTo(UpdateButtonGroup ubg) {
+            this.ubg = ubg;
+            return this;
+        }
+
+        public View withWidth(double width) {
+            this.width = width;
+            return this;
+        }
+
+        public View withRowHeight(double rowHeight) {
+            this.rowHeight = rowHeight;
+            return this;
+        }
+
+        public View withTitle(String titleString) {
+            this.titleString = titleString;
+            return this;
+        }
+
+        public View withValue(Value value) {
+            values.add(value);
+            return this;
+        }
+
+        public View withValues(Value... values) {
+            for (Value value : values) {
+                this.values.add(value);
+            }
+            return this;
+        }
+
+        public void buildTitle(String classCSS) {
+            if (titleString != null) {
+                title = new GridPane();
+                title.setPrefHeight(rowHeight);
+                title.setPrefWidth(width);
+                title.getStyleClass().add(classCSS);
+                
+                Label titleLabel = new Label(titleString);
+                titleLabel.setMinHeight(rowHeight);
+
+                title.add(titleLabel, 0, 0);
+                add(title, 0, rowCount++);
+            }
+        }
+
+        public abstract View build();
+        public abstract void buildRows();
+    }
+
+    public static class Form extends View {
+        public String titleString;
+
+        public Form() {
+            super();
         }
 
         public Form withColumnCount(int columnCount) {
@@ -45,78 +99,38 @@ public class UI {
             return this;
         }
 
-        public Form connectedTo(UpdateButtonGroup ubg) {
-            this.ubg = ubg;
-            return this;
-        }
-
-        public Form withWidth(double width) {
-            this.width = width;
-            return this;
-        }
-
-        public Form withRowHeight(double rowHeight) {
-            this.rowHeight = rowHeight;
-            return this;
-        }
-
-        public Form withTitle(String titleString) {
-            this.titleString = titleString;
-            return this;
-        }
-
-        public Form withField(String labelString, ValueField field) {
-            fieldValues.add(field);
-            labelStrings.add(labelString);
-            return this;
-        }
-
-        public Form withOption(String labelString, ValueOption option) {
-            fieldValues.add(option);
-            labelStrings.add(labelString);
-            return this;
-        }
-
-        public void buildTitle() {
-            if (titleString != null) {
-                title = new GridPane();
-                title.setPrefHeight(rowHeight);
-                title.setPrefWidth(width);
-                title.setAlignment(Pos.CENTER);
-                title.getStyleClass().add("form-title");
-                
-                Label titleLabel = new Label(titleString);
-
-                title.add(titleLabel, 0, 0);
-                add(title, 0, rowCount++);
-            }
-        }
-
-        public void buildFields() {
+        public void buildRows() {
             HBox row = new HBox();
+            row.setMinHeight(rowHeight);
+            row.setPrefWidth(width);
+            row.getStyleClass().add("form-row");
 
-            for (int i = 0; i < fieldValues.size(); i++) {
+            for (int i = 0; i < values.size(); i++) {
                 row.setPrefWidth(width);
-                row.setAlignment(Pos.CENTER);
 
-                Value field1 = fieldValues.get(i);
+                Value field1 = values.get(i);
 
-                Label label1 = new Label(labelStrings.get(i));
+                Label label1 = new Label();
                 label1.setPrefHeight(rowHeight);
                 label1.setPrefWidth(width/ (3 * columnCount));
-                label1.setAlignment(Pos.CENTER_RIGHT);
+                label1.getStyleClass().add("form-label");
 
                 row.getChildren().add(label1);
 
                 if (field1 instanceof ValueField) {
+                    label1.setText(((ValueField) field1).label);
                     ((ValueField) field1).setPrefHeight(rowHeight);
                     ((ValueField) field1).setPrefWidth(width / (columnCount * 2));
-                    ((ValueField) field1).setAlignment(Pos.CENTER_LEFT);
+                    ((ValueField) field1).getStyleClass().add("form-field");
+
                     row.getChildren().add(((ValueField) field1));
                     
                 } else if (field1 instanceof ValueOption) {
+                    label1.setText(((ValueOption) field1).label);
                     ((ValueOption) field1).setPrefHeight(rowHeight);
                     ((ValueOption) field1).setPrefWidth(width / (columnCount * 2));
+                    ((ValueOption) field1).getStyleClass().add("form-option");
+
                     row.getChildren().add(((ValueOption) field1));
                 }
 
@@ -124,6 +138,8 @@ public class UI {
                     GridPane.setMargin(row, new Insets(0, 600 / (columnCount * 4), 0, 600 / (columnCount * 4)));
                     add(row, 0, rowCount++);
                     row = new HBox();
+                    row.setMinHeight(rowHeight);
+                    row.setPrefWidth(width);
                 }
 
                 if (ubg != null) {
@@ -136,13 +152,11 @@ public class UI {
                     Label label = new Label("");
                     label.setPrefHeight(rowHeight);
                     label.setPrefWidth(width / (3 * columnCount));
-                    label.setAlignment(Pos.CENTER_RIGHT);
                     row.getChildren().add(label);
 
                     Label label2 = new Label("");
                     label2.setPrefHeight(rowHeight);
                     label2.setPrefWidth(width / (2 * columnCount));
-                    label2.setAlignment(Pos.CENTER_RIGHT);
                     row.getChildren().add(label2);
 
                 }
@@ -152,83 +166,37 @@ public class UI {
         }
 
         public Form build() {
-            buildTitle();
-            buildFields();
+            buildTitle("form-title");
+            buildRows();
+            getStyleClass().add("form");
             return this;
         }
     }
 
-    public static class Table extends GridPane {
-        public String titleString;
+    public static class Table extends View {
         public String[] headerStrings;
-        public ArrayList<ValueLabel[]> rowLabels;
-        public Consumer<GridPane> rowAction;
-
-        public GridPane title;
+        public Consumer<HBox> rowAction;
         public GridPane header;
-        
-        public double width;
-        public double rowHeight;
-        public int rowCount;
 
         public Table() {
             super();
-            this.setAlignment(Pos.TOP_CENTER);
-
-            this.rowLabels = new ArrayList<ValueLabel[]>();
-            this.width = Screen.getPrimary().getVisualBounds().getWidth();
-            this.rowCount = 0;
         }
 
-        public Table withRowAction(Consumer<GridPane> rowAction) {
+        public Table withRowAction(Consumer<HBox> rowAction) {
             this.rowAction = rowAction;
-            return this;
-        }
-
-        public Table withWidth(double width) {
-            this.width = width;
-            return this;
-        }
-
-        public Table withRowHeight(double rowHeight) {
-            this.rowHeight = rowHeight;
-            return this;
-        }
-
-        public Table withTitle(String titleString) {
-            this.titleString = titleString;
             return this;
         }
 
         public Table withHeader(String... headerStrings) {
             this.headerStrings = headerStrings;
+            this.columnCount = headerStrings.length;
             return this;
-        }
-
-        public Table withRows(ValueLabel... row) {
-            rowLabels.add(row);
-            return this;
-        }
-
-        public void buildTitle() {
-            if (titleString != null) {
-                title = new GridPane();
-                title.setPrefHeight(rowHeight);
-                title.setPrefWidth(width);
-                title.setAlignment(Pos.CENTER);
-                title.getStyleClass().add("table-title");
-                
-                Label titleLabel = new Label(titleString);
-
-                title.add(titleLabel, 0, 0);
-                add(title, 0, rowCount++);
-            }
         }
 
         public void buildHeader() {
             if (headerStrings.length > 0) {
                 header = new GridPane();
-                header.setPrefHeight(rowHeight);
+                header.setMinHeight(rowHeight);
                 header.setPrefWidth(width);
                 header.setAlignment(Pos.CENTER);
     
@@ -246,108 +214,118 @@ public class UI {
         }
 
         public void buildRows() {
-            for (int i = 0; i < rowLabels.size(); i++) {
-                GridPane row = new GridPane();
-                row.setPrefHeight(rowHeight);
-                row.setPrefWidth(width);
-                row.setAlignment(Pos.CENTER);
+            HBox row = new HBox();
+            row.setMinHeight(rowHeight);
+            row.setPrefWidth(width);
+            row.getStyleClass().add("table-row");
 
-                ValueLabel[] dataRow = rowLabels.get(i);
+            for (int i = 0; i < values.size(); i++) {
+                ValueLabel value = ((ValueLabel)values.get(i));
+                value.setMinHeight(rowHeight);
+                value.setPrefWidth(width / columnCount);
+                value.getStyleClass().add("table-value");
+                
+                row.getChildren().add(value);
 
-                for (int j = 0; j < dataRow.length; j++) {
-                    ValueLabel value = dataRow[j];
+                if (i % columnCount == columnCount - 1) {
+                    if (rowAction != null) {
+                        rowAction.accept(row);
+                    }
 
-                    value.setPrefHeight(rowHeight);
-                    value.setPrefWidth(width / dataRow.length);
-                    value.setAlignment(Pos.CENTER);
+                    add(row, 0, rowCount++);
+                    row = new HBox();
+                    row.setMinHeight(rowHeight);
+                    row.setPrefWidth(width);
+                }
+            }
 
-                    row.add(value, j, 0);
+            if (row.getChildren().size() > 0) {
+                while (row.getChildren().size() != columnCount) {
+                    Label label = new Label("");
+                    label.setPrefWidth(width / columnCount);
+                    row.getChildren().add(label);
+                    row.getStyleClass().add("table-row");
                 }
 
                 if (rowAction != null) {
                     rowAction.accept(row);
                 }
 
-                row.getStyleClass().add("table-row");
-
                 add(row, 0, rowCount++);
             }
+
         }
 
         public Table build() {
-            buildTitle();
+            buildTitle("table-title");
             buildHeader();
             buildRows();
             return this;
         }
     }
 
-    public static Table allergiesTableFor(int userID) throws Exception {
+    public static Table allergiesTableBaseFor(int userID) throws Exception {
         ArrayList<Allergy> allergies = Database.Table.Allergy.getAllFor(userID);
-
         Table allergiesTable = new Table();
 
         for (Allergy allergy : allergies) {
-            
-            allergiesTable.withRows(
+            allergiesTable.withValues(
                 allergy.allergen.createValueLabel(),
                 allergy.severity.createValueLabel(),
                 allergy.commonSource.createValueLabel(),
                 allergy.notes.createValueLabel()
             );
         }
-
         return allergiesTable;
     }
 
-    public static Form contactInformationFormFor(int userID) throws Exception {
+    public static Form contactInformationFormBaseFor(int userID) throws Exception {
         Patient patient = Database.Table.Patient.getFor(userID);
-        Employee doctor = Database.Table.Employee.getFor(Integer.parseInt(patient.preferredDoctorID.originalValue));
-        patient.preferredDoctorID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
-
         Form contactInformationForm = new Form();
 
-        contactInformationForm.withTitle("Contact Information")
-            .withField("First Name: ", patient.firstName.createValueField())
-            .withField("Last Name: ", patient.lastName.createValueField())
-            .withField("Phone Number: ", patient.phone.createValueField())
-            .withField("Email: ", patient.email.createValueField())
-            .withField("Phone: ", patient.phone.createValueField())
-            .withField("Address: ", patient.address.createValueField())
-            .withOption("Preferred Doctor: ", patient.preferredDoctorID.createValueOption()
-                .withConverter(new StringConverter<Datum>() {
-                    @Override
-                    public String toString(Datum datum) {
-                        try {
-                            Employee doctor = Database.Table.Employee.getFor(Integer.parseInt(datum.originalValue));
-                            datum.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
-                            return datum.newValue;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return "";
+        contactInformationForm
+            .withTitle("Contact Information")
+            .withValues(
+                patient.firstName.createValueField().withLabel("First Name: "),
+                patient.lastName.createValueField().withLabel("Last Name: "),
+                patient.phone.createValueField().withLabel("Phone Number: "),
+                patient.email.createValueField().withLabel("Email: "),
+                patient.phone.createValueField().withLabel("Phone: "),
+                patient.address.createValueField().withLabel("Address: "),
+                patient.preferredDoctorID.createValueOption().withLabel("Preferred Doctor: ")
+                    .withConverter(new StringConverter<Datum>() {
+                        @Override
+                        public String toString(Datum datum) {
+                            try {
+                                Employee doctor = Database.Table.Employee.getFor(Integer.parseInt(datum.originalValue));
+                                datum.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+                                return datum.newValue;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return "";
+                            }
                         }
-                    }
-                    
-                    @Override
-                    public Datum fromString(String string) {
-                        return null;
-                    }
-                })
-                .withData(Database.Table.Employee.getAllDoctors())
-            )
-            .withField("Blood Type: ", patient.bloodType.createValueField())
-            .withField("Height: ", patient.height.createValueField())
-            .withField("Weight: ", patient.weight.createValueField())
-            .withField("Race: ", patient.race.createValueField())
-            .withField("Ethnicity: ", patient.ethnicity.createValueField())
-            .withField("Insurance Provider: ", patient.insuranceProvider.createValueField())
-            .withField("Insurance ID: ", patient.insuranceID.createValueField())
-            .withField("Emergency Contact Name: ", patient.emergencyContactName.createValueField())
-            .withField("Emergency Phone: ", patient.emergencyContactPhone.createValueField())
-            .withField("Mother Fist Name: ", patient.motherFirstName.createValueField())
-            .withField("Mother Last Name: ", patient.motherLastName.createValueField())
-            .withField("Father First Name: ", patient.fatherFirstName.createValueField())
-            .withField("Father Last Name: ", patient.fatherLastName.createValueField());
+                        
+                        @Override
+                        public Datum fromString(String string) {
+                            return null;
+                        }
+                    })
+                    .withData(Database.Table.Employee.getAllDoctors()),
+                patient.bloodType.createValueField().withLabel("Blood Type: "),
+                patient.height.createValueField().withLabel("Height: "),
+                patient.weight.createValueField().withLabel("Weight: "),
+                patient.race.createValueField().withLabel("Race: "),
+                patient.ethnicity.createValueField().withLabel("Ethnicity: "),
+                patient.insuranceProvider.createValueField().withLabel("Insurance Provider: "),
+                patient.insuranceID.createValueField().withLabel("Insurance ID: "),
+                patient.emergencyContactName.createValueField().withLabel("Emergency Contact Name: "),
+                patient.emergencyContactPhone.createValueField().withLabel("Emergency Phone: "),
+                patient.motherFirstName.createValueField().withLabel("Mother Fist Name: "),
+                patient.motherLastName.createValueField().withLabel("Mother Last Name: "),
+                patient.fatherFirstName.createValueField().withLabel("Father First Name: "),
+                patient.fatherLastName.createValueField().withLabel("Father Last Name: ")
+            );
 
         return contactInformationForm;
     }

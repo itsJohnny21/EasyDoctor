@@ -8,52 +8,35 @@ public class UpdateButtonGroup {
     public Button editButton;
     public Button cancelButton;
     public Button saveButton;
-    public ArrayList<ValueField> fields;
-    public ArrayList<ValueOption> options;
+    public ArrayList<Value> values;
 
     public UpdateButtonGroup(Button editButton, Button cancelButton, Button saveButton) {
         this.editButton = editButton;
         this.cancelButton = cancelButton;
         this.saveButton = saveButton;
-        this.fields = new ArrayList<ValueField>();
-        this.options = new ArrayList<ValueOption>();
+        this.values = new ArrayList<Value>();
 
         editButton.setOnAction(e -> {
-            for (ValueField field : fields) {
-                field.onEdit();
-            }
-
-            for (ValueOption option : options) {
-                option.onEdit();
+            for (Value value : values) {
+                value.onEdit();
             }
         });
 
         cancelButton.setOnAction(e -> {
-            for (ValueField field : fields) {
-                field.onCancel();
-            }
-
-            for (ValueOption option : options) {
-                option.onCancel();
+            for (Value value : values) {
+                value.onCancel();
             }
         });
 
         saveButton.setOnAction(e -> {
-            for (ValueField field : fields) {
+            for (Value value : values) {
                 try {
-                    field.onSave();
+                    value.onSave();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
             }
 
-            for (ValueOption option : options) {
-                try {
-                    option.onSave();
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-            }
         });
     }
 }

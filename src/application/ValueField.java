@@ -5,6 +5,7 @@ import javafx.scene.control.TextField;
 public class ValueField extends TextField implements Value {
     public Datum datum;
     public boolean updatable;
+    public String label;
     
     public ValueField(Datum datum) {
         super(datum.newValue);
@@ -20,8 +21,7 @@ public class ValueField extends TextField implements Value {
     public void onSave() throws Exception {
         if (!getText().equals(datum.originalValue))  {
             datum.newValue = getText();
-            System.out.println("new value: " + datum.newValue + " original value: " + datum.originalValue + " column name: " + datum.columnName + " row id: " + datum.parent.rowID + " table name: " + datum.parent.tableName);
-            // Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
+            Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
             datum.originalValue = datum.newValue;
             setText(datum.newValue);
         }
@@ -34,11 +34,12 @@ public class ValueField extends TextField implements Value {
     }
 
     public ValueField connectedTo(UpdateButtonGroup updateButtonGroup) {
-        updateButtonGroup.fields.add(this);
+        updateButtonGroup.values.add(this);
         return this;
     }
 
-    public ValueField withConversion() {
+    public ValueField withLabel(String label) {
+        this.label = label;
         return this;
     }
 }
