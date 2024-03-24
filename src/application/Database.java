@@ -107,8 +107,7 @@ public abstract class Database {
         ArrayList<String> columnNames = new ArrayList<String>();
         
         while (resultSet.next()) {
-            columnNames.add(resultSet.getString("COLUMN_NAME"));
-            System.out.println(resultSet.getString("COLUMN_NAME"));
+            columnNames.add(tableName + "." + resultSet.getString("COLUMN_NAME"));
         }
         
         return String.join(", ", columnNames);
@@ -127,8 +126,6 @@ public abstract class Database {
         String colummns = getPermissedColumns(tableName, "SELECT");
         PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE ID = ?;", colummns, tableName));
         statement2.setInt(1, rowID);
-        System.out.println(statement2.toString());
-        System.out.println(role.toString());
 
         ResultSet resultSet2 = statement2.executeQuery();
 
@@ -139,16 +136,8 @@ public abstract class Database {
         PreparedStatement statement = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE ID = ?;", table, column));
         statement.setString(1, newValue);
         statement.setInt(2, rowID);
-        System.out.println(statement.toString());
-
         statement.executeUpdate();
     }
-
-        // INSERT INTO users (username, password, role)
-        // VALUES ('barb123', SHA2('123', 256), 'PATIENT');
-        // SET @userID = LAST_INSERT_ID();
-        // INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
-        // VALUES (@userID, 'Barbara', 'Williams',  'FEMALE', '2000-01-01', 'barb123@gmail.com', '1234567890', '123 Test St', 'WHITE', 'NON-HISPANIC');
 
     public static int insertUser(String username, String password, Role role) throws Exception {
         PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, SHA2(?, 256), ?);");
@@ -197,7 +186,6 @@ public abstract class Database {
 
     public static void insertPatient(String username, String password, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, Race race, Ethnicity ethnicity) throws Exception {
         int userID = insertUser(username, password, Role.PATIENT);
-        System.out.println(userID);
 
         PreparedStatement statement = connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         statement.setInt(1, userID);
@@ -222,7 +210,6 @@ public abstract class Database {
         String permissionsColumn = String.format("CAN_%s", operation);
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = ?, true, false) AS %s FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = %s;", permissionsColumn, getGrantee()));
         statement.setString(1, operation);
-        System.out.println(statement.toString());
         ResultSet resultSet = statement.executeQuery();
 
         while (resultSet.next()) {
@@ -652,27 +639,40 @@ public abstract class Database {
 
         public static class Employee extends Table {
             public final static String TABLE_NAME = "employees";
-            public Datum userID = new Datum();
-            public Datum firstName = new Datum();
-            public Datum lastName = new Datum();
-            public Datum sex = new Datum();
-            public Datum birthDate = new Datum();
-            public Datum email = new Datum();
-            public Datum phone = new Datum();
-            public Datum address = new Datum();
-            public Datum managerID = new Datum();
+            public Datum userID;
+            public Datum firstName;
+            public Datum lastName;
+            public Datum sex;
+            public Datum birthDate;
+            public Datum email;
+            public Datum phone;
+            public Datum address;
+            public Datum managerID;
 
             public Employee(ResultSet resultSet) throws Exception {
                 this.tableName = TABLE_NAME;
-                this.rowID = resultSet.getInt("ID");
 
-                Datum[] data = {userID, firstName, lastName, sex, birthDate, email, phone, address, managerID};
-                String[] columns = new String[]{"ID", "firstName", "lastName", "sex", "birthDate", "email", "phone", "address", "managerID"};
+                String rowIDColumn = "ID";
+                String userIDColumn = "ID";
+                String firstNameColumn = "firstName";
+                String lastNameColumn = "lastName";
+                String sexColumn = "sex";
+                String birthDateColumn = "birthDate";
+                String emailColumn = "email";
+                String phoneColumn = "phone";
+                String addressColumn = "address";
+                String managerIDColumn = "managerID";
 
-                for (int i = 0; i < data.length; i++) {
-                    String value = resultSet.getString(columns[i]);
-                    data[i] = resultSet.wasNull() ? null : new Datum(this, value, columns[i]);
-                }
+                this.rowID = resultSet.getInt(rowIDColumn);
+                this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
+                this.firstName = new Datum(this, resultSet.getString(firstNameColumn), firstNameColumn);
+                this.lastName = new Datum(this, resultSet.getString(lastNameColumn), lastNameColumn);
+                this.sex = new Datum(this, resultSet.getString(sexColumn), sexColumn);
+                this.birthDate = new Datum(this, resultSet.getString(birthDateColumn), birthDateColumn);
+                this.email = new Datum(this, resultSet.getString(emailColumn), emailColumn);
+                this.phone = new Datum(this, resultSet.getString(phoneColumn), phoneColumn);
+                this.address = new Datum(this, resultSet.getString(addressColumn), addressColumn);
+                this.managerID = new Datum(this, resultSet.getString(managerIDColumn), managerIDColumn);
             }
 
             public static Employee getFor(int userID) throws Exception {
@@ -686,15 +686,17 @@ public abstract class Database {
                 return employee;
             }
 
-            public static ArrayList<Employee> getAllDoctors() throws Exception {
-                PreparedStatement statement = connection.prepareStatement("SELECT (username, employees.ID, role) FROM employees JOIN users ON employees.ID = users.ID WHERE users.role = 'DOCTOR';");
+            public static ArrayList<Datum> getAllDoctors() throws Exception {
+                String colummns = getPermissedColumns(TABLE_NAME, "SELECT");
+                PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON employees.ID = users.ID WHERE users.role = 'DOCTOR';", colummns));
+        
                 ResultSet resultSet = statement.executeQuery();
-
-                ArrayList<Employee> doctors = new ArrayList<Employee>();
+        
+                ArrayList<Datum> doctors = new ArrayList<Datum>();
 
                 while (resultSet.next()) {
                     Employee employee = new Employee(resultSet);
-                    doctors.add(employee);
+                    doctors.add(employee.userID);
                 }
 
                 return doctors;

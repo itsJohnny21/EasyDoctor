@@ -1,13 +1,13 @@
 package application;
 
-import java.util.function.Function;
+import java.util.ArrayList;
 
 import javafx.scene.control.ChoiceBox;
+import javafx.util.StringConverter;
 
-public class ValueOption extends ChoiceBox<String> {
+public class ValueOption extends ChoiceBox<Datum> implements Value {
     public Datum datum;
     public boolean updatable;
-    public Function<String, String> converion;
     
     public ValueOption(Datum datum) {
         super();
@@ -15,10 +15,20 @@ public class ValueOption extends ChoiceBox<String> {
         updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
         updatable = true;
         setDisable(true);
+        setValue(datum);
     }
 
-    public ValueOption withConversion(Function<String, String> converion) {
-        this.converion = converion;
+    public ValueOption withData(ArrayList<Datum> data) {
+        for (Datum datum : data) {
+            if (!datum.originalValue.equals(this.datum.originalValue)) {
+                getItems().add(datum);
+            }
+        }
+        return this;
+    }
+
+    public ValueOption withConverter(StringConverter<Datum> converter) {
+        setConverter(converter);
         return this;
     }
 
@@ -27,13 +37,10 @@ public class ValueOption extends ChoiceBox<String> {
     }
 
     public void onSave() throws Exception {
-        String idk = converion.apply(getValue());
-        System.out.println(idk);
-        // if (!getValue().equals(datum.originalValue))  {
-        //     datum.newValue = getValue();
-        //     Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
-        //     datum.originalValue = datum.newValue;
-        // }
+        if (getValue() != null && getValue().originalValue != datum.originalValue) {
+            datum.originalValue = getValue().originalValue;
+            Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.originalValue);
+        }
         setDisable(true);
     }
 
@@ -42,9 +49,11 @@ public class ValueOption extends ChoiceBox<String> {
         return this;
     }
 
-
     public void onCancel() {
         setDisable(true);
     }
-    
+
+    public String toString() {
+        return datum.newValue;
+    }
 }

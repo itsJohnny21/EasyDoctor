@@ -10,15 +10,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Screen;
+import javafx.util.StringConverter;
 
 public class UI {
 
     public static class Form extends GridPane {
         public String titleString;
-        public ArrayList<ValueField> fieldValues;
+        public ArrayList<Value> fieldValues;
         public ArrayList<String> labelStrings;
         public UpdateButtonGroup ubg;
+        public int columnCount;
 
         public GridPane title;
 
@@ -30,10 +33,16 @@ public class UI {
             super();
             this.setAlignment(Pos.TOP_CENTER);
 
-            this.fieldValues = new ArrayList<ValueField>();
+            this.fieldValues = new ArrayList<Value>();
             this.labelStrings = new ArrayList<String>();
             this.width = Screen.getPrimary().getVisualBounds().getWidth();
             this.rowCount = 0;
+            this.columnCount = 2;
+        }
+
+        public Form withColumnCount(int columnCount) {
+            this.columnCount = columnCount;
+            return this;
         }
 
         public Form connectedTo(UpdateButtonGroup ubg) {
@@ -62,6 +71,12 @@ public class UI {
             return this;
         }
 
+        public Form withOption(String labelString, ValueOption option) {
+            fieldValues.add(option);
+            labelStrings.add(labelString);
+            return this;
+        }
+
         public void buildTitle() {
             if (titleString != null) {
                 title = new GridPane();
@@ -78,59 +93,60 @@ public class UI {
         }
 
         public void buildFields() {
-            for (int i = 0; i < fieldValues.size(); i+=2) {
-                GridPane row = new GridPane();
+            HBox row = new HBox();
+
+            for (int i = 0; i < fieldValues.size(); i++) {
                 row.setPrefWidth(width);
                 row.setAlignment(Pos.CENTER);
 
-                ValueField field1 = fieldValues.get(i);
-                field1.setPrefHeight(rowHeight);
-                field1.setPrefWidth(width / 4);
-                field1.setAlignment(Pos.CENTER);
+                Value field1 = fieldValues.get(i);
 
                 Label label1 = new Label(labelStrings.get(i));
                 label1.setPrefHeight(rowHeight);
-                label1.setPrefWidth(width / 4);
-                label1.setAlignment(Pos.CENTER);
+                label1.setPrefWidth(width/ (3 * columnCount));
+                label1.setAlignment(Pos.CENTER_RIGHT);
 
-                ValueField field2;
-                Label label2;
+                row.getChildren().add(label1);
 
-                if (i + 1 < fieldValues.size()) {
-                    field2 = fieldValues.get(i + 1);
-                    label2 = new Label(labelStrings.get(i + 1));
-                } else {
-                    field2 = field1.datum.createValueField();
-                    field2.updatable = false;
-                    field2.setVisible(false);
-                    field2.setDisable(true);
-
-
-                    label2 = new Label("");
-                    label2.setVisible(false);
-                    label2.setDisable(true);
+                if (field1 instanceof ValueField) {
+                    ((ValueField) field1).setPrefHeight(rowHeight);
+                    ((ValueField) field1).setPrefWidth(width / (columnCount * 2));
+                    ((ValueField) field1).setAlignment(Pos.CENTER_LEFT);
+                    row.getChildren().add(((ValueField) field1));
+                    
+                } else if (field1 instanceof ValueOption) {
+                    ((ValueOption) field1).setPrefHeight(rowHeight);
+                    ((ValueOption) field1).setPrefWidth(width / (columnCount * 2));
+                    row.getChildren().add(((ValueOption) field1));
                 }
 
-                field2.setPrefHeight(rowHeight);
-                field2.setPrefWidth(width / 4);
-                field2.setAlignment(Pos.CENTER);
-
-                label2.setPrefHeight(rowHeight);
-                label2.setPrefWidth(width / 4);
-                label2.setAlignment(Pos.CENTER);
-
-                GridPane.setMargin(field2, new Insets(0, width / 8, 0, 0));
+                if (i % columnCount == columnCount - 1) {
+                    GridPane.setMargin(row, new Insets(0, 600 / (columnCount * 4), 0, 600 / (columnCount * 4)));
+                    add(row, 0, rowCount++);
+                    row = new HBox();
+                }
 
                 if (ubg != null) {
                     field1.connectedTo(ubg);
-                    field2.connectedTo(ubg);
                 }
+            }
 
-                row.add(label1, 0, 0);
-                row.add(field1, 1, 0);
-                row.add(label2, 2, 0);
-                row.add(field2, 3, 0);
+            if (row.getChildren().size() > 0) {
+                while (row.getChildren().size() != columnCount * 2) {
+                    Label label = new Label("");
+                    label.setPrefHeight(rowHeight);
+                    label.setPrefWidth(width / (3 * columnCount));
+                    label.setAlignment(Pos.CENTER_RIGHT);
+                    row.getChildren().add(label);
 
+                    Label label2 = new Label("");
+                    label2.setPrefHeight(rowHeight);
+                    label2.setPrefWidth(width / (2 * columnCount));
+                    label2.setAlignment(Pos.CENTER_RIGHT);
+                    row.getChildren().add(label2);
+
+                }
+                GridPane.setMargin(row, new Insets(0, 600 / (columnCount * 4), 0, 600 / (columnCount * 4)));
                 add(row, 0, rowCount++);
             }
         }
@@ -298,7 +314,27 @@ public class UI {
             .withField("Email: ", patient.email.createValueField())
             .withField("Phone: ", patient.phone.createValueField())
             .withField("Address: ", patient.address.createValueField())
-            .withField("Preferred Doctor: ", patient.preferredDoctorID.createValueField())
+            .withOption("Preferred Doctor: ", patient.preferredDoctorID.createValueOption()
+                .withConverter(new StringConverter<Datum>() {
+                    @Override
+                    public String toString(Datum datum) {
+                        try {
+                            Employee doctor = Database.Table.Employee.getFor(Integer.parseInt(datum.originalValue));
+                            datum.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+                            return datum.newValue;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }
+                    
+                    @Override
+                    public Datum fromString(String string) {
+                        return null;
+                    }
+                })
+                .withData(Database.Table.Employee.getAllDoctors())
+            )
             .withField("Blood Type: ", patient.bloodType.createValueField())
             .withField("Height: ", patient.height.createValueField())
             .withField("Weight: ", patient.weight.createValueField())
