@@ -1,0 +1,25 @@
+.root {
+    -fx-font-family: "Arial";
+    -fx-font-size: 12pt;
+}
+
+.table-title {
+    -fx-background-color:  #ab5b67;
+    -fx-control-inner-background:  #ab5b67;
+    -fx-background-radius: 0;
+}
+
+.table-header {
+    -fx-background-color:  #ab5b67;
+    -fx-background-radius: 0;
+}
+
+.table-row {
+    -fx-background-color:   #fff6eb;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 0;
+}
+
+.table-row:hover {
+    -fx-background-color: #f7d9c4;
+}

@@ -156,5 +156,26 @@ ON
     AND INFORMATION_SCHEMA.COLUMN_PRIVILEGES.GRANTEE = "'patient'@'%'"
     AND INFORMATION_SCHEMA.COLUMN_PRIVILEGES.PRIVILEGE_TYPE = 'UPDATE';
 
-SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'users' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'neutral'@'%'";
+GRANT SELECT (role) ON users TO 'neutral'@'%';
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS;
+select * from users;
+use easydoctor;
+SELECT ID, username, role FROM users WHERE username = 'john123' AND SHA2(password, 256) = '123';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'neutral'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'" AND TABLE_NAME = 'allergies';
+GRANT SELECT (userID) on users TO 'doctor'@'%';
+REVOKE SELECT ON vaccineRecords FROM 'doctor';
+SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS Updatable FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = "'doctor'@'%'" AND TABLE_NAME = 'patients';
+use easydoctor;
+select * from allergies;
+GRANT SELECT (ID, userID, commonSource, severity, type, notes, allergen) ON allergies TO 'doctor';
+GRANT UPDATE (userID, commonSource, severity, type, notes, allergen) ON allergies TO 'doctor';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'" AND TABLE_NAME = 'allergies';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'allergies' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
+GRANT SELECT (userID, firstName, lastName, sex, birthDate, email, phone, address, preferredDoctorID, bloodType, height, weight, race, ethnicity, insuranceProvider, insuranceID, emergencyContactName, emergencyContactPhone, motherFirstName, motherLastName, fatherFirstName, fatherLastName) ON patients TO 'doctor'@'%';
+GRANT SELECT (userID, firstName, lastName, gender, birthDate, email, phone, address, managerID) ON employees TO 'doctor'@'%';
+GRANT UPDATE (gender, email, phone, address) ON employees TO 'doctor'@'%';
+GRANT UPDATE (preferredDoctorID, bloodType, weight, height, insuranceProvider, insuranceID) ON patients TO 'doctor'@'%';
+REVOKE UPDATE (fatherLastName, fatherFirstName, lastName, firstName, race, ethnicity, preferredDoctorID, motherLastName, motherFirstName, race) ON patients FROM 'doctor';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'patients' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'doctor'@'%'";

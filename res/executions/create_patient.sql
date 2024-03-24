@@ -1,0 +1,42 @@
+INSERT INTO users (username, password, role)
+VALUES ('barb123', SHA2('123', 256), 'PATIENT');
+SET @userID = LAST_INSERT_ID();
+INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (@userID, 'Barbara', 'Williams',  'FEMALE', '2000-01-01', 'barb123@gmail.com', '1234567890', '123 Test St', 'WHITE', 'NON-HISPANIC');
+INSERT INTO allergies (userID, allergen, commonSource, severity, type, notes)
+VALUES (@userID, 'Peanuts', 'Peanut Butter', 'MILD', 'FOOD', 'Patient has nightmares about peanut butter.');
+INSERT INTO surgeries (userID, doctorID, type, date, location, notes)
+VALUES (@userID, 3, 'Knee replacement', '2021-01-01', '123 Main St', 'Patient is allergic to anesthesia');
+INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
+VALUES ('ONLINE', '2024-03-23 09:00:00', @userID, 3, 'Checkup', 'Routine checkup');
+INSERT INTO vaccineRecords (userID, vaccineGroup, date, provider, notes)
+VALUES (@userID, "MMR", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO healthConditions (userID, healthCondition, severity, type, notes)
+VALUES (@userID, 'Depression', 'CHRONIC', 'MENTAL', 'Patient is very stressed from work and school.');
+INSERT INTO prescriptions (userID, doctorID, drugID, intakeDay, intakeTime, dosageQuantity, dosageUnits, form, description)
+VALUES (@userID, 3, 1, 'MONDAY', '08:00:00', 200, 'MG', 'CAPUSLE', 'Take one pill every Monday at 8:00 AM');
+
+select * from users;
+select * from patients;
+
+-- All information together:
+SELECT * 
+FROM users 
+LEFT JOIN patients ON users.ID = patients.userID 
+LEFT JOIN allergies ON users.ID = allergies.userID 
+LEFT JOIN surgeries ON users.ID = surgeries.userID 
+LEFT JOIN visits ON users.ID = visits.userID 
+LEFT JOIN vaccineRecords ON users.ID = vaccineRecords.userID 
+LEFT JOIN healthConditions ON users.ID = healthConditions.userID 
+LEFT JOIN prescriptions ON users.ID = prescriptions.userID;
+
+-- All information by table:
+select * from patients where userID = patients.userID;
+select * from allergies where userID = allergies.userID;
+select * from surgeries where userID = surgeries.userID;
+select * from visits where userID = visits.userID;
+select * from vaccineRecords where userID = vaccineRecords.userID;
+select * from healthConditions where userID = healthConditions.userID;
+select * from prescriptions where userID = prescriptions.userID;
+
+select * from users;

@@ -1,160 +1,83 @@
 package application.controllers;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import application.Database;
-import application.Row.HealthCondition;
-import application.Row.Surgery;
-import application.Row.ValueField;
+import application.Database.Table.Employee;
+import application.Database.Table.Patient;
+import application.UpdateButtonGroup;
+import application.ValueOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 public class TestController extends Controller {
-
-    @FXML AnchorPane mainPane;
-    @FXML Button editButton;
-    @FXML Button cancelButton;
-    @FXML Button saveButton;
+    @FXML public AnchorPane rootPane;
+    @FXML public Button cancelButton;
+    @FXML public Button editButton;
+    @FXML public Button saveButton;
+    @FXML public ScrollPane scrollPane;
+    @FXML public GridPane contentPane;
+    
+    public String title = "Test";
 
     public void initialize() throws Exception {
-        System.out.println("TestController loaded");
-        title = "Test";
-
-        windowMinWidth = mainPane.getPrefWidth();
-        windowMinHeight = mainPane.getPrefHeight();
-        windowMaxWidth = windowMinWidth;
-        windowMaxHeight = windowMinHeight;
-        resizeable = false;
+        rootPane.getStylesheets().add(getClass().getResource("/application/styles/test.css").toExternalForm());
+        Database.connectAs(Database.Role.NEUTRAL);
+        Database.signIn("john123", "123");
 
         UpdateButtonGroup ubg = new UpdateButtonGroup(editButton, cancelButton, saveButton);
 
-        GridPane gridPane = new GridPane();
-        gridPane.setPrefWidth(300);
-        mainPane.getChildren().add(gridPane);
-        
-        Database.connectAs(Database.Role.DOCTOR);
-        PreparedStatement preparedStatement = Database.connection.prepareStatement("SELECT * FROM surgeries WHERE ID = ?");
-        preparedStatement.setInt(1, 1);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-        
-        Surgery surgery = new Surgery(resultSet);
-        HealthCondition healthConditions = HealthCondition.getForPatient(2);
-        ArrayList<HealthCondition> healthConditionsArray = HealthCondition.getAllForPatient(2);
+        // Table allergiesTable = UI.allergiesTableFor(2)
+        //     .withWidth(Screen.getPrimary().getVisualBounds().getWidth())
+        //     .withRowHeight(50)
+        //     .withTitle("Allergies")
+        //     .withHeader("Allergen", "Severity", "Common Source", "Notes")
+        //     .withRowAction((row) -> {
+        //         row.setOnMouseClicked(e -> {
+        //             ValueLabel value = (ValueLabel) row.getChildren().get(0);
+        //             System.out.println(value.datum.parent.rowID);
+        //         });
+        //     })
+        //     .build();
 
-        HashMap<String, Boolean> permissions = Database.getUpdatePermissionsFor(Database.role);
+        // contentPane.add(allergiesTable, 0, 0);
 
+        // Form contactInformationForm = UI.contactInformationFormFor(2)
+        //     .withWidth(0.5 * Screen.getPrimary().getVisualBounds().getWidth())
+        //     .withRowHeight(50)
+        //     .withTitle("Contact Information")
+        //     .connectedTo(ubg)
+        //     .build();
 
-        for (HealthCondition healthCondition : healthConditionsArray) {
-            gridPane.add(healthCondition.healthCondition.createField(permissions.get(healthCondition.healthCondition.columnName)).connectedTo(ubg), 0, gridPane.getChildren().size());
-            gridPane.add(healthCondition.notes.createField(permissions.get(healthCondition.patientID.columnName)).connectedTo(ubg), 0, gridPane.getChildren().size());
-            gridPane.add(healthCondition.severity.createField(true).connectedTo(ubg), 0, gridPane.getChildren().size());
-            gridPane.add(healthCondition.creationTime.createField(true).connectedTo(ubg), 0, gridPane.getChildren().size());
+        // contentPane.add(contactInformationForm, 1, 0);
+
+        Patient p = Database.Table.Patient.getFor(2);
+        Employee e = Database.Table.Employee.getFor(3);
+        ArrayList<String> doctors = Database.Table.Employee.getDoctors(); //! get ArrayList<Employee> doctors instead
+
+        p.preferredDoctorID.newValue = e.firstName.originalValue + " " + e.lastName.originalValue;
+        ValueOption option = p.preferredDoctorID
+            .createValueOption()
+            // .withConversion((newValue) -> {
+            //     // Database.getDoctorIDFor()
+            // })
+            .connectedTo(ubg);
+
+        for (String doctor : doctors) {
+            option.getItems().add(doctor); //! Add Datum instead of String
         }
+        option.setValue(option.getItems().get(0));
 
-        // ValueField creationTimeField = surgery.creationTime.createField(true);
-        // gridPane.add(creationTimeField, 0, gridPane.getChildren().size());
-        // gridPane.add(surgery.doctorID.createField(true), 0, gridPane.getChildren().size());
-        // gridPane.add(surgery.location.createField(true), 0, gridPane.getChildren().size());
-        ValueField idk = healthConditions.severity.createField(true).connectedTo(ubg);
-        gridPane.add(surgery.location.connectedTo(ubg), 0, gridPane.getChildren().size());
-        gridPane.add(idk, 0, gridPane.getChildren().size());
-        addToGridPane(gridPane, surgery.notes);
+        option.setTranslateX(700);
+        contentPane.add(option, 0, 1);
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        PreparedStatement preparedStatement2 = Database.connection.prepareStatement("SELECT * FROM healthConditions WHERE ID = 1");
-        ResultSet resultSet2 = preparedStatement2.executeQuery();
-        resultSet2.next();
-
-        // HealthCondition healthCondition = new HealthCondition(resultSet2);
-
-        // ValueField healthConditionField = new ValueField(healthCondition.healthCondition, true);
-        // gridPane.add(healthConditionField, 0, 1);
-
-        // ValueField healthConditionField2 = new ValueField(healthCondition.notes, false);
-        // gridPane.add(healthConditionField2, 0, 2);
-
-        gridPane.add(ubg, 0, gridPane.getChildren().size());
-        editButton.fire();
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void addToGridPane(GridPane gridPane, application.Row.Datum datum) {
-        gridPane.add(datum.createField(true), 0, gridPane.getChildren().size());
-    }
-
-    public static class CancelButton extends Button {
-        public HashMap<String, ValueField> fields;
-        public CancelButton() {
-            setText("Cancel");
-
-            setOnAction(e -> {
-                for (ValueField field : fields.values()) {
-                    field.onCancel();
-                }
-            });
-        }
-    }
-
-    public static class UpdateButtonGroup extends GridPane {
-        public Button editButton;
-        public Button cancelButton;
-        public Button saveButton;
-        public ArrayList<ValueField> fields;
-
-        public UpdateButtonGroup(Button editButton, Button cancelButton, Button saveButton) {
-            this.editButton = editButton;
-            this.cancelButton = cancelButton;
-            this.saveButton = saveButton;
-            this.fields = new ArrayList<ValueField>();
-
-            add(editButton, 0, 0);
-            add(cancelButton, 1, 0);
-            add(saveButton, 2, 0);
-
-            editButton.setOnAction(e -> {
-                for (ValueField field : fields) {
-                    field.onEdit();
-                }
-            });
-
-            cancelButton.setOnAction(e -> {
-                for (ValueField field : fields) {
-                    field.onCancel();
-                }
-            });
-
-            saveButton.setOnAction(e -> {
-                for (ValueField field : fields) {
-                    try {
-                         field.onSave();
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            });
-        }
-    }
 }
