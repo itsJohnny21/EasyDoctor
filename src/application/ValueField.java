@@ -1,5 +1,8 @@
 package application;
 
+import java.sql.SQLException;
+
+import javafx.css.PseudoClass;
 import javafx.scene.control.TextField;
 
 public class ValueField extends TextField implements Value {
@@ -18,21 +21,31 @@ public class ValueField extends TextField implements Value {
         setEditable(updatable);
     }
     
-    public void onSave() throws Exception {
+    public void onSave() throws SQLException {
         if (!updatable) return;
 
-        if (!getText().equals(datum.originalValue))  {
+        if (!getText().equals(datum.originalValue)) {
             datum.newValue = getText();
             Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
             datum.originalValue = datum.newValue;
             setText(datum.newValue);
         }
         setEditable(false);
+        setStyle("-fx-border-color: transparent;");
     }
     
     public void onCancel() {
         setEditable(false);
         undo();
+    }
+
+    public void onError() {
+        undo();
+        PseudoClass errorClass = PseudoClass.getPseudoClass("error");
+        pseudoClassStateChanged(errorClass, true); //! not working
+        setStyle("-fx-border-color: red;");
+        // ((ValueField) value).setTooltip(new Tooltip(exc.getMessage())); //! not working
+        requestFocus();
     }
 
     public ValueField connectedTo(UpdateButtonGroup updateButtonGroup) {

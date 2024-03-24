@@ -6,16 +6,9 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Table",
+            "name": "Scrap",
             "request": "launch",
-            "mainClass": "application.Table",
-            "projectName": "EasyDoctor_99aca512"
-        },
-        {
-            "type": "java",
-            "name": "Surgery",
-            "request": "launch",
-            "mainClass": "application.controllers.Surgery",
+            "mainClass": "Scrap",
             "projectName": "EasyDoctor_99aca512"
         },
         {

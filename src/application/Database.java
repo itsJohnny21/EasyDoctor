@@ -44,7 +44,10 @@ public abstract class Database {
     }
 
 
-
+    public enum Severity {
+        MILD, MODERATE, SEVERE;
+    }
+    
     public static Connection connection;
     public static Integer userID;
     public static Role role;
@@ -144,7 +147,7 @@ public abstract class Database {
         return resultSet;
     }
 
-    public static void updateRow(int rowID, String table, String column, String newValue) throws Exception {
+    public static void updateRow(int rowID, String table, String column, String newValue) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE ID = ?;", table, column));
         statement.setString(1, newValue);
         statement.setInt(2, rowID);
@@ -291,6 +294,25 @@ public abstract class Database {
         System.out.println(getMy("username") + " signed out");
         userID = null;
         reconnectAs(Role.NEUTRAL);
+    }
+
+    public static ArrayList<Datum> getOptionsFor(Datum datum) throws Exception {
+        ArrayList<Datum> options = new ArrayList<Datum>();
+        PreparedStatement statement = connection.prepareStatement("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?;");
+        statement.setString(1, datum.parent.tableName);
+        statement.setString(2, datum.columnName);
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        String result = resultSet.getString("COLUMN_TYPE");
+
+        String[] parts = result.substring(5, result.length() - 1).split(",");
+        for (String part : parts) {
+            String bloodType = part.substring(1, part.length() - 1);
+            options.add(new Datum(datum.parent, bloodType, "bloodType"));
+        }
+
+        return options;
     }
 
 
@@ -733,7 +755,7 @@ public abstract class Database {
                 return employee;
             }
 
-            public static ArrayList<Datum> getAllDoctors() throws Exception {
+            public static ArrayList<Datum> getAllDoctorNames() throws Exception {
                 ResultSet resultSet = Database.selectAllWithRole(Role.DOCTOR);
                 ArrayList<Datum> doctors = new ArrayList<Datum>();
 

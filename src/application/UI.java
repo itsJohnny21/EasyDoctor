@@ -132,6 +132,20 @@ public class UI {
                     ((ValueOption) field1).setPrefWidth(width / (columnCount * 2));
                     ((ValueOption) field1).getStyleClass().add("form-option");
 
+                    if (((ValueOption) field1).converter == null) {
+                        ((ValueOption) field1).setConverter(new StringConverter<Datum>() {
+                            @Override
+                            public String toString(Datum datum) {
+                                return datum.originalValue;
+                            }
+                            
+                            @Override
+                            public Datum fromString(String string) {
+                                return null;
+                            }
+                        });
+                    }
+
                     row.getChildren().add(((ValueOption) field1));
                 }
 
@@ -189,7 +203,7 @@ public class UI {
             return this;
         }
 
-        public Table withHeader(String... headerStrings) {
+        public Table withCustomHeader(String... headerStrings) {
             this.headerStrings = headerStrings;
             this.columnCount = headerStrings.length;
             return this;
@@ -317,8 +331,7 @@ public class UI {
                         public String toString(Datum datum) {
                             try {
                                 Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(datum.originalValue));
-                                datum.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
-                                return datum.newValue;
+                                return doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 return "";
@@ -330,12 +343,15 @@ public class UI {
                             return null;
                         }
                     })
-                    .withData(Database.Row.Employee.getAllDoctors()),
-                patient.bloodType.createValueField().withLabel("Blood Type: "),
+                    .withData(Database.Row.Employee.getAllDoctorNames()),
+                patient.bloodType.createValueOption().withLabel("Blood Type: ")
+                    .withData(Database.getOptionsFor(patient.bloodType)),
                 patient.height.createValueField().withLabel("Height: "),
                 patient.weight.createValueField().withLabel("Weight: "),
-                patient.race.createValueField().withLabel("Race: "),
-                patient.ethnicity.createValueField().withLabel("Ethnicity: "),
+                patient.race.createValueOption().withLabel("Race: ")
+                    .withData(Database.getOptionsFor(patient.race)),
+                patient.ethnicity.createValueOption().withLabel("Ethnicity: ")
+                    .withData(Database.getOptionsFor(patient.ethnicity)),
                 patient.insuranceProvider.createValueField().withLabel("Insurance Provider: "),
                 patient.insuranceID.createValueField().withLabel("Insurance ID: "),
                 patient.emergencyContactName.createValueField().withLabel("Emergency Contact Name: "),
@@ -356,6 +372,8 @@ public class UI {
         for (Surgery surgery : surgeries) {
             Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
             doctor.userID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+
+            surgeriesTable.withCustomHeader("Doctor", "Date", "Procedure", "Location", "Notes");
 
             surgeriesTable.withValues(
                 doctor.userID.createValueField(),

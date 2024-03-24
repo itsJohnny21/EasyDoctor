@@ -182,7 +182,7 @@ GRANT SELECT (ID) ON employees TO 'neutral'@'%';
 GRANT UPDATE (fatherLastName, fatherFirstName, lastName, firstName, race, ethnicity, preferredDoctorID, motherLastName, motherFirstName, race) ON patients TO 'doctor';
 GRANT UPDATE (fatherLastName, fatherFirstName, lastName, firstName, race, ethnicity, preferredDoctorID, motherLastName, motherFirstName, race) ON patients TO 'doctor';
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'employees' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
-SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'surgeries' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'doctor'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'patients' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'doctor'@'%'";
 use easydoctor;
 select * from patients;
 select * from employees;
@@ -190,3 +190,8 @@ select * from users;
 GRANT UPDATE (doctorID, type, date, location, notes) ON surgeries TO 'doctor';
 select * from users;
 select * from vaccines;
+select * from patients;
+SELECT DISTINCT bloodType FROM patients;
+
+SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'easydoctor' AND TABLE_NAME = 'patients' AND COLUMN_NAME = 'bloodType';
+SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'patients' AND COLUMN_NAME = 'bloodType';

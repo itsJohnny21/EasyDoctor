@@ -15,6 +15,13 @@ public class Datum {
         this.newValue = originalValue;
     }
 
+    public String toPerttyColumnName() {
+        String regex = "([a-z])([A-Z]+)";
+        String replacement = "$1 $2";
+        String result = columnName.replaceAll(regex, replacement);
+        return result.substring(0, 1).toUpperCase() + result.substring(1);
+    }
+
     public Datum() {}
 
     public ValueField createValueField() {

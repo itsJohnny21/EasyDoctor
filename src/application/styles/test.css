@@ -56,6 +56,11 @@
     -fx-alignment: center-left;
 }
 
+.form-option:error {
+    -fx-background-color: #ff0000;
+    -fx-text-weight: bold;
+}
+
 .form-option {
     -fx-aligntment: center;
 }

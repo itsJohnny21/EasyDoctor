@@ -30,7 +30,7 @@ public class TestController extends Controller {
         UpdateButtonGroup ubg = new UpdateButtonGroup(editButton, cancelButton, saveButton);
 
         View allergiesTable = UI.allergiesTableBaseFor(2)
-            .withHeader("Allergen", "Severity", "Common Source", "Notes")
+            .withCustomHeader("Allergen", "Severity", "Common Source", "Notes")
             .withRowAction(row -> {
                 row.setOnMouseClicked(e -> {
                     ValueLabel value = (ValueLabel) row.getChildren().get(0);
@@ -56,7 +56,6 @@ public class TestController extends Controller {
         contentPane.getChildren().add(contactInformationForm);
 
         View surgeriesTable = UI.surgeriesTableBaseFor(2)
-            .withHeader("Surgeon", "Date", "Type", "Location", "Notes")
             .withRowAction(row -> {
                 row.setOnMouseClicked(e -> {
                     ValueLabel value = (ValueLabel) row.getChildren().get(0);

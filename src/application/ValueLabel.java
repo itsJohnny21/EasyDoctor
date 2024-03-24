@@ -1,5 +1,7 @@
 package application;
 
+import java.sql.SQLException;
+
 import javafx.scene.control.Label;
 
 public class ValueLabel extends Label implements Value {
@@ -13,7 +15,7 @@ public class ValueLabel extends Label implements Value {
     public void onEdit() {
     }
 
-    public void onSave() throws Exception {
+    public void onSave() throws SQLException {
     }
 
     public void onCancel() {
@@ -25,5 +27,8 @@ public class ValueLabel extends Label implements Value {
 
     public Value withConversion() {
         return this;
+    }
+
+    public void onError() {
     }
 }

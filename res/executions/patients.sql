@@ -11,7 +11,7 @@ CREATE TABLE patients (
     phone VARCHAR(100) NOT NULL,
     address VARCHAR(100) NOT NULL,
     preferredDoctorID INT,
-    bloodType ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'),
+    bloodType bloodType ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN')
     height DECIMAL(5, 2),
     weight DECIMAL(5, 2),
     race ENUM('WHITE', 'BLACK', 'HISPANIC', 'ASIAN', 'NATIVE AMERICAN', 'PACIFIC ISLANDER', 'OTHER') NOT NULL,
@@ -27,6 +27,7 @@ CREATE TABLE patients (
     FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
     FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
+
 
 
 INSERT INTO users (username, password, userType)
