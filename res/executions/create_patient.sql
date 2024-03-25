@@ -16,6 +16,7 @@ VALUES (@userID, 'Depression', 'CHRONIC', 'MENTAL', 'Patient is very stressed fr
 INSERT INTO prescriptions (userID, doctorID, drugID, intakeDay, intakeTime, dosageQuantity, dosageUnits, form, description)
 VALUES (@userID, 3, 1, 'MONDAY', '08:00:00', 200, 'MG', 'CAPUSLE', 'Take one pill every Monday at 8:00 AM');
 
+use easydoctor;
 select * from users;
 select * from patients;
 

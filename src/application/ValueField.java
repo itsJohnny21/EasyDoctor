@@ -17,6 +17,10 @@ public class ValueField extends TextField implements Value {
         setEditable(false);
     }
 
+    public ValueField() {
+        super();
+    }
+
     public void onEdit() {
         setEditable(updatable);
     }
@@ -25,6 +29,7 @@ public class ValueField extends TextField implements Value {
         if (!updatable) return;
 
         if (!getText().equals(datum.originalValue)) {
+            System.out.println("new value!: " + getText());
             datum.newValue = getText();
             Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
             datum.originalValue = datum.newValue;
@@ -37,6 +42,7 @@ public class ValueField extends TextField implements Value {
     public void onCancel() {
         setEditable(false);
         undo();
+        setStyle("-fx-border-color: transparent;");
     }
 
     public void onError() {

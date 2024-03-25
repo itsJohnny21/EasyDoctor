@@ -55,4 +55,12 @@ public class App extends Application {
 	}
 }
 
-// TODO:
+// TODO: Add pseudo-class to ValueField, ValueOption, and ValueLabel to edit their style when an error occurs
+// TODO: Avoid using String.format() when querying the database
+// TODO: Make an Editable interface for ValueField, ValueOption, ValueLabel, and ValueRow
+// TODO: When edit is clicked, a RadioButton should appear next to each row, and the user should be able to select multiple rows to delete
+// TODO: Test insertng and deleting visits as a patient and doctor
+// TODO: Rows such as visits should not be deletable with a button. Instead, they should be deletable by clicking on the row and pressing the delete button from the popup
+// TODO: Information rows such as surgeries or allergies should be deletable with a delete button
+// TODO: Create a ValueRow instead of ValueLabel and it shall consist of Labels
+// TODO: Change Value Interface to Updatable

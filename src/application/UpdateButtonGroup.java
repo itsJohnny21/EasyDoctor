@@ -48,6 +48,7 @@ public class UpdateButtonGroup {
 // END IF;
 
         saveButton.setOnAction(e -> {
+            error = false;
             for (Value value : values) {
                 try {
                     value.onSave();

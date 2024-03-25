@@ -13,6 +13,7 @@ public class ValueLabel extends Label implements Value {
     }
 
     public void onEdit() {
+        
     }
 
     public void onSave() throws SQLException {

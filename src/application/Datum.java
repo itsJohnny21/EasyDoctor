@@ -35,4 +35,8 @@ public class Datum {
     public ValueOption createValueOption() {
         return new ValueOption(this);
     }
+
+    public static Datum createParentless(String originalValue, String columnName) {
+        return new Datum(null, originalValue, columnName);
+    }
 }

@@ -29,25 +29,86 @@ public abstract class Database {
     		
     public enum Role {
         NEUTRAL, DOCTOR, NURSE, PATIENT;
-    }
 
+        public static ValueOption createValueOption() throws Exception{
+            Role[] roles = {DOCTOR, NURSE, PATIENT};
+            ArrayList<Datum> options = new ArrayList<Datum>();
+
+            for (Role role : roles) {
+                Datum option = Datum.createParentless(role.toString(), "role");
+                options.add(option);
+            }
+
+            ValueOption option = new ValueOption(options);
+            return option;
+        }
+    }
+    
     public enum Sex {
         MALE, FEMALE, OTHER;
+
+        public static ValueOption createValueOption() throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (Sex sex : Sex.values()) {
+                Datum option = Datum.createParentless(sex.toString(), "sex");
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options);
+            return option;
+        }
     }
 
     public enum Race {
         WHITE, BLACK, HISPANIC, ASIAN, NATIVE, AMERICAN, PACIFIC, ISLANDER, OTHER;
+
+        public static ValueOption createValueOption() throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (Race race : Race.values()) {
+                Datum option = Datum.createParentless(race.toString(), "race");
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options);
+            return option;
+        }
     }
 
     public enum Ethnicity {
         HISPANIC, NON_HISPANIC;
+
+        public static ValueOption createValueOption() throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (Ethnicity ethnicity : Ethnicity.values()) {
+                Datum option = Datum.createParentless(ethnicity.toString(), "ethnicity");
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options);
+            return option;
+        }        
     }
 
 
     public enum Severity {
         MILD, MODERATE, SEVERE;
-    }
+
+        public static ValueOption createValueOption() throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
     
+            for (Severity severity : Severity.values()) {
+                Datum option = Datum.createParentless(severity.toString(), "severity");
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options);
+            return option;
+        }        
+    }
+
     public static Connection connection;
     public static Integer userID;
     public static Role role;
@@ -120,11 +181,10 @@ public abstract class Database {
     public static ResultSet selectAllWithRole(Role role) throws Exception {
         String tableName = "users";
         String columns = getPermissedColumns(tableName, "SELECT");
-        PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE role = ?;", columns, tableName));
-        statement2.setString(1, role.toString());
-        ResultSet resultSet2 = statement2.executeQuery();
-
-        return resultSet2;
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE role = ?;", columns, tableName));
+        statement.setString(1, role.toString());
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
 
     public static ResultSet selectRow(int rowID, String tableName) throws Exception {
@@ -315,155 +375,12 @@ public abstract class Database {
         return options;
     }
 
-
-    public static ResultSet getEmployeeInfo(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, employees.* FROM users JOIN employees ON users.ID = employees.ID WHERE users.ID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-
-        if (resultSet.next()) {
-            return resultSet;
-        } else {
-            throw new SQLException("Employee not found");
-        }
-    }
-
-    public static ResultSet getPatientInfo(int userID) throws SQLException{
-        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, patients.* FROM users JOIN patients ON users.ID = patients.ID WHERE users.ID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-
-        if (resultSet.next()) {
-            return resultSet;
-        } else {
-            throw new SQLException("Patient not found");
-        }
-    }
-
-    public static String getMy(String columnName) throws SQLException {
+    public static String getMy(String columnName) throws Exception {
         if (role == Role.PATIENT) {
-            return getPatientInfo(userID).getString(columnName);
+            return selectRow(0, "patients").getString(columnName);
         } else {
-            return getEmployeeInfo(userID).getString(columnName);
+            return selectRow(0, "employees").getString(columnName);
         }
-    }
-
-    public static ResultSet getContactInformationFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT patients.firstName AS 'First Name', patients.lastName AS 'Last Name', patients.sex AS 'Sex', patients.birthDate AS 'Birth Date', patients.phone AS 'Phone', patients.email AS 'Email', patients.address AS 'Address', users.username AS 'Username', patients.race AS 'Race', patients.ethnicity AS 'Ethnicity', patients.emergencyContactName AS 'Emergency Contact Name', patients.emergencyContactPhone AS 'Emergency Contact Phone', patients.motherFirstName AS 'Mother First Name', patients.motherLastName AS 'Mother Last Name', patients.fatherFirstName AS 'Father First Name', patients.fatherLastName AS 'Father Last Name' FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyContactInformation() throws Exception {
-        return getContactInformationFor(userID);
-    }
-
-    public static ResultSet getMedicalInformationFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT CONCAT(employees.firstName, ' ', employees.lastName) AS 'Preferred Doctor', patients.insuranceProvider AS 'Insurance Provider', patients.insuranceID AS 'Insurance ID', patients.bloodType AS 'Blood Type', patients.height AS 'Height', patients.weight AS 'Weight' FROM patients JOIN employees ON patients.preferredDoctorID = employees.ID WHERE patients.ID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyMedicalInformation() throws Exception {
-        return getMedicalInformationFor(userID);
-    }
-
-    public static ResultSet getHealthConditionsFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT healthCondition, severity, type, notes FROM healthConditions WHERE patientID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyHealthConditions() throws Exception {
-        return getHealthConditionsFor(userID);
-    }
-
-    public static ResultSet getVaccineRecordFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT vaccineGroup, date FROM vaccineRecords WHERE patientID = ? ORDER BY DATE;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyVaccineRecord() throws Exception {
-        return getVaccineRecordFor(userID);
-    }
-
-    public static ResultSet getAllergiesFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT allergen, commonSource, severity, type, notes FROM allergies WHERE patientID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyAllergies() throws Exception {
-        return getAllergiesFor(userID);
-    }
-
-    public static ResultSet getSurgeriesFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, type, location, notes FROM surgeries JOIN employees ON surgeries.doctorID = employees.ID WHERE surgeries.patientID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMySurgeries() throws Exception {
-        return getSurgeriesFor(userID);
-    }
-
-    // public static void UpdatePermissionsFor(Role role) throws Exception {
-    //     HashMap<String, Boolean> updatePermissions = new HashMap<String, Boolean>();
-    //     PreparedStatement statement = connection.prepareStatement("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = ?;");
-    //     String grantee = "'" + role.toString().toLowerCase() + "'@'%'";
-    //     statement.setString(1, grantee);
-    //     ResultSet resultSet = statement.executeQuery();
-
-    //     while (resultSet.next()) {
-    //         updatePermissions.put(resultSet.getString("COLUMN_NAME"), true);
-    //         System.out.println(resultSet.getString("COLUMN_NAME") + " is updatable");
-    //     }
-        
-    //     return updatePermissions;
-    // }
-
-    public static ResultSet getVisitsFor(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.ID WHERE visits.patientID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getMyVisits() throws Exception { //! Make sure that the proper time zones are used to compare the date and time and check if the visits have been missed, completed, or are upcoming
-        PreparedStatement statement = connection.prepareStatement("employees.firstName, employees.lastName, date, reason, completed, visits.ID FROM visits JOIN employees ON visits.doctorID = employees.ID WHERE visits.patientID = ?;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    // public static ResultSet getMyUpdatePermissions() throws Exception {
-    //     return getUpdatePermissionsFor(role);
-    // }
-
-    public static ResultSet getHealthConditionsFor2(int userID) throws Exception {
-        PreparedStatement statement = connection.prepareStatement(String.format("SELECT * FROM healthConditions WHERE patientID = ?;"));
-        statement.setInt(1, userID);
-        statement.executeQuery();
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
     }
 
     public static class Encrypter {
@@ -494,12 +411,8 @@ public abstract class Database {
 
     public abstract static class Row {
         public String tableName;
-        public int rowID;
+        public Integer rowID;
     
-        public Row(ResultSet resultSet) throws Exception {
-        }
-    
-        public Row() throws Exception {}
 
         public static class User extends Row {
             public Datum userID;
@@ -516,7 +429,7 @@ public abstract class Database {
                 User user = new User(resultSet);
                 return user;
             }
-    
+
             public User(ResultSet resultSet) throws Exception {
                 this.tableName = "users";
     

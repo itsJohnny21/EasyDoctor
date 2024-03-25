@@ -1,10 +1,14 @@
 package application.controllers;
 
 import application.Database;
+import application.Database.Role;
 import application.UI;
+import application.UI.InformationForm;
 import application.UI.View;
 import application.UpdateButtonGroup;
+import application.ValueField;
 import application.ValueLabel;
+import application.ValueOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -56,12 +60,6 @@ public class TestController extends Controller {
         contentPane.getChildren().add(contactInformationForm);
 
         View surgeriesTable = UI.surgeriesTableBaseFor(2)
-            .withRowAction(row -> {
-                row.setOnMouseClicked(e -> {
-                    ValueLabel value = (ValueLabel) row.getChildren().get(0);
-                    System.out.println(value.datum.parent.rowID);
-                });
-            })
             .withWidth(Screen.getPrimary().getVisualBounds().getWidth())
             .withRowHeight(50)
             .withTitle("Surgeries")
@@ -69,6 +67,40 @@ public class TestController extends Controller {
             .build();
 
         contentPane.getChildren().add(surgeriesTable);
+
+    // INSERT INTO users (username, password, role)
+    // VALUES ('barb123', SHA2('123', 256), 'PATIENT');
+    // SET @userID = LAST_INSERT_ID();
+    // INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+    // VALUES (@userID, 'Barbara', 'Williams',  'FEMALE', '2000-01-01', 'barb123@gmail.com', '1234567890', '123 Test St', 'WHITE', 'NON-HISPANIC');
+        ValueField usernameField = new ValueField().withLabel("username");
+        ValueField passwordField = new ValueField().withLabel("password");
+        ValueOption roleField = Role.createValueOption().withLabel("role");
+        
+        Button signUpButton = new Button("Insert User");
+        View signUpForm = new InformationForm()
+            .withColumnCount(2)
+            .withValues(
+                usernameField,
+                passwordField,
+                roleField
+            )
+            .withTitle("Sign Up")
+            .withWidth(Screen.getPrimary().getVisualBounds().getWidth())
+            .withRowHeight(50)
+            .build();
+            
+            contentPane.getChildren().add(signUpForm);
+            
+            contentPane.getChildren().add(signUpButton);
+            signUpButton.setOnAction(e -> {
+                try {
+                Database.connectAs(Role.NEUTRAL);
+                Database.insertUser(usernameField.getText(), passwordField.getText(), Role.valueOf(roleField.getValue().originalValue));
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        });
     }
 
     public String getTitle() {

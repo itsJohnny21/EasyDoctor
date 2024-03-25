@@ -11,13 +11,29 @@ public class ValueOption extends ChoiceBox<Datum> implements Value {
     public boolean updatable;
     public String label;
     public StringConverter<Datum> converter;
-    
-    public ValueOption(Datum datum) {
+
+    public ValueOption(ArrayList<Datum> data) {
         super();
-        this.datum = datum;
-        updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
-        setDisable(true);
+        getItems().addAll(data);
+        datum = data.get(0);
         setValue(datum);
+        checkUpdatable();
+    }
+    
+    public ValueOption(Datum option) {
+        super();
+        datum = option;
+        setValue(datum);
+        checkUpdatable();
+    }
+
+    public void checkUpdatable() {
+        if (datum.parent != null) {
+            updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
+            setDisable(true);
+        } else {
+            setDisable(false);
+        }
     }
 
     public ValueOption withData(ArrayList<Datum> data) {
@@ -56,10 +72,6 @@ public class ValueOption extends ChoiceBox<Datum> implements Value {
 
     public void onError() {
         setValue(datum);
-    }
-
-    public String toString() {
-        return datum.newValue;
     }
 
     public ValueOption withLabel(String label) {

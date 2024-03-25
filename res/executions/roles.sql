@@ -166,7 +166,7 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYP
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'" AND TABLE_NAME = 'allergies';
 GRANT SELECT (userID) on users TO 'doctor'@'%';
 REVOKE SELECT ON vaccineRecords FROM 'doctor';
-SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS Updatable FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = "'doctor'@'%'" AND TABLE_NAME = 'patients';
+SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS Updatable, IF(PRIVILEGE_TYPE = 'SELECT', true, false) AS Selectable, IF(PRIVILEGE_TYPE = "INSERT", true, false) AS Insertable, IF(PRIVILEGE_TYPE = "DELETE", true, false) AS Deletable FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = "'doctor'@'%'";
 use easydoctor;
 select * from allergies;
 GRANT SELECT (ID, userID, commonSource, severity, type, notes, allergen) ON allergies TO 'doctor';
@@ -195,3 +195,11 @@ SELECT DISTINCT bloodType FROM patients;
 
 SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'easydoctor' AND TABLE_NAME = 'patients' AND COLUMN_NAME = 'bloodType';
 SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'patients' AND COLUMN_NAME = 'bloodType';
+
+select * from patients where ID = 2;
+select * from surgeries where userID = 2;
+select * from visits;
+GRANT INSERT (ID, creationTime, creationType, date, userID, doctorID, completed, reason, description) ON visits TO 'doctor';
+FLUSH PRIVILEGES;
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'DELETE' AND GRANTEE = "'doctor'@'%'";
+SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'role';

@@ -1,6 +1,13 @@
+
 .root {
     -fx-font-family: "Arial";
     -fx-font-size: 12pt;
+}
+
+/* Table Styles */
+
+.table {
+    -fx-visible: false;
 }
 
 .table-title {
@@ -11,10 +18,13 @@
     -fx-alignment: center;
 }
 
+.table-header-label {
+    -fx-alignment: center;
+}
+
 .table-header {
     -fx-background-color:  #ab5b67;
     -fx-background-radius: 0;
-    -fx-alignment: center;
 }
 
 .table-row {
@@ -33,8 +43,10 @@
 }
 
 .table-row:hover {
-    -fx-background-color: #f7d9c4;
+    /* -fx-background-color: #f7d9c4; */
 }
+
+/* Form Styles */
 
 .form-title {
     -fx-background-color:  #ab5b67;
@@ -46,6 +58,10 @@
 
 .form {
     -fx-background-color:   #fff6eb;
+}
+
+.form-row {
+    -fx-min-height: 50px;
 }
 
 .form-label {

@@ -19,7 +19,7 @@ public class UI {
 
     public static abstract class View extends GridPane {
         public String titleString;
-        public GridPane title;
+        public HBox titleBox;
         public double width;
         public double rowHeight;
         public int rowCount;
@@ -29,7 +29,6 @@ public class UI {
 
         public View() {
             super();
-            this.setAlignment(Pos.TOP_CENTER);
 
             this.rowCount = 0;
             this.columnCount = 1;
@@ -69,18 +68,25 @@ public class UI {
             return this;
         }
 
-        public void buildTitle(String classCSS) {
+        public void buildTitle() {
             if (titleString != null) {
-                title = new GridPane();
-                title.setPrefHeight(rowHeight);
-                title.setPrefWidth(width);
-                title.getStyleClass().add(classCSS);
+                titleBox = new HBox();
+                titleBox.setPrefHeight(rowHeight);
+                titleBox.setPrefWidth(width);
                 
                 Label titleLabel = new Label(titleString);
                 titleLabel.setMinHeight(rowHeight);
-
-                title.add(titleLabel, 0, 0);
-                add(title, 0, rowCount++);
+                
+                titleBox.getChildren().add(titleLabel);
+                add(titleBox, 0, rowCount++);
+                
+                if (this instanceof SelectableTable || this instanceof EditableTable) {
+                    titleBox.getStyleClass().add("table-title");
+                }
+                
+                if (this instanceof InformationForm) {
+                    titleBox.getStyleClass().add("form-title");
+                }
             }
         }
 
@@ -88,78 +94,69 @@ public class UI {
         public abstract void buildRows();
     }
 
-    public static class Form extends View {
-        public String titleString;
+    public static class InformationForm extends View {
 
-        public Form() {
+        public InformationForm() {
             super();
         }
 
-        public Form withColumnCount(int columnCount) {
+        public InformationForm withColumnCount(int columnCount) {
             this.columnCount = columnCount;
             return this;
         }
 
         public void buildRows() {
             HBox row = new HBox();
-            row.setMinHeight(rowHeight);
-            row.setPrefWidth(width);
+            row.setPadding(new Insets(0, width / (columnCount * 4), 0, width / (columnCount * 16)));
             row.getStyleClass().add("form-row");
 
             for (int i = 0; i < values.size(); i++) {
-                row.setPrefWidth(width);
+                Value value = values.get(i);
 
-                Value field1 = values.get(i);
+                if (ubg != null) {
+                    value.connectedTo(ubg);
+                }
 
-                Label label1 = new Label();
-                label1.setPrefHeight(rowHeight);
-                label1.setPrefWidth(width/ (3 * columnCount));
-                label1.getStyleClass().add("form-label");
+                Label valueLabel = new Label();
+                valueLabel.setPrefHeight(rowHeight);
+                valueLabel.setPrefWidth(width/ (2 * columnCount));
+                valueLabel.getStyleClass().add("form-label");
+                row.getChildren().add(valueLabel);
 
-                row.getChildren().add(label1);
-
-                if (field1 instanceof ValueField) {
-                    label1.setText(((ValueField) field1).label);
-                    ((ValueField) field1).setPrefHeight(rowHeight);
-                    ((ValueField) field1).setPrefWidth(width / (columnCount * 2));
-                    ((ValueField) field1).getStyleClass().add("form-field");
-
-                    row.getChildren().add(((ValueField) field1));
+                if (value instanceof ValueField) {
+                    valueLabel.setText(((ValueField) value).label);
+                    ((ValueField) value).setPrefHeight(rowHeight);
+                    ((ValueField) value).setPrefWidth(width / (columnCount * 2));
+                    ((ValueField) value).getStyleClass().add("form-field");
+                    row.getChildren().add(((ValueField) value));
                     
-                } else if (field1 instanceof ValueOption) {
-                    label1.setText(((ValueOption) field1).label);
-                    ((ValueOption) field1).setPrefHeight(rowHeight);
-                    ((ValueOption) field1).setPrefWidth(width / (columnCount * 2));
-                    ((ValueOption) field1).getStyleClass().add("form-option");
+                } else if (value instanceof ValueOption) {
+                    valueLabel.setText(((ValueOption) value).label);
+                    ((ValueOption) value).setPrefHeight(rowHeight);
+                    ((ValueOption) value).setPrefWidth(width / (columnCount * 2));
+                    ((ValueOption) value).getStyleClass().add("form-option");
 
-                    if (((ValueOption) field1).converter == null) {
-                        ((ValueOption) field1).setConverter(new StringConverter<Datum>() {
-                            @Override
+                    if (((ValueOption) value).converter == null) {
+                        ((ValueOption) value).setConverter(new StringConverter<Datum>() {
                             public String toString(Datum datum) {
                                 return datum.originalValue;
                             }
                             
-                            @Override
                             public Datum fromString(String string) {
                                 return null;
                             }
+                            
                         });
                     }
-
-                    row.getChildren().add(((ValueOption) field1));
+                    
+                    row.getChildren().add(((ValueOption) value));
                 }
 
                 if (i % columnCount == columnCount - 1) {
-                    GridPane.setMargin(row, new Insets(0, 600 / (columnCount * 4), 0, 600 / (columnCount * 4)));
                     add(row, 0, rowCount++);
                     row = new HBox();
-                    row.setMinHeight(rowHeight);
-                    row.setPrefWidth(width);
+                    row.setPadding(new Insets(0, width / (columnCount * 4), 0, width / (columnCount * 16)));
                     row.getStyleClass().add("form-row");
-                }
-
-                if (ubg != null) {
-                    field1.connectedTo(ubg);
                 }
             }
 
@@ -167,43 +164,41 @@ public class UI {
                 while (row.getChildren().size() != columnCount * 2) {
                     Label label = new Label("");
                     label.setPrefHeight(rowHeight);
-                    label.setPrefWidth(width / (3 * columnCount));
+                    label.setPrefWidth(width / (2 * columnCount));
                     row.getChildren().add(label);
 
                     Label label2 = new Label("");
                     label2.setPrefHeight(rowHeight);
                     label2.setPrefWidth(width / (2 * columnCount));
                     row.getChildren().add(label2);
-
                 }
-                GridPane.setMargin(row, new Insets(0, 600 / (columnCount * 4), 0, 600 / (columnCount * 4)));
                 add(row, 0, rowCount++);
             }
         }
 
-        public Form build() {
-            buildTitle("form-title");
+        public InformationForm build() {
+            buildTitle();
             buildRows();
             getStyleClass().add("form");
             return this;
         }
     }
 
-    public static class Table extends View {
+    public static class SelectableTable extends View {
         public String[] headerStrings;
         public Consumer<HBox> rowAction;
         public GridPane header;
 
-        public Table() {
+        public SelectableTable() {
             super();
         }
 
-        public Table withRowAction(Consumer<HBox> rowAction) {
+        public SelectableTable withRowAction(Consumer<HBox> rowAction) {
             this.rowAction = rowAction;
             return this;
         }
 
-        public Table withCustomHeader(String... headerStrings) {
+        public SelectableTable withCustomHeader(String... headerStrings) {
             this.headerStrings = headerStrings;
             this.columnCount = headerStrings.length;
             return this;
@@ -211,6 +206,8 @@ public class UI {
 
         public void buildHeader() {
             if (headerStrings.length > 0) {
+                columnCount = headerStrings.length;
+                
                 header = new GridPane();
                 header.setMinHeight(rowHeight);
                 header.setPrefWidth(width);
@@ -224,8 +221,8 @@ public class UI {
                 }
 
                 header.getStyleClass().add("table-header");
-    
                 add(header, 0, rowCount++);
+
             }
         }
 
@@ -238,32 +235,18 @@ public class UI {
             for (int i = 0; i < values.size(); i++) {
                 Value value = values.get(i);
 
-                if (value instanceof ValueField) {
-                    ((ValueField) value).setMinHeight(rowHeight);
-                    ((ValueField) value).setPrefWidth(width / columnCount);
-                    ((ValueField) value).getStyleClass().add("table-field");
-
-                    row.getChildren().add(((ValueField) value));
-
-                    if (ubg != null) {
-                        ((ValueField) value).connectedTo(ubg);
-                    }
-
-                } else if (value instanceof ValueLabel) {
-                    ((ValueLabel) value).setMinHeight(rowHeight);
-                    ((ValueLabel) value).setPrefWidth(width / columnCount);
-                    ((ValueLabel) value).getStyleClass().add("table-value");
-                    
-                    row.getChildren().add(((ValueLabel) value));
-                }
-
+                ((ValueLabel) value).setMinHeight(rowHeight);
+                ((ValueLabel) value).setPrefWidth(width / columnCount);
+                ((ValueLabel) value).getStyleClass().add("table-value");
+                
+                row.getChildren().add(((ValueLabel) value));
 
                 if (i % columnCount == columnCount - 1) {
 
                     if (rowAction != null) {
                         rowAction.accept(row);
                     }
-
+                    
                     add(row, 0, rowCount++);
                     row = new HBox();
                     row.setMinHeight(rowHeight);
@@ -289,17 +272,115 @@ public class UI {
 
         }
 
-        public Table build() {
-            buildTitle("table-title");
+        public SelectableTable build() {
+            buildTitle();
             buildHeader();
             buildRows();
+            getStyleClass().add("table");
             return this;
         }
     }
 
-    public static Table allergiesTableBaseFor(int userID) throws Exception {
+    public static class EditableTable extends View {
+        public String[] headerStrings;
+        public HBox header;
+        public boolean deletable;
+
+        public EditableTable() {
+            super();
+        }
+
+        public EditableTable isDeletable(boolean deletable) {
+            this.deletable = deletable;
+            return this;
+        }
+
+        public EditableTable withCustomHeader(String... headerStrings) {
+            this.headerStrings = headerStrings;
+            this.columnCount = headerStrings.length;
+            return this;
+        }
+
+        public void buildHeader() {
+            if (headerStrings.length > 0) {
+                columnCount = headerStrings.length;
+
+                header = new HBox();
+                header.setMinHeight(rowHeight);
+                header.setPrefWidth(width);
+    
+                for (int i = 0; i < headerStrings.length; i++) {
+                    Label label = new Label(headerStrings[i]);
+                    label.setPrefWidth(width / headerStrings.length);
+                    header.getChildren().add(label);
+                }
+
+                header.getStyleClass().add("table-header");
+                add(header, 0, rowCount++);
+
+            }
+        }
+
+        public void buildRows() {
+            ValueRow row = new ValueRow(this);
+            row.setMinHeight(rowHeight);
+            row.setPrefWidth(width);
+            row.getStyleClass().add("table-row");
+
+            for (int i = 0; i < values.size(); i++) {
+                Value value = values.get(i);
+
+                ((ValueField) value).setMinHeight(rowHeight);
+                ((ValueField) value).setPrefWidth(width / columnCount);
+                ((ValueField) value).getStyleClass().add("table-field");
+
+                row.getChildren().add(((ValueField) value));
+
+                ((ValueField) value).connectedTo(ubg);
+
+                if (i % columnCount == columnCount - 1) {
+
+                    if (deletable) {
+                        row.makeDeletable(ubg);
+                    }
+
+                    add(row, 0, rowCount++);
+                    row = new ValueRow(this);
+                    row.setMinHeight(rowHeight);
+                    row.setPrefWidth(width);
+                    row.getStyleClass().add("table-row");
+                }
+            }
+
+            if (row.getChildren().size() > 0) {
+                while (row.getChildren().size() != columnCount) {
+                    Label label = new Label("");
+                    label.setPrefWidth(width / columnCount);
+                    row.getChildren().add(label);
+                    row.getStyleClass().add("table-row");
+                }
+                
+                if (deletable) {
+                    row.makeDeletable(ubg);
+                }
+
+                add(row, 0, rowCount++);
+            }
+
+        }
+
+        public EditableTable build() {
+            buildTitle();
+            buildHeader();
+            buildRows();
+            getStyleClass().add("table");
+            return this;
+        }
+    }
+
+    public static SelectableTable allergiesTableBaseFor(int userID) throws Exception {
         ArrayList<Allergy> allergies = Database.Row.Allergy.getAllFor(userID);
-        Table allergiesTable = new Table();
+        SelectableTable allergiesTable = new SelectableTable();
 
         for (Allergy allergy : allergies) {
             allergiesTable.withValues(
@@ -312,9 +393,9 @@ public class UI {
         return allergiesTable;
     }
 
-    public static Form contactInformationFormBaseFor(int userID) throws Exception {
+    public static InformationForm contactInformationFormBaseFor(int userID) throws Exception {
         Patient patient = Database.Row.Patient.getFor(userID);
-        Form contactInformationForm = new Form();
+        InformationForm contactInformationForm = new InformationForm();
 
         contactInformationForm
             .withTitle("Contact Information")
@@ -365,9 +446,11 @@ public class UI {
         return contactInformationForm;
     }
 
-    public static Table surgeriesTableBaseFor(int userID) throws Exception {
+    public static EditableTable surgeriesTableBaseFor(int userID) throws Exception {
         ArrayList<Surgery> surgeries = Database.Row.Surgery.getAllFor(userID);
-        Table surgeriesTable = new Table();
+        EditableTable surgeriesTable = new EditableTable();
+
+        surgeriesTable.isDeletable(true);
 
         for (Surgery surgery : surgeries) {
             Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
