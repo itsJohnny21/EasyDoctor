@@ -35,7 +35,7 @@ public class TestController extends Controller {
 
         View allergiesTable = UI.allergiesTableBaseFor(2)
             .withCustomHeader("Allergen", "Severity", "Common Source", "Notes")
-            .withRowAction(row -> {
+            .withSelectAction(row -> {
                 row.setOnMouseClicked(e -> {
                     ValueLabel value = (ValueLabel) row.getChildren().get(0);
                     System.out.println(value.datum.parent.rowID);

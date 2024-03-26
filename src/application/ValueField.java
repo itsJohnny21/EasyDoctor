@@ -50,7 +50,6 @@ public class ValueField extends TextField implements Value {
         PseudoClass errorClass = PseudoClass.getPseudoClass("error");
         pseudoClassStateChanged(errorClass, true); //! not working
         setStyle("-fx-border-color: red;");
-        // ((ValueField) value).setTooltip(new Tooltip(exc.getMessage())); //! not working
         requestFocus();
     }
 

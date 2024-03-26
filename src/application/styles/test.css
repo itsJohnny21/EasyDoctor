@@ -27,6 +27,13 @@
     -fx-background-radius: 0;
 }
 
+.table-selectable-row {
+    -fx-background-color:   #fff6eb;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 0;
+    -fx-alignment: center;
+}
+
 .table-row {
     -fx-background-color:   #fff6eb;
     -fx-text-fill: #000000;
@@ -42,8 +49,8 @@
     -fx-alignment: center;
 }
 
-.table-row:hover {
-    /* -fx-background-color: #f7d9c4; */
+.table-selectable-row:hover {
+    -fx-background-color: #f7d9c4;
 }
 
 /* Form Styles */

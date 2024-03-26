@@ -3,6 +3,8 @@ package application;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 
 public class UpdateButtonGroup {
@@ -10,7 +12,6 @@ public class UpdateButtonGroup {
     public Button cancelButton;
     public Button saveButton;
     public ArrayList<Value> values;
-    public boolean error;
 
     public UpdateButtonGroup(Button editButton, Button cancelButton, Button saveButton) {
         this.editButton = editButton;
@@ -40,6 +41,8 @@ public class UpdateButtonGroup {
             for (Value value : values) {
                 value.onCancel();
             }
+
+
         });
 //SELECT COUNT(*) INTO @count FROM lookup_table WHERE value = 'new_value'; //! maybe use this to validate the input
 
@@ -48,13 +51,28 @@ public class UpdateButtonGroup {
 // END IF;
 
         saveButton.setOnAction(e -> {
-            error = false;
+            boolean error = false;
+
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Save Changes");
+            alert.setHeaderText("Are you sure you want to save the changes?");
+            alert.setContentText("This action cannot be undone.");
+
+            if (alert.showAndWait().get().getText().equals("CANCEL")) {
+                return;
+            }
             for (Value value : values) {
                 try {
                     value.onSave();
                 } catch (SQLException exc) {
                     value.onError();
                     error = true;
+
+                    alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("An error occurred while saving the changes.");
+                    alert.setContentText(exc.getMessage());
+                    alert.showAndWait();
                 }
             }
             

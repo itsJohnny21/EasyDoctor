@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="205.0" layoutY="14.0" text="Patient Portal Sign Up" textFill="WHITE">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
+      <TextField layoutX="115.0" layoutY="76.0" />
+      <TextField layoutX="326.0" layoutY="76.0" />
+      <TextField layoutX="115.0" layoutY="124.0" />
+      <TextField layoutX="326.0" layoutY="124.0" />
+      <TextField layoutX="115.0" layoutY="169.0" />
+      <TextField layoutX="326.0" layoutY="169.0" />
+      <Label layoutX="169.0" layoutY="61.0" text="Username" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="380.0" layoutY="61.0" text="Password" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="168.0" layoutY="109.0" text="First Name" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="377.0" layoutY="109.0" text="Last Name" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="181.0" layoutY="154.0" text="Email" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="367.0" layoutY="154.0" text="Phone Number" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <TextField layoutX="115.0" layoutY="217.0" />
+      <TextField layoutX="326.0" layoutY="217.0" />
+      <Label layoutX="164.0" layoutY="202.0" text="Date of Birth" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="385.0" layoutY="202.0" text="Address" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <ChoiceBox layoutX="120.0" layoutY="323.0" prefWidth="150.0" />
+      <ChoiceBox layoutX="329.0" layoutY="323.0" prefWidth="150.0" />
+      <ChoiceBox layoutX="121.0" layoutY="270.0" prefWidth="150.0" />
+      <ChoiceBox layoutX="330.0" layoutY="270.0" prefWidth="150.0" />
+      <Label layoutX="186.0" layoutY="255.0" text="Sex" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="393.0" layoutY="255.0" text="Race" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="173.0" layoutY="308.0" text="Ethnicity" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="321.0" layoutY="308.0" text="How do did you find out about us?" textFill="#e4e4e4">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

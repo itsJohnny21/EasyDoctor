@@ -186,15 +186,15 @@ public class UI {
 
     public static class SelectableTable extends View {
         public String[] headerStrings;
-        public Consumer<HBox> rowAction;
+        public Consumer<HBox> selectAction;
         public GridPane header;
 
         public SelectableTable() {
             super();
         }
 
-        public SelectableTable withRowAction(Consumer<HBox> rowAction) {
-            this.rowAction = rowAction;
+        public SelectableTable withSelectAction(Consumer<HBox> selectAction) {
+            this.selectAction = selectAction;
             return this;
         }
 
@@ -230,7 +230,7 @@ public class UI {
             HBox row = new HBox();
             row.setMinHeight(rowHeight);
             row.setPrefWidth(width);
-            row.getStyleClass().add("table-row");
+            row.getStyleClass().add("table-selectable-row");
 
             for (int i = 0; i < values.size(); i++) {
                 Value value = values.get(i);
@@ -243,33 +243,17 @@ public class UI {
 
                 if (i % columnCount == columnCount - 1) {
 
-                    if (rowAction != null) {
-                        rowAction.accept(row);
+                    if (selectAction != null) {
+                        selectAction.accept(row);
                     }
                     
                     add(row, 0, rowCount++);
                     row = new HBox();
                     row.setMinHeight(rowHeight);
                     row.setPrefWidth(width);
-                    row.getStyleClass().add("table-row");
+                    row.getStyleClass().add("table-selectable-row");
                 }
             }
-
-            if (row.getChildren().size() > 0) {
-                while (row.getChildren().size() != columnCount) {
-                    Label label = new Label("");
-                    label.setPrefWidth(width / columnCount);
-                    row.getChildren().add(label);
-                    row.getStyleClass().add("table-row");
-                }
-
-                if (rowAction != null) {
-                    rowAction.accept(row);
-                }
-
-                add(row, 0, rowCount++);
-            }
-
         }
 
         public SelectableTable build() {
@@ -288,6 +272,10 @@ public class UI {
 
         public EditableTable() {
             super();
+        }
+
+        public void deleteRow(ValueRow row) {
+            getChildren().remove(row);
         }
 
         public EditableTable isDeletable(boolean deletable) {
@@ -311,6 +299,7 @@ public class UI {
     
                 for (int i = 0; i < headerStrings.length; i++) {
                     Label label = new Label(headerStrings[i]);
+                    label.setAlignment(Pos.CENTER);
                     label.setPrefWidth(width / headerStrings.length);
                     header.getChildren().add(label);
                 }
@@ -318,6 +307,12 @@ public class UI {
                 header.getStyleClass().add("table-header");
                 add(header, 0, rowCount++);
 
+                if (deletable) {
+                    Label label = new Label("Delete");
+                    label.setAlignment(Pos.CENTER);
+                    label.setPrefWidth(width / headerStrings.length);
+                    header.getChildren().add(label);
+                }
             }
         }
 
@@ -331,7 +326,7 @@ public class UI {
                 Value value = values.get(i);
 
                 ((ValueField) value).setMinHeight(rowHeight);
-                ((ValueField) value).setPrefWidth(width / columnCount);
+                ((ValueField) value).setPrefWidth(width / header.getChildren().size());
                 ((ValueField) value).getStyleClass().add("table-field");
 
                 row.getChildren().add(((ValueField) value));
@@ -341,9 +336,10 @@ public class UI {
                 if (i % columnCount == columnCount - 1) {
 
                     if (deletable) {
-                        row.makeDeletable(ubg);
+                        row.makeDeletable();
+                        row.connectedTo(ubg);
                     }
-
+                    
                     add(row, 0, rowCount++);
                     row = new ValueRow(this);
                     row.setMinHeight(rowHeight);
@@ -351,22 +347,6 @@ public class UI {
                     row.getStyleClass().add("table-row");
                 }
             }
-
-            if (row.getChildren().size() > 0) {
-                while (row.getChildren().size() != columnCount) {
-                    Label label = new Label("");
-                    label.setPrefWidth(width / columnCount);
-                    row.getChildren().add(label);
-                    row.getStyleClass().add("table-row");
-                }
-                
-                if (deletable) {
-                    row.makeDeletable(ubg);
-                }
-
-                add(row, 0, rowCount++);
-            }
-
         }
 
         public EditableTable build() {
@@ -454,12 +434,12 @@ public class UI {
 
         for (Surgery surgery : surgeries) {
             Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
-            doctor.userID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+            surgery.doctorID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
 
             surgeriesTable.withCustomHeader("Doctor", "Date", "Procedure", "Location", "Notes");
 
             surgeriesTable.withValues(
-                doctor.userID.createValueField(),
+                surgery.doctorID.createValueField(),
                 surgery.date.createValueField(),
                 surgery.type.createValueField(),
                 surgery.location.createValueField(),
@@ -470,3 +450,5 @@ public class UI {
         return surgeriesTable;
     }
 }
+
+// TODO: Separe Table and Form into separate classes. Table should be the parent for SelectableTable and EditableTable. Form should be the parent for InformationForm and SubmitForm.

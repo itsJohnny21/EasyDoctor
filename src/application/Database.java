@@ -115,7 +115,7 @@ public abstract class Database {
     public static HashMap<String, HashMap<String, Boolean>> updatePermissions;
     public static HashMap<String, HashMap<String, Boolean>> selectPermissions;
     public static HashMap<String, HashMap<String, Boolean>> insertPermissions;
-    public static HashMap<String, HashMap<String, Boolean>> deletePermissions;
+    public static HashMap<String, Boolean> deletePermissions;
 
     static {
         updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
@@ -234,6 +234,12 @@ public abstract class Database {
         return userID;
     }
 
+    public static void deleteRow(String tableName, int rowID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(String.format("DELETE FROM %s WHERE ID = ?;", tableName));
+        statement.setInt(1, rowID);
+        statement.executeUpdate();
+    }
+
     public static void insertEmployee(String username, String password, Role role, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, String managerID) throws Exception {
         if (role != Role.DOCTOR && role != Role.NURSE) {
             throw new SQLException("Invalid role");
@@ -281,35 +287,57 @@ public abstract class Database {
         }
     }
 
-    public static void refreshPermissionsFor(String operation) throws SQLException {
-        String permissionsColumn = String.format("CAN_%s", operation);
-        PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = ?, true, false) AS %s FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = %s;", permissionsColumn, getGrantee()));
-        statement.setString(1, operation);
+    public static void refreshUpdatePermissions() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS can_update FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = %s;", getGrantee()));
         ResultSet resultSet = statement.executeQuery();
 
+        updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
+        
         while (resultSet.next()) {
             String tableName = resultSet.getString("TABLE_NAME");
             String columnName = resultSet.getString("COLUMN_NAME");
-            Boolean updatable = resultSet.getBoolean(permissionsColumn);
-
+            Boolean updatable = resultSet.getBoolean("can_update");
+            
+            
             if (!updatePermissions.containsKey(tableName)) {
                 updatePermissions.put(tableName, new HashMap<String, Boolean>());
             }
-
+            
             updatePermissions.get(tableName).put(columnName, updatable);
         }
     }
 
+    public static void refreshDeletePermissions() throws Exception {
+        PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE PRIVILEGE_TYPE = 'DELETE' AND GRANTEE = %s;", getGrantee()));
+        ResultSet resultSet = statement.executeQuery();
+
+        while (resultSet.next()) {
+            String tableName = resultSet.getString("TABLE_NAME");
+
+            deletePermissions = new HashMap<String, Boolean>();
+            deletePermissions.put(tableName, true);
+        }
+    }
+
     public static void refreshAllPermissions() throws Exception {
-        refreshPermissionsFor("UPDATE");
+        refreshUpdatePermissions();
+        refreshDeletePermissions();
     }
 
     public static boolean canUpdate(String tableName, String columnName) {
         if (!updatePermissions.get(tableName).containsKey(columnName)) {
             return false;
         }
-
+        
         return updatePermissions.get(tableName).get(columnName);
+    }
+
+    public static boolean canDelete(String tableName) {
+        if (!deletePermissions.containsKey(tableName)) {
+            return false;
+        }
+
+        return deletePermissions.get(tableName);
     }
 
     public static boolean signIn(String username, String password) throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
