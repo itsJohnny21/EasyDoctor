@@ -12,3 +12,5 @@ VALUES ('uhh', SHA2('123', 256), 'DOCTOR');
 SET @userID = LAST_INSERT_ID();
 INSERT INTO employees (userID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID)
 VALUES (@userID, 'uhhh', 'Davidson', 'MALE', '1979-12-31', CURRENT_TIMESTAMP, 'peterdavidson123@gmail.com', '1234567890', '123 Main St', NULL);
+
+SELECT * from patients;

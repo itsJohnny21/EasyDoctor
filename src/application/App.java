@@ -20,7 +20,6 @@ public class App extends Application {
 		loadPage("TestView", primaryStage);
 		primaryStage.setWidth(1000);
 		primaryStage.setHeight(1000);
-		// loadPage("SignInView", primaryStage);
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
@@ -34,6 +33,12 @@ public class App extends Application {
 		controller.setStage(primaryStage);
 		primaryStage.setTitle(controller.title);
 		primaryStage.setScene(scene);
+		primaryStage.setResizable(controller.resizable);
+		primaryStage.centerOnScreen();
+		primaryStage.setWidth(controller.width);
+		primaryStage.setHeight(controller.height);
+		primaryStage.setMaxWidth(controller.width);
+		primaryStage.setMaxHeight(controller.height);
 		primaryStage.show();
 	}
 

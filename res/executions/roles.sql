@@ -209,3 +209,4 @@ GRANT DELETE ON allergies TO 'doctor';
 GRANT DELETE ON surgeries TO 'doctor';
 select * from surgeries;
 SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS can_update FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = "'doctor'@'%'";
+GRANT DELETE ON users to 'neutral'@'%';

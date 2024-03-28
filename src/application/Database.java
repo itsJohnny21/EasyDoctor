@@ -214,22 +214,18 @@ public abstract class Database {
         statement.executeUpdate();
     }
 
-    public static int insertUser(String username, String password, Role role) throws Exception {
+    public static Integer insertUser(String username, String password, Role role) throws Exception {
         PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, SHA2(?, 256), ?);");
         statement.setString(1, username);
         statement.setString(2, password);
         statement.setString(3, role.toString());
         statement.executeUpdate();
 
-        if (statement.getUpdateCount() == 0) {
-            throw new SQLException("User not created");
-        }
-
         statement = connection.prepareStatement("SELECT LAST_INSERT_ID();");
         ResultSet resultSet = statement.executeQuery();
 
         resultSet.next();
-        int userID = resultSet.getInt(1);
+        Integer userID = resultSet.getInt(1);
 
         return userID;
     }
@@ -265,25 +261,29 @@ public abstract class Database {
         }
     }
 
-    public static void insertPatient(String username, String password, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, Race race, Ethnicity ethnicity) throws Exception {
-        int userID = insertUser(username, password, Role.PATIENT);
+    public static void insertPatient(String username, String password, String firstName, String lastName, String sex, String birthDate, String email, String phone, String address, String race, String ethnicity) throws Exception {
+        Integer userID = insertUser(username, password, Role.PATIENT);
 
         PreparedStatement statement = connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         statement.setInt(1, userID);
         statement.setString(2, firstName);
         statement.setString(3, lastName);
-        statement.setString(4, sex.toString());
+        statement.setString(4, sex);
         statement.setString(5, birthDate);
         statement.setString(6, email);
         statement.setString(7, phone);
         statement.setString(8, address);
-        statement.setString(9, race.toString());
-        statement.setString(10, ethnicity.toString());
+        statement.setString(9, race);
+        statement.setString(10, ethnicity);
+        System.out.println(statement.toString());
 
-        statement.executeUpdate();
-
-        if (statement.getUpdateCount() == 0) {
-            throw new SQLException("Patient not created");
+        try {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            if (userID != null) {
+                deleteRow("users", userID);
+                throw e;
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 INSERT INTO users (username, password, role)
 VALUES ('barb123', SHA2('123', 256), 'PATIENT');
 SET @userID = LAST_INSERT_ID();
-INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
 VALUES (@userID, 'Barbara', 'Williams',  'FEMALE', '2000-01-01', 'barb123@gmail.com', '1234567890', '123 Test St', 'WHITE', 'NON-HISPANIC');
 INSERT INTO allergies (userID, allergen, commonSource, severity, type, notes)
 VALUES (@userID, 'Peanuts', 'Peanut Butter', 'MILD', 'FOOD', 'Patient has nightmares about peanut butter.');
@@ -40,4 +40,14 @@ select * from vaccineRecords where userID = vaccineRecords.userID;
 select * from healthConditions where userID = healthConditions.userID;
 select * from prescriptions where userID = prescriptions.userID;
 
+INSERT INTO users (ID, username, password, role)
+VALUES (68, 'john1234', '12345', 'PATIENT');
+
+INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (68, 'John', 'Doe', '2021-01-01', 'idk', '123', '123', 'MALE', 'WHITE', 'HISPANIC');
+INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (69, 'John', 'Doe', '2021-01-01', 'idk', '123', '123', 'MALE', 'WHITE', 'HISPANIC');
+delete from users where username = 'user1';
+delete from users where ID = 81;
 select * from users;
+select * from patients;

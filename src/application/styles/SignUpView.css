@@ -1,0 +1,10 @@
+.root {
+}
+
+/* .TextField {
+    -fx-background-color: none;
+} */
+
+.error {
+    -fx-border-color: #ff0000
+}
