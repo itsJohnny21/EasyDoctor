@@ -19,7 +19,7 @@ public class App extends Application {
 		Database.connectAs(Role.NEUTRAL);
 		loadPage("TestView", primaryStage);
 		primaryStage.setWidth(1000);
-		primaryStage.setHeight(1000);
+		primaryStage.setHeight(600);
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
@@ -46,8 +46,7 @@ public class App extends Application {
 		Database.disconnect();
 		System.out.println("Goodbye!");
 		System.exit(0);
-}
-	
+	}
 	public static void main(String[] args) {
 		System.out.println("Starting application...");
 		try {

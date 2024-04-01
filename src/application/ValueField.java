@@ -5,20 +5,21 @@ import java.sql.SQLException;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TextField;
 
-public class ValueField extends TextField implements Value {
+public class ValueField extends TextField implements Connectable {
     public Datum datum;
     public boolean updatable;
     public String label;
     
-    public ValueField(Datum datum) {
+    public ValueField(Datum datum, String label) {
         super(datum.newValue);
         this.datum = datum;
+        this.label = label;
         updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
-        setEditable(false);
     }
 
-    public ValueField() {
+    public ValueField(String label) {
         super();
+        this.label = label;
     }
 
     public void onEdit() {
@@ -53,13 +54,11 @@ public class ValueField extends TextField implements Value {
         requestFocus();
     }
 
-    public ValueField connectedTo(UpdateButtonGroup updateButtonGroup) {
-        updateButtonGroup.values.add(this);
-        return this;
+    public void initialize() {
+        setEditable(false);
     }
 
-    public ValueField withLabel(String label) {
-        this.label = label;
-        return this;
+    public String toString() {
+        return label + " " + getText();
     }
 }

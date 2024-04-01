@@ -11,46 +11,41 @@ public class UpdateButtonGroup {
     public Button editButton;
     public Button cancelButton;
     public Button saveButton;
-    public ArrayList<Value> values;
+    public ArrayList<Connectable> connections;
 
     public UpdateButtonGroup(Button editButton, Button cancelButton, Button saveButton) {
         this.editButton = editButton;
         this.cancelButton = cancelButton;
         this.saveButton = saveButton;
-        this.values = new ArrayList<Value>();
+        this.connections = new ArrayList<Connectable>();
 
         this.editButton.setDisable(false);
         this.cancelButton.setDisable(true);
         this.saveButton.setDisable(true);
 
-        editButton.setOnAction(e -> {
+        editButton.setOnAction(event -> {
             editButton.setDisable(true);
             cancelButton.setDisable(false);
             saveButton.setDisable(false);
 
-            for (Value value : values) {
-                value.onEdit();
+            for (Connectable connection : connections) {
+                connection.onEdit();
             }
         });
 
-        cancelButton.setOnAction(e -> {
+        cancelButton.setOnAction(event -> {
             cancelButton.setDisable(true);
             editButton.setDisable(false);
             saveButton.setDisable(true);
 
-            for (Value value : values) {
-                value.onCancel();
+            for (Connectable connection : connections) {
+                connection.onCancel();
             }
 
 
         });
-//SELECT COUNT(*) INTO @count FROM lookup_table WHERE value = 'new_value'; //! maybe use this to validate the input
 
-// IF @count > 0 THEN
-// UPDATE your_table SET your_column = 'new_value' WHERE id = your_id;
-// END IF;
-
-        saveButton.setOnAction(e -> {
+        saveButton.setOnAction(event -> {
             boolean error = false;
 
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -61,11 +56,11 @@ public class UpdateButtonGroup {
             if (alert.showAndWait().get().getText().equals("CANCEL")) {
                 return;
             }
-            for (Value value : values) {
+            for (Connectable connection : connections) {
                 try {
-                    value.onSave();
+                    connection.onSave();
                 } catch (SQLException exc) {
-                    value.onError();
+                    connection.onError();
                     error = true;
 
                     alert = new Alert(AlertType.ERROR);
@@ -84,5 +79,9 @@ public class UpdateButtonGroup {
                 editButton.fire();
             }
         });
+    }
+
+    public void addConnection(Connectable connection) {
+            connections.add(connection);
     }
 }

@@ -25,14 +25,14 @@ public class UI {
         public int rowCount;
         public int columnCount;
         public UpdateButtonGroup ubg;
-        public ArrayList<Value> values;
+        public ArrayList<Connectable> values;
 
         public View() {
             super();
 
             this.rowCount = 0;
             this.columnCount = 1;
-            this.values = new ArrayList<Value>();
+            this.values = new ArrayList<Connectable>();
             this.width = Screen.getPrimary().getVisualBounds().getWidth();
         }
 
@@ -56,13 +56,13 @@ public class UI {
             return this;
         }
 
-        public View withValue(Value value) {
+        public View withValue(Connectable value) {
             values.add(value);
             return this;
         }
 
-        public View withValues(Value... values) {
-            for (Value value : values) {
+        public View withValues(Connectable... values) {
+            for (Connectable value : values) {
                 this.values.add(value);
             }
             return this;
@@ -111,10 +111,10 @@ public class UI {
             row.getStyleClass().add("form-row");
 
             for (int i = 0; i < values.size(); i++) {
-                Value value = values.get(i);
+                Connectable value = values.get(i);
 
                 if (ubg != null) {
-                    value.connectedTo(ubg);
+                    ubg.values.add(value);
                 }
 
                 Label valueLabel = new Label();
@@ -233,7 +233,7 @@ public class UI {
             row.getStyleClass().add("table-selectable-row");
 
             for (int i = 0; i < values.size(); i++) {
-                Value value = values.get(i);
+                Connectable value = values.get(i);
 
                 ((ValueLabel) value).setMinHeight(rowHeight);
                 ((ValueLabel) value).setPrefWidth(width / columnCount);
@@ -323,7 +323,7 @@ public class UI {
             row.getStyleClass().add("table-row");
 
             for (int i = 0; i < values.size(); i++) {
-                Value value = values.get(i);
+                Connectable value = values.get(i);
 
                 ((ValueField) value).setMinHeight(rowHeight);
                 ((ValueField) value).setPrefWidth(width / header.getChildren().size());
@@ -331,13 +331,13 @@ public class UI {
 
                 row.getChildren().add(((ValueField) value));
 
-                ((ValueField) value).connectedTo(ubg);
+                ubg.values.add(value);
 
                 if (i % columnCount == columnCount - 1) {
 
                     if (deletable) {
                         row.makeDeletable();
-                        row.connectedTo(ubg);
+                        ubg.values.add(value);
                     }
                     
                     add(row, 0, rowCount++);
@@ -380,13 +380,13 @@ public class UI {
         contactInformationForm
             .withTitle("Contact Information")
             .withValues(
-                patient.firstName.createValueField().withLabel("First Name: "),
-                patient.lastName.createValueField().withLabel("Last Name: "),
-                patient.phone.createValueField().withLabel("Phone Number: "),
-                patient.email.createValueField().withLabel("Email: "),
-                patient.phone.createValueField().withLabel("Phone: "),
-                patient.address.createValueField().withLabel("Address: "),
-                patient.preferredDoctorID.createValueOption().withLabel("Preferred Doctor: ")
+                patient.firstName.createValueField("First Name: "),
+                patient.lastName.createValueField("Last Name: "),
+                patient.phone.createValueField("Phone Number: "),
+                patient.email.createValueField("Email: "),
+                patient.phone.createValueField("Phone: "),
+                patient.address.createValueField("Address: "),
+                patient.preferredDoctorID.createValueOption("Preferred Doctor: ")
                     .withConverter(new StringConverter<Datum>() {
                         @Override
                         public String toString(Datum datum) {
@@ -405,22 +405,22 @@ public class UI {
                         }
                     })
                     .withData(Database.Row.Employee.getAllDoctorNames()),
-                patient.bloodType.createValueOption().withLabel("Blood Type: ")
+                patient.bloodType.createValueOption("Blood Type: ")
                     .withData(Database.getOptionsFor(patient.bloodType)),
-                patient.height.createValueField().withLabel("Height: "),
-                patient.weight.createValueField().withLabel("Weight: "),
-                patient.race.createValueOption().withLabel("Race: ")
+                patient.height.createValueField("Height: "),
+                patient.weight.createValueField("Weight: "),
+                patient.race.createValueOption("Race: ")
                     .withData(Database.getOptionsFor(patient.race)),
-                patient.ethnicity.createValueOption().withLabel("Ethnicity: ")
+                patient.ethnicity.createValueOption("Ethnicity: ")
                     .withData(Database.getOptionsFor(patient.ethnicity)),
-                patient.insuranceProvider.createValueField().withLabel("Insurance Provider: "),
-                patient.insuranceID.createValueField().withLabel("Insurance ID: "),
-                patient.emergencyContactName.createValueField().withLabel("Emergency Contact Name: "),
-                patient.emergencyContactPhone.createValueField().withLabel("Emergency Phone: "),
-                patient.motherFirstName.createValueField().withLabel("Mother Fist Name: "),
-                patient.motherLastName.createValueField().withLabel("Mother Last Name: "),
-                patient.fatherFirstName.createValueField().withLabel("Father First Name: "),
-                patient.fatherLastName.createValueField().withLabel("Father Last Name: ")
+                patient.insuranceProvider.createValueField("Insurance Provider: "),
+                patient.insuranceID.createValueField("Insurance ID: "),
+                patient.emergencyContactName.createValueField("Emergency Contact Name: "),
+                patient.emergencyContactPhone.createValueField("Emergency Phone: "),
+                patient.motherFirstName.createValueField("Mother Fist Name: "),
+                patient.motherLastName.createValueField("Mother Last Name: "),
+                patient.fatherFirstName.createValueField("Father First Name: "),
+                patient.fatherLastName.createValueField("Father Last Name: ")
             );
 
         return contactInformationForm;
@@ -439,11 +439,11 @@ public class UI {
             surgeriesTable.withCustomHeader("Doctor", "Date", "Procedure", "Location", "Notes");
 
             surgeriesTable.withValues(
-                surgery.doctorID.createValueField(),
-                surgery.date.createValueField(),
-                surgery.type.createValueField(),
-                surgery.location.createValueField(),
-                surgery.notes.createValueField()
+                surgery.doctorID.createValueField(""),
+                surgery.date.createValueField(""),
+                surgery.type.createValueField(""),
+                surgery.location.createValueField(""),
+                surgery.notes.createValueField("")
             );
         }
 

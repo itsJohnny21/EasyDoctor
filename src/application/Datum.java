@@ -1,6 +1,9 @@
 package application;
 
+import java.util.ArrayList;
+
 import application.Database.Row;
+import application.Database.Row.Employee;
 
 public class Datum {
     public String originalValue;
@@ -24,16 +27,27 @@ public class Datum {
 
     public Datum() {}
 
-    public ValueField createValueField() {
-        return new ValueField(this);
+    public static ArrayList<Datum> getOptionsForDoctors(Datum doctorID) throws Exception {
+        ArrayList<Datum> options = new ArrayList<>();
+        ArrayList<Employee> doctors = Database.Row.Employee.getAllDoctors();
+
+        for (Employee doctor : doctors) {
+            options.add(new Datum(doctorID.parent, doctor.userID.originalValue, doctor.userID.columnName));
+        }
+
+        return options;
+    }
+
+    public ValueField createValueField(String labelString) {
+        return new ValueField(this, labelString);
     }
 
     public ValueLabel createValueLabel() {
         return new ValueLabel(this);
     }
 
-    public ValueOption createValueOption() {
-        return new ValueOption(this);
+    public ValueOption createValueOption(String labelString) {
+        return new ValueOption(this, labelString);
     }
 
     public static Datum createParentless(String originalValue, String columnName) {

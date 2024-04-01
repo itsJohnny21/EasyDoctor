@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import javafx.scene.control.Label;
 
-public class ValueLabel extends Label implements Value {
+public class ValueLabel extends Label implements Connectable {
     public Datum datum;
     
     public ValueLabel(Datum datum) {
@@ -22,14 +22,17 @@ public class ValueLabel extends Label implements Value {
     public void onCancel() {
     }
 
-    public Value connectedTo(UpdateButtonGroup updateButtonGroup) {
+    public Connectable connectTo(UpdateButtonGroup updateButtonGroup) {
         return this;
     }
 
-    public Value withConversion() {
+    public Connectable withConversion() {
         return this;
     }
 
     public void onError() {
+    }
+
+    public void initialize() {
     }
 }

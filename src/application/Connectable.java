@@ -2,10 +2,11 @@ package application;
 
 import java.sql.SQLException;
 
-public interface Value {
+public interface Connectable {
     public void onEdit();
     public void onSave() throws SQLException;
     public void onCancel();
     public void onError();
-    public Value connectedTo(UpdateButtonGroup updateButtonGroup);
+    public String toString();
+    public void initialize();
 }

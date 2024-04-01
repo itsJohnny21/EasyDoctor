@@ -30,7 +30,7 @@ public abstract class Database {
     public enum Role {
         NEUTRAL, DOCTOR, NURSE, PATIENT;
 
-        public static ValueOption createValueOption() throws Exception{
+        public static ValueOption createValueOption(String label) throws Exception{
             Role[] roles = {DOCTOR, NURSE, PATIENT};
             ArrayList<Datum> options = new ArrayList<Datum>();
 
@@ -39,7 +39,7 @@ public abstract class Database {
                 options.add(option);
             }
 
-            ValueOption option = new ValueOption(options);
+            ValueOption option = new ValueOption(options, label);
             return option;
         }
     }
@@ -47,7 +47,20 @@ public abstract class Database {
     public enum Sex {
         MALE, FEMALE, OTHER;
 
-        public static ValueOption createValueOption() throws Exception{
+        public static ValueOption createValueOption(Datum sexDatum, String label) throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (Sex sex : Sex.values()) {
+                Datum option = new Datum(sexDatum.parent, sex.toString(), sexDatum.columnName);
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options, label);
+            option.setValue(sexDatum);
+            return option;
+        }
+
+        public static ValueOption createValueOption(String label) throws Exception{
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (Sex sex : Sex.values()) {
@@ -55,7 +68,7 @@ public abstract class Database {
                 options.add(option);
             }
     
-            ValueOption option = new ValueOption(options);
+            ValueOption option = new ValueOption(options, label);
             return option;
         }
     }
@@ -63,7 +76,7 @@ public abstract class Database {
     public enum Race {
         WHITE, BLACK, HISPANIC, ASIAN, NATIVE, AMERICAN, PACIFIC, ISLANDER, OTHER;
 
-        public static ValueOption createValueOption() throws Exception{
+        public static ValueOption createValueOption(String label) throws Exception{
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (Race race : Race.values()) {
@@ -71,7 +84,7 @@ public abstract class Database {
                 options.add(option);
             }
     
-            ValueOption option = new ValueOption(options);
+            ValueOption option = new ValueOption(options, label);
             return option;
         }
     }
@@ -79,7 +92,7 @@ public abstract class Database {
     public enum Ethnicity {
         HISPANIC, NON_HISPANIC;
 
-        public static ValueOption createValueOption() throws Exception{
+        public static ValueOption createValueOption(String label) throws Exception{
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (Ethnicity ethnicity : Ethnicity.values()) {
@@ -87,7 +100,7 @@ public abstract class Database {
                 options.add(option);
             }
     
-            ValueOption option = new ValueOption(options);
+            ValueOption option = new ValueOption(options, label);
             return option;
         }        
     }
@@ -96,7 +109,7 @@ public abstract class Database {
     public enum Severity {
         MILD, MODERATE, SEVERE;
 
-        public static ValueOption createValueOption() throws Exception{
+        public static ValueOption createValueOption(String label) throws Exception{
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (Severity severity : Severity.values()) {
@@ -104,9 +117,48 @@ public abstract class Database {
                 options.add(option);
             }
     
-            ValueOption option = new ValueOption(options);
+            ValueOption option = new ValueOption(options, label);
             return option;
         }        
+    }
+
+    public enum BloodType {
+        A_POSITIVE("A+"), A_NEGATIVE("A-"), B_POSITIVE("B+"), B_NEGATIVE("B-"), AB_POSITIVE("AB+"), AB_NEGATIVE("AB-"), O_POSITIVE("O+"), O_NEGATIVE("O-");
+
+        private final String value;
+
+        private BloodType(String value) {
+            this.value = value;
+        }
+
+        public String toString() {
+            return value;
+        }
+
+        public static ValueOption createValueOption(Datum bloodTypeDatum, String label) throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (BloodType bloodType : BloodType.values()) {
+                Datum option = new Datum(bloodTypeDatum.parent, bloodType.toString(), bloodTypeDatum.columnName);
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options, label);
+            option.setValue(bloodTypeDatum);
+            return option;
+        }
+
+        public static ValueOption createValueOption(String label) throws Exception{
+            ArrayList<Datum> options = new ArrayList<Datum>();
+    
+            for (BloodType bloodType : BloodType.values()) {
+                Datum option = Datum.createParentless(bloodType.toString(), "bloodType");
+                options.add(option);
+            }
+    
+            ValueOption option = new ValueOption(options, label);
+            return option;
+        }
     }
 
     public static Connection connection;
@@ -328,7 +380,6 @@ public abstract class Database {
         if (!updatePermissions.get(tableName).containsKey(columnName)) {
             return false;
         }
-        
         return updatePermissions.get(tableName).get(columnName);
     }
 
@@ -441,12 +492,11 @@ public abstract class Database {
         public String tableName;
         public Integer rowID;
     
-
         public static class User extends Row {
             public Datum userID;
             public Datum role;
             public Datum username;
-    
+
             public static User getFor(int userID) throws Exception {
                 ResultSet resultSet = Database.selectRow(userID, "users");
     
@@ -531,10 +581,6 @@ public abstract class Database {
                 
                 while (resultSet.next()) {
                     surgeries.add(new Surgery(resultSet));
-                }
-    
-                if (surgeries.size() == 0) {
-                    return null;
                 }
     
                 return surgeries;
@@ -646,6 +692,12 @@ public abstract class Database {
                 Patient patient = new Patient(resultSet);
                 return patient;
             }
+
+            public Datum getPreferredDoctor() throws Exception {
+                Employee employee = Employee.getFor(Integer.parseInt(preferredDoctorID.originalValue));
+                preferredDoctorID.newValue = employee.firstName.originalValue + " " + employee.lastName.originalValue;
+                return preferredDoctorID;
+            }
         }
 
         public static class Employee extends Row {
@@ -683,6 +735,17 @@ public abstract class Database {
                 this.phone = new Datum(this, resultSet.getString(phoneColumn), phoneColumn);
                 this.address = new Datum(this, resultSet.getString(addressColumn), addressColumn);
                 this.managerID = new Datum(this, resultSet.getString(managerIDColumn), managerIDColumn);
+            }
+
+            public static ArrayList<Employee> getAllDoctors() throws Exception {
+                ArrayList<Employee> doctors = new ArrayList<Employee>();
+                ResultSet resultSet = Database.selectAllWithRole(Role.DOCTOR);
+
+                while (resultSet.next()) {
+                    Employee doctor = Employee.getFor(resultSet.getInt("ID"));
+                    doctors.add(doctor);
+                }
+                return doctors;
             }
 
             public static Employee getFor(int userID) throws Exception {

@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Scrap",
-            "request": "launch",
-            "mainClass": "Scrap",
-            "projectName": "EasyDoctor_99aca512"
-        },
-        {
-            "type": "java",
             "name": "App",
             "request": "launch",
             "mainClass": "application.App",
