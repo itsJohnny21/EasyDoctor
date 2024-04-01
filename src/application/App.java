@@ -59,7 +59,6 @@ public class App extends Application {
 	}
 }
 
-// TODO: Add pseudo-class to ValueField, ValueOption, and ValueLabel to edit their style when an error occurs
 // TODO: Avoid using String.format() when querying the database
 // TODO: Make an Editable interface for ValueField, ValueOption, ValueLabel, and ValueRow
 // TODO: When edit is clicked, a RadioButton should appear next to each row, and the user should be able to select multiple rows to delete

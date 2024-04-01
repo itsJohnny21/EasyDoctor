@@ -32,7 +32,7 @@ public class Datum {
         ArrayList<Employee> doctors = Database.Row.Employee.getAllDoctors();
 
         for (Employee doctor : doctors) {
-            options.add(new Datum(doctorID.parent, doctor.userID.originalValue, doctor.userID.columnName));
+            options.add(new Datum(doctorID.parent, doctor.userID.originalValue, doctorID.columnName));
         }
 
         return options;

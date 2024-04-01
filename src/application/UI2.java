@@ -101,15 +101,15 @@ public class UI2 {
         }
 
         public static class EditableTable extends Table {
-            public boolean deletable;
             public UpdateButtonGroup ubg;
+            public Consumer<Row2> deleteAction;
 
             public EditableTable() {
                 super();
             }
 
-            public EditableTable isDeletable(boolean deletable) {
-                this.deletable = deletable;
+            public EditableTable withDeleteAction(Consumer<Row2> deleteAction) {
+                this.deleteAction = deleteAction;
                 return this;
             }
 
@@ -128,7 +128,7 @@ public class UI2 {
                     headerBox.getChildren().add(headerLabel);
                 }
                 
-                if (deletable) {
+                if (deleteAction != null) {
                     Label deleteLabel = new Label("Delete");
                     deleteLabel.getStyleClass().add("table-label");
                     headerBox.getChildren().add(deleteLabel);
@@ -149,9 +149,9 @@ public class UI2 {
                         }
                     }
 
-                    if (deletable) {
+                    if (deleteAction != null) {
                         ubg.addConnection(row);
-                        row.makeDeletable();
+                        row.makeDeletable(deleteAction);
                         row.deleteButton.getStyleClass().add("table-delete-button");
                     }
 

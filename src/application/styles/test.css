@@ -14,7 +14,7 @@
 }
 
 .table-title {
-    -fx-background-color:  #ab5b67;
+    -fx-background-color:  #123456;
     -fx-background-radius: 0;
     -fx-font-size: 14pt;
     -fx-alignment: center;
@@ -29,7 +29,7 @@
 }
 
 .table-header {
-    -fx-background-color:  #ab5b67;
+    -fx-background-color:  #123456;
     -fx-background-radius: 0;
     -fx-alignment: center;
     -fx-pref-height: 50px;
@@ -80,7 +80,7 @@
 }
 
 .form-title {
-    -fx-background-color:  #ab5b67;
+    -fx-background-color:  #123456;
     -fx-font-size: 14pt;
     -fx-alignment: center;
     -fx-pref-height: 50px;

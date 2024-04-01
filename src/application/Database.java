@@ -51,12 +51,16 @@ public abstract class Database {
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (Sex sex : Sex.values()) {
+                if (sexDatum.originalValue.equals(sex.toString())) {
+                    continue;
+                }
+
                 Datum option = new Datum(sexDatum.parent, sex.toString(), sexDatum.columnName);
                 options.add(option);
             }
     
             ValueOption option = new ValueOption(options, label);
-            option.setValue(sexDatum);
+            option.setOption(sexDatum);
             return option;
         }
 
@@ -123,7 +127,7 @@ public abstract class Database {
     }
 
     public enum BloodType {
-        A_POSITIVE("A+"), A_NEGATIVE("A-"), B_POSITIVE("B+"), B_NEGATIVE("B-"), AB_POSITIVE("AB+"), AB_NEGATIVE("AB-"), O_POSITIVE("O+"), O_NEGATIVE("O-");
+        A_POSITIVE("A+"), A_NEGATIVE("A-"), B_POSITIVE("B+"), B_NEGATIVE("B-"), AB_POSITIVE("AB+"), AB_NEGATIVE("AB-"), O_POSITIVE("O+"), O_NEGATIVE("O-"), UNKNOWN("THROW ERROR");
 
         private final String value;
 
@@ -135,7 +139,7 @@ public abstract class Database {
             return value;
         }
 
-        public static ValueOption createValueOption(Datum bloodTypeDatum, String label) throws Exception{
+        public static ValueOption createValueOption(Datum bloodTypeDatum, String label) throws Exception {
             ArrayList<Datum> options = new ArrayList<Datum>();
     
             for (BloodType bloodType : BloodType.values()) {
@@ -144,7 +148,7 @@ public abstract class Database {
             }
     
             ValueOption option = new ValueOption(options, label);
-            option.setValue(bloodTypeDatum);
+            option.setOption(bloodTypeDatum);
             return option;
         }
 

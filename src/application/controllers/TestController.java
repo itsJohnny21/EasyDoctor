@@ -1,6 +1,8 @@
 package application.controllers;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import application.Database;
 import application.Database.Row.Employee;
@@ -15,6 +17,8 @@ import application.UI2.Table.SelectableTable;
 import application.UpdateButtonGroup;
 import application.ValueField;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
@@ -71,9 +75,10 @@ public class TestController extends Controller {
             );
         }
 
-        Table table1 = new SelectableTable()
+        SelectableTable table1 = new SelectableTable();
+        table1
             .withRowAction(row -> {
-                row.setOnMouseClicked(e -> {
+                row.setOnMouseClicked(event -> {
                     System.out.printf("Row %d clicked\n", row.rowID);
                 });
             })
@@ -83,9 +88,37 @@ public class TestController extends Controller {
             .build();
         contentPane.getChildren().add(table1);
 
-        Table table2 = new EditableTable()
+        EditableTable table2 = new EditableTable();
+        table2
             .connectedTo(ubg)
-            .isDeletable(true)
+            .withDeleteAction(row -> {
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle(String.format("Delete from %s", row.tableName));
+                alert.setHeaderText(String.format("Are you sure you want to delete this row from %s?", row.tableName));
+                alert.setContentText("This action cannot be undone.");
+                if (alert.showAndWait().get().getText().equals("OK")) {
+                    try {
+                        Database.deleteRow(row.tableName, row.rowID);
+
+                        for (Table table : new Table[] {table1, table2}) {
+                            Iterator<Row2> iterator = table.rows.iterator();
+                            while (iterator.hasNext()) {
+                                Row2 iteratedRow = iterator.next();
+                                if (iteratedRow.rowID == row.rowID) {
+                                    iterator.remove();
+                                    table.getChildren().remove(iteratedRow);
+                                }
+                            }
+                        }
+                    } catch (SQLException e) {
+                        alert = new Alert(AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("An error occurred while deleting the row.");
+                        alert.setContentText(e.getMessage());
+                        alert.showAndWait();
+                    }
+                }
+            })
             .withTitle("Table 2")
             .withHeader("Surgeon", "Type", "Date", "Notes")
             .withRows(rows2)
@@ -136,7 +169,8 @@ public class TestController extends Controller {
             .withFields(
                 new ValueField("Username"),
                 new ValueField("Password"),
-                Database.Role.createValueOption("Role")
+                Database.Role.createValueOption("Role"),
+                Database.Sex.createValueOption("Sex")
             )
             .build();
 

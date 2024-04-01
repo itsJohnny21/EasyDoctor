@@ -3,6 +3,7 @@ package application;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javafx.css.PseudoClass;
 import javafx.scene.control.ChoiceBox;
 import javafx.util.StringConverter;
 
@@ -20,6 +21,11 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
         setValue(datum);
 
         updatable = datum.parent == null ? false : Database.canUpdate(datum.parent.tableName, datum.columnName);
+    }
+
+    public void setOption(Datum option) {
+        datum = option;
+        setValue(option);
     }
     
     public ValueOption(Datum option, String label) {
@@ -49,10 +55,13 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
     public void onSave() throws SQLException {
         if (!updatable) return;
 
+        System.out.println(getValue().originalValue);
+        System.out.println(datum.originalValue);
+
         if (getValue() != null && getValue().originalValue != datum.originalValue) {
-            datum.originalValue = getValue().originalValue;
-            System.out.println("new value!");
-            Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.originalValue);
+            System.out.printf("new value! %s -> %s\n", datum.originalValue, this);
+            Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, getValue().originalValue);
+            datum = getValue();
         }
         setDisable(true);
     }
@@ -64,6 +73,9 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
 
     public void onError() {
         setValue(datum);
+        System.out.println("ERROR OPTION");
+        PseudoClass errorClass = PseudoClass.getPseudoClass("error");
+        pseudoClassStateChanged(errorClass, true); //! not working
     }
 
     public void initialize() {
@@ -71,6 +83,6 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
     }
 
     public String toString() {
-        return label + " " + getValue().originalValue;
+        return getValue().originalValue;
     }
 }

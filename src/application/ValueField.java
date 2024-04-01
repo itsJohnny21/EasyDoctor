@@ -30,7 +30,7 @@ public class ValueField extends TextField implements Connectable {
         if (!updatable) return;
 
         if (!getText().equals(datum.originalValue)) {
-            System.out.println("new value!: " + getText());
+            System.out.printf("new value! %s -> %s\n", datum.originalValue, this);
             datum.newValue = getText();
             Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.newValue);
             datum.originalValue = datum.newValue;
@@ -50,7 +50,6 @@ public class ValueField extends TextField implements Connectable {
         undo();
         PseudoClass errorClass = PseudoClass.getPseudoClass("error");
         pseudoClassStateChanged(errorClass, true); //! not working
-        setStyle("-fx-border-color: red;");
         requestFocus();
     }
 
@@ -59,6 +58,6 @@ public class ValueField extends TextField implements Connectable {
     }
 
     public String toString() {
-        return label + " " + getText();
+        return getText();
     }
 }
