@@ -20,25 +20,6 @@ use easydoctor;
 select * from users;
 select * from patients;
 
--- All information together:
-SELECT * 
-FROM users 
-LEFT JOIN patients ON users.ID = patients.userID 
-LEFT JOIN allergies ON users.ID = allergies.userID 
-LEFT JOIN surgeries ON users.ID = surgeries.userID 
-LEFT JOIN visits ON users.ID = visits.userID 
-LEFT JOIN vaccineRecords ON users.ID = vaccineRecords.userID 
-LEFT JOIN healthConditions ON users.ID = healthConditions.userID 
-LEFT JOIN prescriptions ON users.ID = prescriptions.userID;
-
--- All information by table:
-select * from patients where userID = patients.userID;
-select * from allergies where userID = allergies.userID;
-select * from surgeries where userID = surgeries.userID;
-select * from visits where userID = visits.userID;
-select * from vaccineRecords where userID = vaccineRecords.userID;
-select * from healthConditions where userID = healthConditions.userID;
-select * from prescriptions where userID = prescriptions.userID;
 
 INSERT INTO users (ID, username, password, role)
 VALUES (68, 'john1234', '12345', 'PATIENT');

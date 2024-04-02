@@ -82,6 +82,6 @@ public class UpdateButtonGroup {
     }
 
     public void addConnection(Connectable connection) {
-            connections.add(connection);
+        connections.add(connection);
     }
 }

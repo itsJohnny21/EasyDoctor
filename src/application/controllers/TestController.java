@@ -2,28 +2,32 @@ package application.controllers;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
+import application.Connectable;
 import application.Database;
 import application.Database.Row.Employee;
 import application.Database.Row.Patient;
 import application.Database.Row.Surgery;
+import application.Database.Sex;
 import application.Datum;
-import application.Row2;
-import application.UI2.Form;
-import application.UI2.Table;
-import application.UI2.Table.EditableTable;
-import application.UI2.Table.SelectableTable;
+import application.EditableTable;
+import application.Form;
+import application.Row;
+import application.SelectableTable;
+import application.UI.Table;
 import application.UpdateButtonGroup;
 import application.ValueField;
+import application.ValueOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 
 public class TestController extends Controller {
     @FXML public AnchorPane rootPane;
@@ -37,19 +41,19 @@ public class TestController extends Controller {
 
     public void initialize() throws Exception {
         rootPane.getStylesheets().add(getClass().getResource("/application/styles/test.css").toExternalForm());
-        Database.connectAs(Database.Role.NEUTRAL);
+        Database.changeRole(null);
         Database.signIn("john123", "123");
 
         UpdateButtonGroup ubg = new UpdateButtonGroup(editButton, cancelButton, saveButton);
         
         ArrayList<Surgery> surgeries = Database.Row.Surgery.getAllFor(2);
-        Row2[] rows = new Row2[surgeries.size()];
+        Row[] rows = new Row[surgeries.size()];
         for (int i = 0; i < surgeries.size(); i++) {
             Surgery surgery = surgeries.get(i);
             Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
-            doctor.userID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+            doctor.userID.displayValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
             
-            rows[i] = new Row2(
+            rows[i] = new Row(
                 surgery.tableName,
                 surgery.rowID,
                 doctor.userID.createValueLabel(),
@@ -59,13 +63,13 @@ public class TestController extends Controller {
             );
         }
 
-        Row2[] rows2 = new Row2[surgeries.size()];
+        Row[] rows2 = new Row[surgeries.size()];
         for (int i = 0; i < surgeries.size(); i++) {
             Surgery surgery = surgeries.get(i);
             Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
-            doctor.userID.newValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+            doctor.userID.displayValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
             
-            rows2[i] = new Row2(
+            rows2[i] = new Row(
                 surgery.tableName,
                 surgery.rowID,
                 doctor.userID.createValueField(""),
@@ -79,7 +83,7 @@ public class TestController extends Controller {
         table1
             .withRowAction(row -> {
                 row.setOnMouseClicked(event -> {
-                    System.out.printf("Row %d clicked\n", row.rowID);
+                    System.out.printf("Row %d from %s clicked\n", row.rowID, row.tableName);
                 });
             })
             .withTitle("Table 1")
@@ -101,9 +105,9 @@ public class TestController extends Controller {
                         Database.deleteRow(row.tableName, row.rowID);
 
                         for (Table table : new Table[] {table1, table2}) {
-                            Iterator<Row2> iterator = table.rows.iterator();
+                            Iterator<Row> iterator = table.rows.iterator();
                             while (iterator.hasNext()) {
-                                Row2 iteratedRow = iterator.next();
+                                Row iteratedRow = iterator.next();
                                 if (iteratedRow.rowID == row.rowID) {
                                     iterator.remove();
                                     table.getChildren().remove(iteratedRow);
@@ -134,29 +138,12 @@ public class TestController extends Controller {
             .withFields(
                 patient.firstName.createValueField("First Name"),
                 patient.lastName.createValueField("Last Name"),
-                patient.preferredDoctorID.createValueOption("Preferred Doctor")
-                    .withData(Datum.getOptionsForDoctors(patient.preferredDoctorID))
-                    .withConverter(new StringConverter<Datum>() {
-                        @Override
-                        public String toString(Datum datum) {
-                            try {
-                                Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(datum.originalValue));
-                                return doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
-                            } catch (Exception e) {
-                                return "";
-                            }
-                        }
-
-                        @Override
-                        public Datum fromString(String string) {
-                            return null;
-                        }
-                    }),
-                Database.BloodType.createValueOption(patient.bloodType, "Blood Type"),
+                Datum.createValueOptionForDoctors(patient.preferredDoctorID, "Preferred Doctor"),
+                Datum.createValueOptionFromEnum(Database.BloodType.class, patient.bloodType, "Blood Type"),
                 patient.email.createValueField("Email"),
                 patient.phone.createValueField("Phone"),
                 patient.address.createValueField("Address"),
-                Database.Sex.createValueOption(patient.sex, "Sex")
+                Datum.createValueOptionFromEnum(Database.Sex.class, patient.sex, "Sex")
             )
             .build();
 
@@ -164,16 +151,61 @@ public class TestController extends Controller {
 
         Form form2 = new Form()
             .withTitle("Sign Up")
-            .isSubmittable(true)
+            .withSubmitAction(form -> {
+                HashMap<String, String> values = new HashMap<>();
+
+                for (Connectable field : form.fields) {
+                    if (field instanceof ValueField) {
+                        ValueField valueField = (ValueField) field;
+                        values.put(valueField.label, valueField.getText());
+                    } else if (field instanceof ValueOption) {
+                        ValueOption valueOption = (ValueOption) field;
+                        values.put(valueOption.label, valueOption.getValue().originalValue);
+                        System.out.println(valueOption.getValue().originalValue);
+                    }
+                }
+
+                try {
+                    Database.changeRole(null);
+                    Database.insertEmployee(values.get("Username"), values.get("Password"), Database.Role.valueOf(values.get("Role")), "Jasmine", "Salazar", Sex.FEMALE, "1999-02-21 00:00:00", "idk", "1234567890", "idk", null);
+                    System.out.printf("%s with username %s inserted\n", values.get("Role"), values.get("Username"));
+                } catch (Exception e) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("An error occurred while signing up.");
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
+                }
+            })
             .withColumnCount(2)
             .withFields(
                 new ValueField("Username"),
                 new ValueField("Password"),
-                Database.Role.createValueOption("Role"),
-                Database.Sex.createValueOption("Sex")
+                Datum.createValueOptionFromEnum(Database.Role.class, null, "Role")
             )
             .build();
 
         contentPane.getChildren().add(form2);
+
+        rootPane.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.R && event.isMetaDown()) {
+				try {
+                    refresh();
+                } catch (Exception e) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("An error occurred while refreshing the page.");
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
+                }
+            }
+        });
+
+    }
+
+    public void refresh() throws Exception {
+        System.out.println("Refreshing...");
+        contentPane.getChildren().clear();
+        initialize();
     }
 }

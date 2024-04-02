@@ -6,12 +6,12 @@ import java.util.function.Consumer;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 
-public class Row2 extends HBox implements Connectable {
+public class Row extends HBox implements Connectable {
     public String tableName;
     public int rowID;
     public Button deleteButton;
 
-    public Row2(String tableName, int rowID, Connectable... values) {
+    public Row(String tableName, int rowID, Connectable... values) {
         this.tableName = tableName;
         this.rowID = rowID;
 
@@ -34,7 +34,7 @@ public class Row2 extends HBox implements Connectable {
         }
     }
 
-    public void makeDeletable(Consumer<Row2> deleteAction) {
+    public void makeDeletable(Consumer<Row> deleteAction) {
         deleteButton = new Button("Delete");
         deleteButton.setDisable(true);
         getChildren().add(deleteButton);

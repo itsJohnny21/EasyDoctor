@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 import application.Database.Row;
 import application.Database.Row.Employee;
+import javafx.util.StringConverter;
 
 public class Datum {
     public String originalValue;
-    public String newValue;
+    public String displayValue;
     public String columnName;
     public Row parent;
 
@@ -15,7 +16,7 @@ public class Datum {
         this.parent = parent;
         this.originalValue = originalValue;
         this.columnName = columnName;
-        this.newValue = originalValue;
+        this.displayValue = originalValue;
     }
 
     public String toPerttyColumnName() {
@@ -27,15 +28,80 @@ public class Datum {
 
     public Datum() {}
 
-    public static ArrayList<Datum> getOptionsForDoctors(Datum doctorID) throws Exception {
+    public static ValueOption createValueOptionForDoctors(Datum doctorID, String label) throws Exception {
         ArrayList<Datum> options = new ArrayList<>();
         ArrayList<Employee> doctors = Database.Row.Employee.getAllDoctors();
 
-        for (Employee doctor : doctors) {
-            options.add(new Datum(doctorID.parent, doctor.userID.originalValue, doctorID.columnName));
+        String columnName = null;
+        Row parent = null;
+
+        if (doctorID == null) {
+            columnName = "preferredDoctorID";
+            parent = null;
+        } else {
+            columnName = doctorID.columnName;
+            parent = doctorID.parent;
         }
 
-        return options;
+        for (Employee doctor : doctors) {
+            options.add(new Datum(parent, doctor.userID.originalValue, columnName));
+        }
+
+        ValueOption option = new ValueOption(options, label);
+
+        option.setConverter(new StringConverter<Datum>() {
+            @Override
+            public String toString(Datum datum) {
+                try {
+                    Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(datum.originalValue));
+                    return doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+
+            @Override
+            public Datum fromString(String string) {
+                return null;
+            }
+        });
+
+        if (doctorID != null) {
+            option.setOption(doctorID);
+        }
+
+        return option;
+    }
+
+    public static <E extends Enum<E>> ValueOption createValueOptionFromEnum(Class<E> enumClass, Datum datum, String label) {
+        ArrayList<Datum> options = new ArrayList<Datum>();
+
+        String columnName = null;
+        Row parent = null;
+
+        if (datum == null) {
+            columnName = enumClass.getSimpleName();
+            columnName = Character.toLowerCase(columnName.charAt(0)) + columnName.substring(1);
+            parent = null;
+        } else {
+            columnName = datum.columnName;
+            parent = datum.parent;
+        }
+
+        for (E enumConstant : enumClass.getEnumConstants()) {
+            Datum option = new Datum(parent, enumConstant.toString(), columnName);
+            options.add(option);
+        }
+
+        ValueOption option = new ValueOption(options, label);
+
+        if (datum == null) {
+            option.setOption(options.get(0));
+        } else {
+            option.setOption(datum);
+        }
+
+        return option;
     }
 
     public ValueField createValueField(String labelString) {
@@ -52,5 +118,9 @@ public class Datum {
 
     public static Datum createParentless(String originalValue, String columnName) {
         return new Datum(null, originalValue, columnName);
+    }
+
+    public String convertValue() {
+        return displayValue;
     }
 }

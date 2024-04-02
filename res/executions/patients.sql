@@ -40,5 +40,6 @@ SELECT * FROM patients;
 
 
 SELECT patients.firstName, patients.lastName, patients.sex, patients.birthDate, patients.phone, patients.email, patients.address, users.username, patients.race, patients.ethnicity, patients.emergencyContactName, patients.emergencyContactPhone, patients.motherFirstName, patients.motherLastName, patients.fatherFirstName, patients.fatherLastName FROM patients JOIN users ON users.ID = patients.userID WHERE userID = 2;
+use easydoctor;
 SELECT * FROM patients;
 SELECT * FROM users;

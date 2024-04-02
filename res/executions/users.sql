@@ -14,3 +14,6 @@ VALUES ('jonis6421', SHA2('123', 256), 'ADMIN');
 
 
 SELECT * FROM users;
+SELECT * FROM patients;
+
+delete from users where ID = 97;

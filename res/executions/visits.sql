@@ -11,7 +11,8 @@ CREATE TABLE visits (
     reason TEXT,
     description TEXT,
     FOREIGN KEY (patientID) REFERENCES users(ID),
-    FOREIGN KEY (doctorID) REFERENCES users(ID)
+    FOREIGN KEY (doctorID) REFERENCES users(ID),
+    ON DELE
 );
 
 INSERT INTO visits (creationType, date, patientID, doctorID, reason, description)

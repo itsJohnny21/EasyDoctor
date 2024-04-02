@@ -8,7 +8,7 @@ public class ValueLabel extends Label implements Connectable {
     public Datum datum;
     
     public ValueLabel(Datum datum) {
-        super(datum.newValue);
+        super(datum.displayValue);
         this.datum = datum;
     }
 

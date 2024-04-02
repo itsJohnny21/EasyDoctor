@@ -11,7 +11,6 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
     public Datum datum;
     public boolean updatable;
     public String label;
-    public StringConverter<Datum> converter;
 
     public ValueOption(ArrayList<Datum> data, String label) {
         super();
@@ -21,30 +20,49 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
         setValue(datum);
 
         updatable = datum.parent == null ? false : Database.canUpdate(datum.parent.tableName, datum.columnName);
+        
+        setConverter(new StringConverter<Datum>() {
+            @Override
+            public String toString(Datum datum) {
+                return datum.originalValue;
+            }
+
+            @Override
+            public Datum fromString(String string) {
+                return null;
+            }
+        });
     }
 
-    public void setOption(Datum option) {
-        datum = option;
-        setValue(option);
-    }
     
     public ValueOption(Datum option, String label) {
         super();
         this.label = label;
         datum = option;
         setValue(datum);
-
+        
         updatable = datum.parent == null ? false : Database.canUpdate(datum.parent.tableName, datum.columnName);
+
+        setConverter(new StringConverter<Datum>() {
+            @Override
+            public String toString(Datum datum) {
+                return datum.originalValue;
+            }
+
+            @Override
+            public Datum fromString(String string) {
+                return null;
+            }
+        });
+    }
+
+    public void setOption(Datum option) {
+        datum = option;
+        setValue(option);
     }
 
     public ValueOption withData(ArrayList<Datum> data) {
         getItems().addAll(data);
-        return this;
-    }
-
-    public ValueOption withConverter(StringConverter<Datum> converter) {
-        this.converter = converter;
-        setConverter(converter);
         return this;
     }
 
@@ -54,9 +72,6 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
 
     public void onSave() throws SQLException {
         if (!updatable) return;
-
-        System.out.println(getValue().originalValue);
-        System.out.println(datum.originalValue);
 
         if (getValue() != null && getValue().originalValue != datum.originalValue) {
             System.out.printf("new value! %s -> %s\n", datum.originalValue, this);
@@ -73,9 +88,8 @@ public class ValueOption extends ChoiceBox<Datum> implements Connectable {
 
     public void onError() {
         setValue(datum);
-        System.out.println("ERROR OPTION");
         PseudoClass errorClass = PseudoClass.getPseudoClass("error");
-        pseudoClassStateChanged(errorClass, true); //! not working
+        pseudoClassStateChanged(errorClass, true);
     }
 
     public void initialize() {

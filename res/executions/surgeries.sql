@@ -15,9 +15,9 @@ ALTER TABLE surgeries ADD CONSTRAINT unique_surgery UNIQUE (userID, doctorID, ty
 INSERT INTO surgeries (userID, doctorID, type, date, location, notes)
 VALUES (2, 3, 'Knee replacement', '2021-01-01', '123 Main St', 'Knee replacement successful');
 INSERT INTO surgeries (userID, doctorID, type, date, location, notes)
-VALUES (2, 3, 'Knee replacement', '2022-01-01', '123 Main St', 'Other knee was replaced');
+VALUES (2, 3, 'Elbow replacement', '2022-01-01', '123 Main St', 'Other knee was replaced');
 INSERT INTO surgeries (userID, doctorID, type, date, location, notes)
-VALUES (2, 3, 'Knee replacement', '2022-12-01', '123 Main St', 'Clean procedure');
+VALUES (2, 3, 'Hip replacement', '2022-12-01', '123 Main St', 'Clean procedure');
 
 use easydoctor;
 SELECT * FROM surgeries;

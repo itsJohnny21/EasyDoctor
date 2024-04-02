@@ -18,7 +18,7 @@ CREATE TABLE vaccines (
     provider5 VARCHAR(100),
     provider6 VARCHAR(100),
     notes TEXT,
-    FOREIGN KEY (userID) REFERENCES users(ID)
+    FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE
 );
 
 INSERT INTO vaccines (userID, vaccineGroup, dose1, dose2, dose3, dose4, dose5, dose6, provider1, provider2, provider3, provider4, provider5, provider6, notes)
@@ -43,7 +43,6 @@ INSERT INTO vaccines (userID, vaccineGroup, dose1, dose2, dose3, dose4, dose5, d
 VALUES (2, "Shingles", "2021-01-01", "2021-01-29", "2021-02-26", "2021-03-26", "2021-04-23", "2021-05-21", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "No adverse reactions");
 use easydoctor;
 RENAME TABLE vaccineRecord2 TO vaccines2;
-SELECT * FROM vaccines2;
 SELECT * FROM vaccines;
 
 CREATE TABLE vaccines (

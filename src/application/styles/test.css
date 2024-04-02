@@ -14,50 +14,51 @@
 }
 
 .table-title {
-    -fx-background-color:  #123456;
+    -fx-background-color:  #ab5b67;
     -fx-background-radius: 0;
     -fx-font-size: 14pt;
     -fx-alignment: center;
-    -fx-pref-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .table-label {
-    -fx-pref-width: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
     -fx-alignment: center;
 }
 
 .table-header {
-    -fx-background-color:  #123456;
+    -fx-background-color:  #ab5b67;
     -fx-background-radius: 0;
     -fx-alignment: center;
-    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .table-row {
     -fx-background-color:   #fff6eb;
     -fx-alignment: center;
-    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .table-selectable-row {
     -fx-background-color:   #fff6eb;
     -fx-alignment: center;
-    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .table-field {
-    -fx-pref-width: 50px;
     -fx-pref-width: 1000px;
     -fx-alignment: center;
 }
 
 .table-option {
-    -fx-pref-height: 50px;
     -fx-pref-width: 1000px;
     -fx-alignment: center;
 }
@@ -80,39 +81,39 @@
 }
 
 .form-title {
-    -fx-background-color:  #123456;
+    -fx-background-color:  #ab5b67;
     -fx-font-size: 14pt;
     -fx-alignment: center;
-    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .form-field {
-    -fx-pref-width: 50px;
+    -fx-pref-width: 1000px;
+}
+
+.form-field-box {
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
     -fx-alignment: center;
 }
 
 .form-label {
     -fx-alignment: center;
-    -fx-pref-height: 50px;
     -fx-pref-width: 1000px;
-}
-
-.form-option:error {
-    -fx-background-color: #ff0000;
-    -fx-text-weight: bold;
 }
 
 .form-option {
     -fx-aligntment: center;
-    -fx-pref-height: 50px;
     -fx-pref-width: 1000px;
 }
 
 .form-button-row {
     -fx-alignment: center;
-    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
     -fx-pref-width: 1000px;
 }
 

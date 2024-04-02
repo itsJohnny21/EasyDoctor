@@ -1,5 +1,7 @@
 package application;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -15,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -25,105 +28,26 @@ import javax.crypto.spec.SecretKeySpec;
 import application.Database.Row.User;
 
 public abstract class Database {
-
     		
     public enum Role {
-        NEUTRAL, DOCTOR, NURSE, PATIENT;
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            Role[] roles = {DOCTOR, NURSE, PATIENT};
-            ArrayList<Datum> options = new ArrayList<Datum>();
-
-            for (Role role : roles) {
-                Datum option = Datum.createParentless(role.toString(), "role");
-                options.add(option);
-            }
-
-            ValueOption option = new ValueOption(options, label);
-            return option;
-        }
+        DOCTOR, NURSE, PATIENT;
     }
     
     public enum Sex {
         MALE, FEMALE, OTHER;
-
-        public static ValueOption createValueOption(Datum sexDatum, String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (Sex sex : Sex.values()) {
-                if (sexDatum.originalValue.equals(sex.toString())) {
-                    continue;
-                }
-
-                Datum option = new Datum(sexDatum.parent, sex.toString(), sexDatum.columnName);
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            option.setOption(sexDatum);
-            return option;
-        }
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (Sex sex : Sex.values()) {
-                Datum option = Datum.createParentless(sex.toString(), "sex");
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            return option;
-        }
     }
 
     public enum Race {
         WHITE, BLACK, HISPANIC, ASIAN, NATIVE, AMERICAN, PACIFIC, ISLANDER, OTHER;
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (Race race : Race.values()) {
-                Datum option = Datum.createParentless(race.toString(), "race");
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            return option;
-        }
     }
 
     public enum Ethnicity {
         HISPANIC, NON_HISPANIC;
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (Ethnicity ethnicity : Ethnicity.values()) {
-                Datum option = Datum.createParentless(ethnicity.toString(), "ethnicity");
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            return option;
-        }        
     }
 
 
     public enum Severity {
         MILD, MODERATE, SEVERE;
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (Severity severity : Severity.values()) {
-                Datum option = Datum.createParentless(severity.toString(), "severity");
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            return option;
-        }        
     }
 
     public enum BloodType {
@@ -137,31 +61,6 @@ public abstract class Database {
 
         public String toString() {
             return value;
-        }
-
-        public static ValueOption createValueOption(Datum bloodTypeDatum, String label) throws Exception {
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (BloodType bloodType : BloodType.values()) {
-                Datum option = new Datum(bloodTypeDatum.parent, bloodType.toString(), bloodTypeDatum.columnName);
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            option.setOption(bloodTypeDatum);
-            return option;
-        }
-
-        public static ValueOption createValueOption(String label) throws Exception{
-            ArrayList<Datum> options = new ArrayList<Datum>();
-    
-            for (BloodType bloodType : BloodType.values()) {
-                Datum option = Datum.createParentless(bloodType.toString(), "bloodType");
-                options.add(option);
-            }
-    
-            ValueOption option = new ValueOption(options, label);
-            return option;
         }
     }
 
@@ -177,36 +76,38 @@ public abstract class Database {
         updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
     }
 
-    public static void connectAs(Role role) throws SQLException {
+    public static void changeRole(Role role) throws Exception {
+        disconnect();
+        Database.role = role;
+        connect();
+    }
 
-        switch (role) {
-            case DOCTOR:
-                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=doctor&password=doctor123");
-                break;
-            case NURSE:
-                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=nurse&password=nurse123");
-                break;
-            case PATIENT:
-                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=patient&password=patient123");
-                break;
-            case NEUTRAL:
-                connection = DriverManager.getConnection("jdbc:mysql://easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com:3306/easydoctor?user=neutral&password=neutral123");
-                break;
-            default:
-                throw new SQLException("Invalid role");
+    public static void connect() throws SQLException, IOException {
+        Properties props = new Properties();
+        FileInputStream in = new FileInputStream(".env");
+        props.load(in);
+        in.close();
+
+        String url = null;
+
+        if (Database.role == null) {
+            url = props.getProperty("db_neutral_url");
+        } else if (role == Role.PATIENT) {
+            url = props.getProperty("db_patient_url");
+        } else if (role == Role.DOCTOR) {
+            url = props.getProperty("db_doctor_url");
+        } else if (role == Role.NURSE) {
+            url = props.getProperty("db_nurse_url");
+        } else {
+            throw new SQLException("Invalid role");
         }
+
+        connection = DriverManager.getConnection(url);
 
         if (connection == null) {
             throw new SQLException("Connection to the database failed");
         }
-        Database.role = role;
     }
-
-    public static void reconnectAs(Role role) throws Exception {
-        disconnect();
-        connectAs(role);
-    }
-
 
     public static void disconnect() throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         if (connection != null) {
@@ -299,38 +200,41 @@ public abstract class Database {
 
         int userID = insertUser(username, password, role);
 
-        PreparedStatement statement2 = connection.prepareStatement("INSERT INTO employees (ID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?);");
-        statement2.setInt(1, userID);
-        statement2.setString(2, firstName);
-        statement2.setString(3, lastName);
-        statement2.setString(4, sex.toString());
-        statement2.setString(5, birthDate);
-        statement2.setString(6, email);
-        statement2.setString(7, phone);
-        statement2.setString(8, address);
-        statement2.setString(9, managerID);
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO employees (ID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setString(2, firstName);
+        statement.setString(3, lastName);
+        statement.setString(4, sex.toString());
+        statement.setString(5, birthDate);
+        statement.setString(6, email);
+        statement.setString(7, phone);
+        statement.setString(8, address);
+        statement.setString(9, managerID);
 
-        statement2.executeUpdate();
-
-        if (statement2.getUpdateCount() == 0) {
-            throw new SQLException("Employee not created");
+        try {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            if (userID != 0) {
+                deleteRow("users", userID);
+                throw e;
+            }
         }
     }
 
-    public static void insertPatient(String username, String password, String firstName, String lastName, String sex, String birthDate, String email, String phone, String address, String race, String ethnicity) throws Exception {
+    public static void insertPatient(String username, String password, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, Race race, Ethnicity ethnicity) throws Exception {
         Integer userID = insertUser(username, password, Role.PATIENT);
 
         PreparedStatement statement = connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         statement.setInt(1, userID);
         statement.setString(2, firstName);
         statement.setString(3, lastName);
-        statement.setString(4, sex);
+        statement.setString(4, sex.toString());
         statement.setString(5, birthDate);
         statement.setString(6, email);
         statement.setString(7, phone);
         statement.setString(8, address);
-        statement.setString(9, race);
-        statement.setString(10, ethnicity);
+        statement.setString(9, race.toString());
+        statement.setString(10, ethnicity.toString());
         System.out.println(statement.toString());
 
         try {
@@ -410,7 +314,7 @@ public abstract class Database {
             role = Role.valueOf(user.role.originalValue);
             userID = Integer.parseInt(user.userID.originalValue);
 
-            reconnectAs(role);
+            changeRole(role);
             statement = connection.prepareStatement("INSERT INTO logbook (userID, IP, type) VALUES (?, ?, ?);");
             String IP = InetAddress.getLocalHost().getHostAddress();
             statement.setInt(1, userID);
@@ -436,7 +340,7 @@ public abstract class Database {
 
         System.out.println(getMy("username") + " signed out");
         userID = null;
-        reconnectAs(Role.NEUTRAL);
+        changeRole(null);
     }
 
     public static ArrayList<Datum> getOptionsFor(Datum datum) throws Exception {
@@ -467,8 +371,24 @@ public abstract class Database {
     }
 
     public static class Encrypter {
-        private final static String key = "1234561234567890";
-        private final static String algorithm = "AES";
+        private final static String key;
+        private final static String algorithm;
+
+        static {
+            Properties props = new Properties();
+
+            try {
+                FileInputStream in = new FileInputStream(".env");
+                props.load(in);
+                in.close();
+
+            } catch (IOException e) {
+                System.out.println("Error reading .env file");
+            }
+
+            key = props.getProperty("db_key");
+            algorithm = props.getProperty("db_algorithm");
+        }
 
         private Encrypter() {
             System.out.println("Encrypter created! This should not happen! Use static methods instead!");
@@ -699,7 +619,7 @@ public abstract class Database {
 
             public Datum getPreferredDoctor() throws Exception {
                 Employee employee = Employee.getFor(Integer.parseInt(preferredDoctorID.originalValue));
-                preferredDoctorID.newValue = employee.firstName.originalValue + " " + employee.lastName.originalValue;
+                preferredDoctorID.displayValue = employee.firstName.originalValue + " " + employee.lastName.originalValue;
                 return preferredDoctorID;
             }
         }
