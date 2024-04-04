@@ -1,0 +1,18 @@
+/* Button Styles */
+
+.signIn-button {
+    -fx-background-color: #28699f;
+    -fx-background-radius: 0;
+}
+
+.signUp-button {
+    -fx-background-color: #219284;
+    -fx-background-radius: 0;
+}
+
+/* Label Styles */
+
+.welcome-label {
+    -fx-text-fill: #ffe5b5;
+    -fx-font-size: 24;
+}
