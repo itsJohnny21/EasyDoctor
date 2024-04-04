@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
-import java.util.List;
 
 import application.App;
 import application.Database;
@@ -89,9 +88,8 @@ public class SignUpController extends Controller {
             roleChoiceBox.getItems().add(role.toString());
         }
 
-        List<ChoiceBox<String>> choiceBoxes = Arrays.asList(roleChoiceBox, sexChoiceBox, raceChoiceBox, ethnicityChoiceBox);
 
-        for (ChoiceBox<String> choiceBox : choiceBoxes) {
+        for (ChoiceBox<String> choiceBox : Arrays.asList(roleChoiceBox, sexChoiceBox, raceChoiceBox, ethnicityChoiceBox)) {
             choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != oldValue && newValue != null) {
                 }
@@ -286,7 +284,7 @@ public class SignUpController extends Controller {
             passwordField.setText(passwordField.getPromptText());
             passwordField.setPromptText("");
             passwordField.setDisable(false);
-            
+
             confirmPasswordField.setText(confirmPasswordField.getPromptText());
             confirmPasswordField.setPromptText("");
             confirmPasswordField.setDisable(false);
