@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import application.Connectable;
+import application.DataRow;
+import application.DataRow.Employee;
+import application.DataRow.Patient;
+import application.DataRow.Surgery;
 import application.Database;
-import application.Database.Row.Employee;
-import application.Database.Row.Patient;
-import application.Database.Row.Surgery;
+import application.Database.Ethnicity;
+import application.Database.Race;
 import application.Database.Sex;
 import application.Datum;
 import application.EditableTable;
@@ -41,16 +44,20 @@ public class TestController extends Controller {
 
     public void initialize() throws Exception {
         rootPane.getStylesheets().add(getClass().getResource("/application/styles/test.css").toExternalForm());
+        width = rootPane.getPrefWidth();
+        height = rootPane.getPrefHeight();
+        resizable = true;
+        
         Database.changeRole(null);
         Database.signIn("john123", "123");
 
         UpdateButtonGroup ubg = new UpdateButtonGroup(editButton, cancelButton, saveButton);
         
-        ArrayList<Surgery> surgeries = Database.Row.Surgery.getAllFor(2);
+        ArrayList<Surgery> surgeries = DataRow.Surgery.getAllFor(2);
         Row[] rows = new Row[surgeries.size()];
         for (int i = 0; i < surgeries.size(); i++) {
             Surgery surgery = surgeries.get(i);
-            Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
+            Employee doctor = DataRow.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
             doctor.userID.displayValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
             
             rows[i] = new Row(
@@ -66,7 +73,7 @@ public class TestController extends Controller {
         Row[] rows2 = new Row[surgeries.size()];
         for (int i = 0; i < surgeries.size(); i++) {
             Surgery surgery = surgeries.get(i);
-            Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
+            Employee doctor = DataRow.Employee.getFor(Integer.parseInt(surgery.doctorID.originalValue));
             doctor.userID.displayValue = doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
             
             rows2[i] = new Row(
@@ -129,7 +136,7 @@ public class TestController extends Controller {
             .build();
         contentPane.getChildren().add(table2);
 
-        Patient patient = Database.Row.Patient.getFor(2);
+        Patient patient = DataRow.Patient.getFor(2);
 
         Form form1 = new Form()
             .withTitle("Patient Information")
@@ -161,13 +168,12 @@ public class TestController extends Controller {
                     } else if (field instanceof ValueOption) {
                         ValueOption valueOption = (ValueOption) field;
                         values.put(valueOption.label, valueOption.getValue().originalValue);
-                        System.out.println(valueOption.getValue().originalValue);
                     }
                 }
 
                 try {
                     Database.changeRole(null);
-                    Database.insertEmployee(values.get("Username"), values.get("Password"), Database.Role.valueOf(values.get("Role")), "Jasmine", "Salazar", Sex.FEMALE, "1999-02-21 00:00:00", "idk", "1234567890", "idk", null);
+                    Database.insertEmployee(values.get("Username"), values.get("Password"), Database.Role.valueOf(values.get("Role")), "Jasmine", "Salazar", Sex.FEMALE, "1999-02-21 00:00:00", "idk", "1234567890", "idk", "2", "password", Race.WHITE, Ethnicity.HISPANIC);
                     System.out.printf("%s with username %s inserted\n", values.get("Role"), values.get("Username"));
                 } catch (Exception e) {
                     Alert alert = new Alert(AlertType.ERROR);
@@ -207,5 +213,9 @@ public class TestController extends Controller {
         System.out.println("Refreshing...");
         contentPane.getChildren().clear();
         initialize();
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

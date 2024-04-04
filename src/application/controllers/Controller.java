@@ -13,7 +13,5 @@ public abstract class Controller {
         this.stage = stage;
     }
 
-    public String getTitle() {
-        return title;
-    }
+    public abstract String getTitle();
 }

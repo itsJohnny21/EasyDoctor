@@ -4,6 +4,7 @@ CREATE TABLE patients (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     userID INT NOT NULL,
     firstName VARCHAR(100) NOT NULL,
+    middleName VARCHAR(100) DEFAULT NULL,
     lastName VARCHAR(100) NOT NULL,
     sex ENUM('MALE', 'FEMALE', 'OTHER') NOT NULL,
     birthDate DATE NOT NULL,
@@ -14,8 +15,8 @@ CREATE TABLE patients (
     bloodType bloodType ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN')
     height DECIMAL(5, 2),
     weight DECIMAL(5, 2),
-    race ENUM('WHITE', 'BLACK', 'HISPANIC', 'ASIAN', 'NATIVE AMERICAN', 'PACIFIC ISLANDER', 'OTHER') NOT NULL,
-    ethnicity ENUM('HISPANIC', 'NON-HISPANIC') NOT NULL,
+    race ENUM('WHITE', 'BLACK', 'HISPANIC', 'ASIAN', 'NATIVE_AMERICAN', 'PACIFIC_ISLANDER', 'OTHER') NOT NULL,
+    ethnicity ENUM('HISPANIC', 'NON_HISPANIC') NOT NULL,
     insuranceProvider VARCHAR(100),
     insuranceID VARCHAR(100),
     emergencyContactName VARCHAR(255),
@@ -27,7 +28,6 @@ CREATE TABLE patients (
     FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
     FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
-
 INSERT INTO users (username, password, userType)
 VALUES ('test', 'test', 'PATIENT');
 
@@ -43,3 +43,4 @@ SELECT patients.firstName, patients.lastName, patients.sex, patients.birthDate, 
 use easydoctor;
 SELECT * FROM patients;
 SELECT * FROM users;
+delete from users where ID = 106;

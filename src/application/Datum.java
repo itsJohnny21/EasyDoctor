@@ -2,17 +2,16 @@ package application;
 
 import java.util.ArrayList;
 
-import application.Database.Row;
-import application.Database.Row.Employee;
+import application.DataRow.Employee;
 import javafx.util.StringConverter;
 
 public class Datum {
     public String originalValue;
     public String displayValue;
     public String columnName;
-    public Row parent;
+    public DataRow parent;
 
-    public Datum(Row parent, String originalValue, String columnName) {
+    public Datum(DataRow parent, String originalValue, String columnName) {
         this.parent = parent;
         this.originalValue = originalValue;
         this.columnName = columnName;
@@ -30,10 +29,10 @@ public class Datum {
 
     public static ValueOption createValueOptionForDoctors(Datum doctorID, String label) throws Exception {
         ArrayList<Datum> options = new ArrayList<>();
-        ArrayList<Employee> doctors = Database.Row.Employee.getAllDoctors();
+        ArrayList<Employee> doctors = DataRow.Employee.getAllDoctors();
 
         String columnName = null;
-        Row parent = null;
+        DataRow parent = null;
 
         if (doctorID == null) {
             columnName = "preferredDoctorID";
@@ -53,7 +52,7 @@ public class Datum {
             @Override
             public String toString(Datum datum) {
                 try {
-                    Employee doctor = Database.Row.Employee.getFor(Integer.parseInt(datum.originalValue));
+                    Employee doctor = DataRow.Employee.getFor(Integer.parseInt(datum.originalValue));
                     return doctor.firstName.originalValue + " " + doctor.lastName.originalValue;
                 } catch (Exception e) {
                     return "";
@@ -77,7 +76,7 @@ public class Datum {
         ArrayList<Datum> options = new ArrayList<Datum>();
 
         String columnName = null;
-        Row parent = null;
+        DataRow parent = null;
 
         if (datum == null) {
             columnName = enumClass.getSimpleName();

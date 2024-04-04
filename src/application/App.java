@@ -16,9 +16,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) throws IOException, Exception {
 		Database.connect();
-		loadPage("TestView", primaryStage);
-		primaryStage.setWidth(1000);
-		primaryStage.setHeight(600);
+		loadPage("WelcomeView", primaryStage);
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
@@ -27,10 +25,10 @@ public class App extends Application {
 		FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
 		Parent root = loader.load();
 		Controller controller = loader.getController();
-		
+
 		Scene scene = new Scene(root);
 		controller.setStage(primaryStage);
-		primaryStage.setTitle(controller.title);
+		primaryStage.setTitle(controller.getTitle());
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(controller.resizable);
 		primaryStage.centerOnScreen();

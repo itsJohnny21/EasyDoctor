@@ -59,11 +59,13 @@
 }
 
 .table-option {
+    -fx-background-color:#ea20f5;
     -fx-pref-width: 1000px;
     -fx-alignment: center;
 }
 
 .table-delete-button {
+    -fx-background-color: #f8f9a9;
     -fx-pref-width: 1000px;
 }
 
@@ -106,6 +108,7 @@
 }
 
 .form-option {
+    -fx-background-color: #eb8f34;
     -fx-aligntment: center;
     -fx-pref-width: 1000px;
 }
@@ -118,5 +121,31 @@
 }
 
 .form-submit-button {
+    -fx-background-color: #28699f;
     -fx-alignment: center;
+}
+
+/* Button Styles */
+
+.update-button-box {
+    -fx-alignment: center;
+    -fx-pref-width: 1000px;
+}
+
+.edit-button {
+    -fx-background-color: #123456;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
+}
+
+.cancel-button {
+    -fx-background-color: #734567;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
+}
+
+.save-button {
+    -fx-background-color: #54a678;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
 }
