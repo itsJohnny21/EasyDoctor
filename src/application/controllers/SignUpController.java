@@ -377,13 +377,18 @@ public class SignUpController extends Controller {
     }
 
     public boolean validateBirthDate() {
-        try {
-            LocalDate.parse(birthDateTextField.getText());
-            return true;
-        } catch (DateTimeParseException e) {
-            birthDateTextField.getStyleClass().add("error");
-            return false;
+        if (birthDateTextField.getText().matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) {
+            try {
+                LocalDate.parse(birthDateTextField.getText());
+                return true;
+            } catch (DateTimeParseException e) {
+                birthDateTextField.getStyleClass().add("error");
+                return false;
+            }
         }
+
+        birthDateTextField.getStyleClass().add("error");
+        return false;
     }
 
     public boolean validateAddress() {
