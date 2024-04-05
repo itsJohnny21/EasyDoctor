@@ -1,2 +1,0 @@
--- Active: 1710028959635@@easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com@3306
--- USE easydoctor;
