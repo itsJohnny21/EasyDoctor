@@ -5,24 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import edu.asu.easydoctor.Connectable;
-import edu.asu.easydoctor.DataRow;
+import edu.asu.easydoctor.*;
 import edu.asu.easydoctor.DataRow.Employee;
 import edu.asu.easydoctor.DataRow.Patient;
 import edu.asu.easydoctor.DataRow.Surgery;
-import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Sex;
-import edu.asu.easydoctor.Datum;
-import edu.asu.easydoctor.EditableTable;
-import edu.asu.easydoctor.Form;
-import edu.asu.easydoctor.Row;
-import edu.asu.easydoctor.SelectableTable;
 import edu.asu.easydoctor.UI.Table;
-import edu.asu.easydoctor.UpdateButtonGroup;
-import edu.asu.easydoctor.ValueField;
-import edu.asu.easydoctor.ValueOption;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -43,7 +33,7 @@ public class TestController extends Controller {
     public String title = "Test";
 
     public void initialize() throws Exception {
-        rootPane.getStylesheets().add(getClass().getResource("/application/styles/test.css").toExternalForm());
+        rootPane.getStylesheets().add(App.class.getResource("/styles/test.css").toExternalForm());
         width = rootPane.getPrefWidth();
         height = rootPane.getPrefHeight();
         resizable = true;

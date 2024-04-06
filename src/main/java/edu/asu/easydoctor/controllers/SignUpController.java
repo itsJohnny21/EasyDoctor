@@ -60,7 +60,7 @@ public class SignUpController extends Controller {
 
     public void initialize() {
         title = "Sign Up";
-        rootPane.getStylesheets().add(getClass().getResource("/application/styles/SignUpView.css").toExternalForm());
+        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
         width = rootPane.getPrefWidth();
         height = rootPane.getPrefHeight() + 30;
         resizable = false;
