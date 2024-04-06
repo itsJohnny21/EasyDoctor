@@ -20,7 +20,7 @@ public class App extends Application {
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
-		String resource = String.format("/application/views/%s.fxml", filename);
+		String resource = String.format("views/%s.fxml", filename);
 
 		FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
 		Parent root = loader.load();

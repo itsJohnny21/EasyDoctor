@@ -16,7 +16,7 @@ public class WelcomeController extends Controller {
     public String title = "Welcome";
 
     public void initialize() throws Exception {
-        rootPane.getStylesheets().add(getClass().getResource("/application/styles/WelcomeView.css").toExternalForm());
+        rootPane.getStylesheets().add(App.class.getResource("styles/WelcomeView.css").toExternalForm());
         width = rootPane.getPrefWidth();
         height = rootPane.getPrefHeight();
 
