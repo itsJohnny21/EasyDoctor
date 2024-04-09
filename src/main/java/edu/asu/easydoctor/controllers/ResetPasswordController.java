@@ -38,6 +38,8 @@ public class ResetPasswordController extends DialogController {
             if (!event.getCharacter().matches("[0-9]") || event.getCharacter().length() == 0 || resetPasswordTokenTextField.getText().length() >= 6 && resetPasswordTokenTextField.getSelectedText().length() == 0) {
                 event.consume();
             }
+
+            resetPasswordTokenTextField.positionCaret(resetPasswordTokenTextField.getText().length()); //! Fix me
         });
 
         result = new HashMap<>();
