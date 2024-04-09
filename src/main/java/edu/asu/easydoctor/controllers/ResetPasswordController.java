@@ -1,5 +1,7 @@
 package edu.asu.easydoctor.controllers;
 
+import java.util.HashMap;
+
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Utilities;
@@ -38,6 +40,8 @@ public class ResetPasswordController extends DialogController {
             }
         });
 
+        result = new HashMap<>();
+
         //! Delete me
         resetPasswordTokenTextField.setText("946930");
         newPasswordField.setText("idkBruh21!");
@@ -59,8 +63,7 @@ public class ResetPasswordController extends DialogController {
 
         try {
             Database.resetPassword(Integer.parseInt(resetPasswordTokenTextField.getText()), newPasswordField.getText()); //TODO: Make sure the same password is not used again
-
-            Stage stage = (Stage) resetButton.getScene().getWindow();
+            result.put("successful", "true");
             
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Reset Password");
@@ -148,5 +151,9 @@ public class ResetPasswordController extends DialogController {
         }
 
         return true;
+    }
+
+    public HashMap<String, String> getResult() {
+        return result;
     }
 }

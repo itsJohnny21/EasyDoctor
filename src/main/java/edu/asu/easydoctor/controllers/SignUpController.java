@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
@@ -54,9 +55,6 @@ public class SignUpController extends Controller {
     @FXML ChoiceBox<String> sexChoiceBox;
     @FXML ChoiceBox<String> raceChoiceBox;
     @FXML ChoiceBox<String> ethnicityChoiceBox;
-
-    public String managerUsername;
-    public String managerPassword;
 
     public void initialize() {
         title = "Sign Up";
@@ -121,23 +119,23 @@ public class SignUpController extends Controller {
             }
         });
 
-        // //! DELETE ME
-        usernameTextField.setText("auser1");
-        passwordField.setText("Password!");
-        confirmPasswordField.setText(passwordField.getText());
-        firstNameTextField.setText("John");
-        lastNameTextField.setText("Doe");
-        emailTextField.setText("idk@gmail.com");
-        phoneTextField.setText("2423423423");
-        birthDateTextField.setText("2021-01-01");
-        addressTextField.setText("123");
+        //! DELETE ME
+        // usernameTextField.setText("auser1");
+        // passwordField.setText("Password!");
+        // confirmPasswordField.setText(passwordField.getText());
+        // firstNameTextField.setText("John");
+        // lastNameTextField.setText("Doe");
+        // emailTextField.setText("idk@gmail.com");
+        // phoneTextField.setText("2423423423");
+        // birthDateTextField.setText("2021-01-01");
+        // addressTextField.setText("123");
 
-        roleChoiceBox.setValue(roleChoiceBox.getItems().get(0));
-        sexChoiceBox.setValue(sexChoiceBox.getItems().get(0));
-        ethnicityChoiceBox.setValue(ethnicityChoiceBox.getItems().get(0));
-        raceChoiceBox.setValue(raceChoiceBox.getItems().get(0));
+        // roleChoiceBox.setValue(roleChoiceBox.getItems().get(0));
+        // sexChoiceBox.setValue(sexChoiceBox.getItems().get(0));
+        // ethnicityChoiceBox.setValue(ethnicityChoiceBox.getItems().get(0));
+        // raceChoiceBox.setValue(raceChoiceBox.getItems().get(0));
 
-        nextButton.fire();
+        // nextButton.fire();
     }
 
     @FXML public void handleSignUpButtonAction() {
@@ -161,8 +159,8 @@ public class SignUpController extends Controller {
                 );
 
             } else {
-                Stage dailogPane = new Stage();
-                App.loadDialog("ManagerCredentialsDialog", dailogPane, (Controller) this);
+                Stage dialog = new Stage();
+                HashMap<String, String> result = App.loadDialog("ManagerCredentialsDialog", dialog, (Controller) this);
 
                 Database.insertEmployee(
                     usernameTextField.getText(),
@@ -175,8 +173,8 @@ public class SignUpController extends Controller {
                     emailTextField.getText(),
                     phoneTextField.getText(),
                     addressTextField.getText(),
-                    managerUsername,
-                    managerPassword,
+                    result.get("managerUsername"),
+                    result.get("managerPassword"),
                     Race.valueOf(raceChoiceBox.getValue()),
                     Ethnicity.valueOf(ethnicityChoiceBox.getValue())
                 );
@@ -198,6 +196,10 @@ public class SignUpController extends Controller {
             alert.setHeaderText("An error occurred");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
+
+            if (alert.getResult().getText().equals("OK")) {
+                signUpButton.fire();
+            }
         }
     }
 

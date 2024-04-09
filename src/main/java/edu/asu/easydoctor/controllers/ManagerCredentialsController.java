@@ -1,6 +1,7 @@
 package edu.asu.easydoctor.controllers;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import edu.asu.easydoctor.Utilities;
 import javafx.fxml.FXML;
@@ -26,9 +27,7 @@ public class ManagerCredentialsController extends DialogController {
         height = 300;
         resizable = false;
 
-        //! Delete me
-        managerUsernameTextField.setText("itsJohnnyDoctor");
-        managerPasswordField.setText("meatCuh21!");
+        result = new HashMap<>();
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -37,9 +36,8 @@ public class ManagerCredentialsController extends DialogController {
     }
 
     @FXML public void handleConfirmButtonAction() throws SQLException {
-        SignUpController signUpController = (SignUpController) parentController;
-        signUpController.managerUsername  = managerUsernameTextField.getText();
-        signUpController.managerPassword = managerPasswordField.getText();
+        result.put("managerUsername", managerUsernameTextField.getText());
+        result.put("managerPassword", managerPasswordField.getText());
         stage.close();
     }
 
@@ -52,7 +50,7 @@ public class ManagerCredentialsController extends DialogController {
             managerPasswordField.setPromptText(managerPasswordField.getText());
             managerPasswordField.setText("");
             managerPasswordField.setDisable(true);
-            showButton.setText("Show");
+            showButton.setText("Show"); //! Do the same to sign up controller
         } else {
             managerPasswordField.setText(managerPasswordField.getPromptText());
             managerPasswordField.setPromptText("");
@@ -73,5 +71,9 @@ public class ManagerCredentialsController extends DialogController {
 
     public String getTitle() {
         return title;
+    }
+
+    public HashMap<String, String> getResult() {
+        return result;
     }
 }

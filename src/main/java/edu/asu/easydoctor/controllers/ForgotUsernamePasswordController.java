@@ -3,6 +3,7 @@ package edu.asu.easydoctor.controllers;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.mail.MessagingException;
 
@@ -42,8 +43,8 @@ public class ForgotUsernamePasswordController extends Controller {
         });
 
         //! Delete
-        emailTextField.setText("jsalazar6421@gmail.com");
-        roleChoiceBox.setValue(Role.PATIENT.toString());
+        // emailTextField.setText("jsalazar6421@gmail.com");
+        // roleChoiceBox.setValue(Role.PATIENT.toString());
     }
 
     @FXML public void handleResetPasswordButtonAction() throws IOException {
@@ -53,7 +54,11 @@ public class ForgotUsernamePasswordController extends Controller {
         try {
             Database.insertResetPasswordToken(emailTextField.getText(), Role.valueOf(roleChoiceBox.getValue()));
             Stage dialog = new Stage();
-            App.loadPage("ResetPasswordDialog", dialog);
+            HashMap<String, String> result = App.loadDialog("ResetPasswordDialog", dialog, this);
+
+            if (result.get("successful") == "true") {
+                App.loadPage("SignInView", stage);
+            }
 
         } catch (MessagingException e) {
             e.printStackTrace();

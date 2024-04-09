@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Properties;
 
 import edu.asu.easydoctor.controllers.Controller;
@@ -36,7 +37,7 @@ public class App extends Application {
 		loadPage("ForgotUsernamePasswordView", primaryStage);
 	}
 
-	public static void loadDialog(String filename, Stage stage, Controller controller) throws IOException {
+	public static HashMap<String, String> loadDialog(String filename, Stage stage, Controller controller) throws IOException {
 		String resource = String.format("views/%s.fxml", filename);
 		FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
 
@@ -57,7 +58,32 @@ public class App extends Application {
 		secondaryStage.setMaxHeight(dialogController.height);
 		secondaryStage.initOwner(stage);
 		secondaryStage.showAndWait();
+
+		return dialogController.getResult();
 	}
+
+	// public static void loadDialog(String filename, Stage stage, Controller controller) throws IOException {
+	// 	String resource = String.format("views/%s.fxml", filename);
+	// 	FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
+
+	// 	Parent root = loader.load();
+	// 	DialogController dialogController = loader.getController();
+	// 	dialogController.setParentController(controller);
+
+	// 	Scene scene = new Scene(root);
+	// 	Stage secondaryStage = new Stage();
+	// 	dialogController.setStage(secondaryStage);
+	// 	secondaryStage.setTitle(dialogController.getTitle());
+	// 	secondaryStage.setScene(scene);
+	// 	secondaryStage.setResizable(dialogController.resizable);
+	// 	secondaryStage.centerOnScreen();
+	// 	secondaryStage.setWidth(dialogController.width);
+	// 	secondaryStage.setHeight(dialogController.height);
+	// 	secondaryStage.setMaxWidth(dialogController.width);
+	// 	secondaryStage.setMaxHeight(dialogController.height);
+	// 	secondaryStage.initOwner(stage);
+	// 	secondaryStage.showAndWait();
+	// }
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException {
 		String resource = String.format("views/%s.fxml", filename);
