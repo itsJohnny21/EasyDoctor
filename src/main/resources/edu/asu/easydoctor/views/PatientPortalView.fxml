@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -48,14 +49,6 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button fx:id="myVisitsButton" alignment="CENTER" minHeight="30.0" minWidth="150.0" mnemonicParsing="false" onAction="#handleMyVisitsButtonAction" onMouseEntered="#handleOnMouseEntered" onMouseExited="#handleOnMouseExited" onMousePressed="#handleOnMousePressed" onMouseReleased="#handleOnMouseReleased" opacity="0.5" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #cc7878; -fx-background-radius: 5;" text="My Visits" textAlignment="CENTER" textFill="WHITE" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Arial" size="21.0" />
-               </font>
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor>
-            </Button>
             <Button fx:id="inboxButton" alignment="CENTER" minHeight="30.0" minWidth="150.0" mnemonicParsing="false" onAction="#handleInboxButtonAction" onMouseEntered="#handleOnMouseEntered" onMouseExited="#handleOnMouseExited" onMousePressed="#handleOnMousePressed" onMouseReleased="#handleOnMouseReleased" opacity="0.5" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #cc7878; -fx-background-radius: 5;" text="Inbox" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Arial" size="21.0" />
@@ -88,6 +81,11 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
+            <ToggleButton fx:id="myVisitsButton" minHeight="30.0" minWidth="150.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #cc7878; -fx-border-radius: 5;" text="myVisitsButton" textFill="WHITE">
+               <font>
+                  <Font name="Arial" size="21.0" />
+               </font>
+            </ToggleButton>
          </children>
       </GridPane>
       <AnchorPane fx:id="myVisitsPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">

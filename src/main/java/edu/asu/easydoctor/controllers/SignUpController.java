@@ -17,17 +17,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.util.Pair;
+import javafx.stage.Stage;
 
 public class SignUpController extends Controller {
 
@@ -92,6 +89,7 @@ public class SignUpController extends Controller {
         for (ChoiceBox<String> choiceBox : Arrays.asList(roleChoiceBox, sexChoiceBox, raceChoiceBox, ethnicityChoiceBox)) {
             choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != oldValue && newValue != null) {
+                    Utilities.removeClass(choiceBox, "error");
                 }
             });
         }
@@ -126,8 +124,8 @@ public class SignUpController extends Controller {
         confirmPasswordField.setText(passwordField.getText());
         firstNameTextField.setText("John");
         lastNameTextField.setText("Doe");
-        emailTextField.setText("idk");
-        phoneTextField.setText("");
+        emailTextField.setText("idk@gmail.com");
+        phoneTextField.setText("2423423423");
         birthDateTextField.setText("2021-01-01");
         addressTextField.setText("123");
 
@@ -141,7 +139,6 @@ public class SignUpController extends Controller {
 
     @FXML public void handleSignUpButtonAction() {
         boolean valid = validateFirstName() & validateMiddleName() & validateLastName() & validateEmail() & validatePhone() & validateBirthDate() & validateAddress() & validate(sexChoiceBox) & validate(raceChoiceBox) & validate(ethnicityChoiceBox);
-
         if (!valid) return;
 
         try {
@@ -160,77 +157,19 @@ public class SignUpController extends Controller {
                     Ethnicity.valueOf(ethnicityChoiceBox.getValue())
                 );
 
-                //TODO: Direct to the patient's information tab so that they can fill out the rest of their informaiton such as:
-                /*
-                insuranceProvider
-                insuranceID
-                emergencyContactName
-                emergencyContactPhone
-                motherFirstName
-                motherLastName
-                fatherFirstName
-                fatherLastName
-                 */
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Success");
+                alert.setHeaderText("Sign up successful");
+                alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
+                alert.showAndWait();
+
+                if (alert.getResult().getText().equals("OK")) {
+                    App.loadPage("TestView", stage);
+                }
 
             } else {
-                Dialog<Pair<String, String>> dialog = new Dialog<>();
-                dialog.setTitle("Manager Credentials");
-                dialog.setHeaderText("Enter manager credentials");
-
-                ButtonType loginButtonType = new ButtonType("Confirm", ButtonData.OK_DONE);
-                dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-
-                GridPane grid = new GridPane();
-
-                TextField managerID = new TextField();
-                managerID.setPromptText("Manager ID");
-
-                PasswordField managerPassword = new PasswordField();
-                managerPassword.setPromptText("Manager Password");
-
-                grid.add(managerID, 0, 0);
-                grid.add(managerPassword, 1, 0);
-
-                dialog.getDialogPane().setContent(grid);
-
-                dialog.setResultConverter(dialogButton -> {
-                    if (dialogButton == loginButtonType) {
-                        return new Pair<>(managerID.getText(), managerPassword.getText());
-                    }
-
-                    return null;
-                });
-
-                Pair<String, String> result = dialog.showAndWait().orElse(null);
-
-                if (result == null) return;
-
-                Database.insertEmployee(
-                    usernameTextField.getText(),
-                    passwordField.getText(),
-                    Role.valueOf(roleChoiceBox.getValue()),
-                    firstNameTextField.getText(),
-                    lastNameTextField.getText(),
-                    Sex.valueOf(sexChoiceBox.getValue()),
-                    birthDateTextField.getText(),
-                    emailTextField.getText(),
-                    phoneTextField.getText(),
-                    addressTextField.getText(),
-                    result.getKey(),
-                    result.getValue(),
-                    Race.valueOf(raceChoiceBox.getValue()),
-                    Ethnicity.valueOf(ethnicityChoiceBox.getValue())
-                );
-            }
-
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText("Sign up successful");
-            alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
-            alert.showAndWait();
-
-            if (alert.getResult().getText().equals("OK")) {
-                App.loadPage("TestView", stage);
+                Stage dailogPane = new Stage();
+                App.loadDialog("ManagerCredentialsDialog", dailogPane, (Controller) this);
             }
 
         } catch (Exception e) {
@@ -243,8 +182,6 @@ public class SignUpController extends Controller {
     }
 
     @FXML public void handleNextButtonAction(ActionEvent event) throws SQLException {
-        System.out.println("Next button clicked");
-
         boolean valid = validateUsername() & validatePassword() & validateConfirmPassword() & validate(roleChoiceBox);
 
         if (!valid) return;
@@ -264,7 +201,7 @@ public class SignUpController extends Controller {
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
-        textField.getStyleClass().remove("error");
+        Utilities.removeClass(textField, "error");
     }
     
     @FXML public void handleViewPasswordButtonAction (ActionEvent event) {
@@ -274,12 +211,10 @@ public class SignUpController extends Controller {
             passwordField.setPromptText(passwordField.getText());
             passwordField.setText("");
             passwordField.setDisable(true);
-            passwordField.setOpacity(1);
 
             confirmPasswordField.setPromptText(confirmPasswordField.getText());
             confirmPasswordField.setText("");
             confirmPasswordField.setDisable(true);
-            confirmPasswordField.setOpacity(1);
         } else {
             passwordField.setText(passwordField.getPromptText());
             passwordField.setPromptText("");
@@ -291,10 +226,10 @@ public class SignUpController extends Controller {
         }
     }
 
-    public boolean validate(TextField textField) {
+    public boolean validate(TextField textField, String regex) {
         if (textField.getText().isBlank()) {
             textField.requestFocus();
-            textField.getStyleClass().add("error");
+            Utilities.addClass(textField, "error");
             return false;
         }
 
@@ -304,7 +239,7 @@ public class SignUpController extends Controller {
     public boolean validate(ChoiceBox<String> choiceBox) {
         if (choiceBox.getValue() == null) {
             choiceBox.requestFocus();
-            choiceBox.getStyleClass().add("error");
+            Utilities.addClass(choiceBox, "error");
             return false;
         }
 
@@ -314,7 +249,7 @@ public class SignUpController extends Controller {
     public boolean validatePassword() {
         if (passwordField.getText().isBlank() || !passwordField.getText().matches("^(?=.*[A-Z])(?=.*[!@#$%&*()_+=|<>?{}\\[\\]~-]).{8,}$")) {
             passwordField.requestFocus();
-            passwordField.getStyleClass().add("error");
+            Utilities.addClass(passwordField, "error");
             return false;
         }
 
@@ -324,7 +259,7 @@ public class SignUpController extends Controller {
     public boolean validateUsername() throws SQLException {
         if (usernameTextField.getText().isBlank() || !usernameTextField.getText().matches("^[a-zA-Z][a-zA-Z0-9_]{4,}$") || usernameTextField.getText().length() < 5 || Database.userExists(usernameTextField.getText())) {
             usernameTextField.requestFocus();
-            usernameTextField.getStyleClass().add("error");
+            Utilities.addClass(usernameTextField, "error");
             return false;
         }
 
@@ -336,77 +271,78 @@ public class SignUpController extends Controller {
             return true;
         }
 
-        firstNameTextField.getStyleClass().add("error");
+        Utilities.addClass(firstNameTextField, "error");
         return false;
     }
 
     public boolean validateLastName() {
-        if (lastNameTextField.getText().matches("^[a-zA-Z'\\-\\u00c0-\\u01ff]{2,}$")) {
-            return true;
+        if (!lastNameTextField.getText().matches("^[a-zA-Z'\\-\\u00c0-\\u01ff]{2,}$")) {
+            Utilities.addClass(lastNameTextField, "error");
+            return false;
         }
 
-        lastNameTextField.getStyleClass().add("error");
-        return false;
+        return true;
     }
 
     public boolean validateMiddleName() {
-        if (middleNameTextField.getText().matches("^[a-zA-Z'\\-\\u00c0-\\u01ff]{1,}$") || middleNameTextField.getText().isBlank()) {
-            return true;
+        if (!middleNameTextField.getText().matches("^[a-zA-Z'\\-\\u00c0-\\u01ff]{0,}$")) {
+            Utilities.addClass(middleNameTextField, "error");
+            return false;
         }
 
-        middleNameTextField.getStyleClass().add("error");
-        return false;
+        return true;
     }
 
     public boolean validateEmail() {
-        if (emailTextField.getText().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
-            return true;
+        if (!emailTextField.getText().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
+            Utilities.addClass(emailTextField, "error");
+            return false;
         }
-
-        emailTextField.getStyleClass().add("error");
-        return false;
+        
+        return true;
     }
 
     public boolean validatePhone() {
-        if (phoneTextField.getText().matches("^[0-9]{10}$")) {
-            return true;
+        if (!phoneTextField.getText().matches("^[0-9]{10}$")) {
+            Utilities.addClass(phoneTextField, "error");
+            return false;
         }
-
-        phoneTextField.getStyleClass().add("error");
-        return false;
+        
+        return true;
     }
 
     public boolean validateBirthDate() {
-        if (birthDateTextField.getText().matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) {
-            try {
-                LocalDate.parse(birthDateTextField.getText());
-                return true;
-            } catch (DateTimeParseException e) {
-                birthDateTextField.getStyleClass().add("error");
-                return false;
-            }
+        if (!birthDateTextField.getText().matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) {
+            Utilities.addClass(birthDateTextField, "error");
+            return false;
         }
 
-        birthDateTextField.getStyleClass().add("error");
-        return false;
+        try {
+            LocalDate.parse(birthDateTextField.getText());
+        } catch (DateTimeParseException e) {
+            Utilities.addClass(birthDateTextField, "error");
+            return false;
+        }
+
+        return true;
     }
 
     public boolean validateAddress() {
-        if (addressTextField.getText().matches("^[a-zA-Z0-9'\\-\\u00c0-\\u01ff ]{2,}$")) {
-            return true;
+        if (!addressTextField.getText().matches("^[a-zA-Z0-9'\\-\\u00c0-\\u01ff ]{2,}$")) {
+            Utilities.addClass(addressTextField, "error");
+            return false;
         }
         
-        addressTextField.getStyleClass().add("error");
-        return false;
+        return true;
     }
 
     public boolean validateConfirmPassword() {
-        if (passwordField.getText().equals(confirmPasswordField.getText()) && !confirmPasswordField.getText().isBlank()) {
-            return true;
+        if (!passwordField.getText().equals(confirmPasswordField.getText()) || confirmPasswordField.getText().isBlank()) {
+            Utilities.addClass(confirmPasswordField, "error");
+            return false;
         }
         
-        confirmPasswordField.getStyleClass().add("error");
-        return false;
+        return true;
     }
 
     public void setCurrentForm(GridPane form) {

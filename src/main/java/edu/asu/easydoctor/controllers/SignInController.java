@@ -8,7 +8,6 @@ import java.util.prefs.Preferences;
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Role;
-import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,7 +17,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 
 public class SignInController extends Controller {
     
@@ -27,61 +26,59 @@ public class SignInController extends Controller {
     @FXML public TextField usernameTextField;
     @FXML public PasswordField passwordTextField;
     @FXML public Button signInButton;
+    @FXML public Button goBackButton;
     @FXML public Hyperlink forgotUsernamePasswordHyperLink;
     @FXML public CheckBox rememberMeCheckbox;
-    @FXML public BorderPane mainPane;
+    @FXML public AnchorPane rootPane;
 
     public void initialize() throws Exception {
         title = "Sign In";
-        width = mainPane.getPrefWidth();
-        height = mainPane.getPrefHeight();
+        width = rootPane.getPrefWidth();
+        height = rootPane.getPrefHeight();
         resizable = false;
 
         usernameTextField.setText(preferences.get("username", ""));
         passwordTextField.setText(preferences.get("password", ""));
         rememberMeCheckbox.setSelected(preferences.getBoolean("rememberMeChecked", false));
 
-        mainPane.setOnKeyPressed(event -> {
+        rootPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 signInButton.fire();
             }
         });
 
-        PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(0.1));
-        pause.setOnFinished(event -> {
-            signInButton.fire();
-        });
-        pause.play();
+        // //! Delete me
+        // PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(0.1));
+        // pause.setOnFinished(event -> {
+        //     signInButton.fire();
+        // });
+        // pause.play();
     }
     
     @FXML public void handleSignInButtonAction(ActionEvent event) throws SQLException, UnknownHostException, IOException, Exception {
 
-        // Check if remember me is checked
         rememberMe(rememberMeCheckbox.isSelected());
 
-        // Check if username is empty
         if (usernameTextField.getText().isBlank()) {
             usernameTextField.requestFocus();
             usernameTextField.setStyle("-fx-border-color: red;");
             return;
         }
         
-        // Check if password is empty
         if (passwordTextField.getText().isEmpty()) {
             passwordTextField.requestFocus();
             passwordTextField.setStyle("-fx-border-color: red;");
             return;
         }
 
-        // Attempt to sign in and load the appropriate view. If sign in failed, highlight fields in red
         boolean successful = Database.signIn(usernameTextField.getText(), passwordTextField.getText());
 
 
         if (successful) {
             if (Database.role == Role.DOCTOR || Database.role == Role.NURSE) {
-                App.loadPage("WorkPortalView", stage);
+                // App.loadPage("WorkPortalView", stage); //! Implement this
             } else if (Database.role == Role.PATIENT) {
-                App.loadPage("PatientPortalView", stage);
+                // App.loadPage("PatientPortalView", stage);
             }
 
         } else {
@@ -89,6 +86,10 @@ public class SignInController extends Controller {
             usernameTextField.setStyle("-fx-border-color: red;");
             passwordTextField.setStyle("-fx-border-color: red;");
         }
+    }
+
+    @FXML public void handleGoBackButtonAction(ActionEvent event) throws IOException, Exception {
+        App.loadPage("WelcomeView", stage);
     }
     
     @FXML public void handleForgotUsernamePasswordButtonAction(ActionEvent event) throws IOException, Exception {

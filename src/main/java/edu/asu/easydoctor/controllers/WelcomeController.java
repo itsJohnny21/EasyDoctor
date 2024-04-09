@@ -1,12 +1,10 @@
 package edu.asu.easydoctor.controllers;
 
 import edu.asu.easydoctor.App;
-import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Duration;
 
 public class WelcomeController extends Controller {
     @FXML public AnchorPane rootPane;
@@ -20,12 +18,12 @@ public class WelcomeController extends Controller {
         width = rootPane.getPrefWidth();
         height = rootPane.getPrefHeight();
 
-        //! Delete me!
-        PauseTransition pause = new PauseTransition(Duration.seconds(1));
-        pause.setOnFinished(e -> {
-            signUpButton.fire();
-        });
-        pause.play();
+        // //! Delete me!
+        // PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        // pause.setOnFinished(e -> {
+        //     signUpButton.fire();
+        // });
+        // pause.play();
     }
 
     @FXML public void handleSignInButtonAction(ActionEvent event) {

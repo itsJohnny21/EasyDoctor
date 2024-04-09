@@ -1,10 +1,13 @@
 package edu.asu.easydoctor;
 	
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import edu.asu.easydoctor.controllers.Controller;
+import edu.asu.easydoctor.controllers.DialogController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,13 +16,50 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
+	public static Properties properties;
+
+	static {
+		properties = new Properties();
+
+		try {
+			FileInputStream in = new FileInputStream(".env");
+			properties.load(in);
+			in.close();
+		} catch (IOException e) {
+			System.out.println("Error reading .env file");
+		}
+	}
+
 	@Override
-	public void start(Stage primaryStage) throws IOException, Exception {
+	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException {
 		Database.connect();
-		loadPage("WelcomeView", primaryStage);
+		loadPage("ForgotUsernamePasswordView", primaryStage);
+	}
+
+	public static void loadDialog(String filename, Stage stage, Controller controller) throws IOException {
+		String resource = String.format("views/%s.fxml", filename);
+		FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));
+
+		Parent root = loader.load();
+		DialogController dialogController = loader.getController();
+		dialogController.setParentController(controller);
+
+		Scene scene = new Scene(root);
+		Stage secondaryStage = new Stage();
+		dialogController.setStage(secondaryStage);
+		secondaryStage.setTitle(dialogController.getTitle());
+		secondaryStage.setScene(scene);
+		secondaryStage.setResizable(dialogController.resizable);
+		secondaryStage.centerOnScreen();
+		secondaryStage.setWidth(dialogController.width);
+		secondaryStage.setHeight(dialogController.height);
+		secondaryStage.setMaxWidth(dialogController.width);
+		secondaryStage.setMaxHeight(dialogController.height);
+		secondaryStage.initOwner(stage);
+		secondaryStage.showAndWait();
 	}
 	
-	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
+	public static void loadPage(String filename, Stage primaryStage) throws IOException {
 		String resource = String.format("views/%s.fxml", filename);
 
 		FXMLLoader loader = new FXMLLoader(App.class.getResource(resource));

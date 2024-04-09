@@ -162,12 +162,12 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="goBackButton" mnemonicParsing="false" onAction="#handleGoBackButtonAction" prefHeight="20.0" prefWidth="100.0" text="Go Back" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+            <Button fx:id="goBackButton" mnemonicParsing="false" onAction="#handleGoBackButtonAction" prefHeight="26.0" prefWidth="100.0" text="Go Back" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets />
                </GridPane.margin>
             </Button>
-            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="20.0" prefWidth="100.0" text="Next" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="100.0" text="Next" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets />
                </GridPane.margin>
