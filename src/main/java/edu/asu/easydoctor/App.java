@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import edu.asu.easydoctor.controllers.SignInController;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -31,7 +32,7 @@ public class App extends Application {
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		App.primaryStage = primaryStage;
 		WelcomeController.load(App.primaryStage);
-		// signUpTest();
+		signInTest();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -50,7 +51,18 @@ public class App extends Application {
 		}
 	}
 
-	public static void signUpTest() {
-		WelcomeController controller = WelcomeController.getInstance();
+	public static void signInTest() {
+		WelcomeController welcomeController = WelcomeController.getInstance();
+		welcomeController.signInButton.fire();
+		SignInController signInController = SignInController.getInstance();
+		signInController.usernameTextField.setText("itsJohnny21");
+		signInController.passwordTextField.setText("meatCuh21!");
+		signInController.signInButton.fire();
+
+		if (Database.role == Database.Role.PATIENT && Database.userID == 109) {
+			System.out.println("Sign in test passed");
+		} else {
+			System.out.println("Sign in test failed");
+		}
 	}
 }
