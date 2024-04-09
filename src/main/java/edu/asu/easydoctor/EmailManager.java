@@ -28,7 +28,7 @@ public class EmailManager {
 
         Session session = Session.getInstance(properties, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(App.properties.getProperty("email_address"), App.properties.getProperty("email_app_password"));
+                return new PasswordAuthentication(App.properties.getProperty("email_address"), App.properties.getProperty("email_app_password")); //! Use EasyDoctor email address and password
             }
         });
         

@@ -12,27 +12,17 @@ public class ValueLabel extends Label implements Connectable {
         this.datum = datum;
     }
 
-    public void onEdit() {
-        
-    }
+    public void onEdit() {}
 
-    public void onSave() throws SQLException {
-    }
+    public void onSave() throws SQLException {}
 
-    public void onCancel() {
-    }
+    public void onCancel() {}
 
     public Connectable connectTo(UpdateButtonGroup updateButtonGroup) {
         return this;
     }
 
-    public Connectable withConversion() {
-        return this;
-    }
+    public void onError() {}
 
-    public void onError() {
-    }
-
-    public void initialize() {
-    }
+    public void initialize() {}
 }

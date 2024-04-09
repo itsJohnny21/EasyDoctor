@@ -1,5 +1,6 @@
 package edu.asu.easydoctor.controllers;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -15,6 +16,9 @@ import edu.asu.easydoctor.Database.Sex;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -56,13 +60,26 @@ public class SignUpController extends Controller {
     @FXML ChoiceBox<String> raceChoiceBox;
     @FXML ChoiceBox<String> ethnicityChoiceBox;
 
-    public void initialize() {
-        title = "Sign Up";
-        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-        width = rootPane.getPrefWidth();
-        height = rootPane.getPrefHeight() + 30;
-        resizable = false;
+    public static SignUpController instance = null;
+    public static final String TITLE = "Sign Up";
+    public static final boolean RESIZABLE = false;
 
+    private SignUpController() {}
+
+    public static SignUpController getInstance() {
+        if (instance == null) {
+            instance = new SignUpController();
+        }
+
+        return instance;
+    }
+
+    public void initialize() {
+        stage.setTitle(TITLE);
+        stage.setResizable(RESIZABLE);
+        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
+        stage.show();
+        
         //! Delete me!
         form1.setVisible(true);
         form1.setDisable(false);
@@ -118,24 +135,6 @@ public class SignUpController extends Controller {
                 event.consume();
             }
         });
-
-        //! DELETE ME
-        // usernameTextField.setText("auser1");
-        // passwordField.setText("Password!");
-        // confirmPasswordField.setText(passwordField.getText());
-        // firstNameTextField.setText("John");
-        // lastNameTextField.setText("Doe");
-        // emailTextField.setText("idk@gmail.com");
-        // phoneTextField.setText("2423423423");
-        // birthDateTextField.setText("2021-01-01");
-        // addressTextField.setText("123");
-
-        // roleChoiceBox.setValue(roleChoiceBox.getItems().get(0));
-        // sexChoiceBox.setValue(sexChoiceBox.getItems().get(0));
-        // ethnicityChoiceBox.setValue(ethnicityChoiceBox.getItems().get(0));
-        // raceChoiceBox.setValue(raceChoiceBox.getItems().get(0));
-
-        // nextButton.fire();
     }
 
     @FXML public void handleSignUpButtonAction() {
@@ -159,8 +158,7 @@ public class SignUpController extends Controller {
                 );
 
             } else {
-                Stage dialog = new Stage();
-                HashMap<String, String> result = App.loadDialog("ManagerCredentialsDialog", dialog, (Controller) this);
+                HashMap<String, String> result = ManagerCredentialsController.loadDialog();
 
                 Database.insertEmployee(
                     usernameTextField.getText(),
@@ -187,7 +185,7 @@ public class SignUpController extends Controller {
             alert.showAndWait();
 
             if (alert.getResult().getText().equals("OK")) {
-                App.loadPage("SignInView", stage);
+                SignInController.load(stage);
             }
 
         } catch (Exception e) {
@@ -215,7 +213,7 @@ public class SignUpController extends Controller {
         System.out.println("Go back button clicked");
 
         if (currentForm == form1) {
-            App.loadPage("WelcomeView", stage);
+            WelcomeController.load(stage);
         } else {
             setCurrentForm(form1);
         }
@@ -386,11 +384,20 @@ public class SignUpController extends Controller {
     public String getTitle() {
         return title;
     }
+
+    public static void load(Stage stage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignUpView.fxml"));
+        SignUpController controller = SignUpController.getInstance();
+        controller.setStage(stage);
+        loader.setController(controller);
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        controller.initialize();
+    }
 }
 
-// TODO: Validate input!
-// TODO: Highlight in red for invalid inputs
-// TODO: Add middleName parameter to insertPatient() and insertEmployee()
+
 // TODO: Test multiple popular email domains for email validation
 // TODO: Test multiple phone numbers for phone validation
 // TODO Test all possible dates for birthDate validation

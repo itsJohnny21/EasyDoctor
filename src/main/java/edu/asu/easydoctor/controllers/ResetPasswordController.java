@@ -1,5 +1,6 @@
 package edu.asu.easydoctor.controllers;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.App;
@@ -9,6 +10,9 @@ import edu.asu.easydoctor.exceptions.ExpiredResetPasswordTokenException;
 import edu.asu.easydoctor.exceptions.InvalidResetPasswordTokenException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -18,7 +22,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-public class ResetPasswordController extends DialogController {
+public class ResetPasswordController extends Controller {
 
     @FXML DialogPane rootPane;
     @FXML Button resetButton;
@@ -27,27 +31,33 @@ public class ResetPasswordController extends DialogController {
     @FXML PasswordField newPasswordField;
     @FXML PasswordField confirmNewPasswordField;
 
+    public static ResetPasswordController instance = null;
+    public static HashMap<String, String> result = new HashMap<>();
+    public final static String TITLE = "Reset Password";
+    public final static boolean RESIZABLE = false;
+
+    private ResetPasswordController() {}
+
+    public static ResetPasswordController getInstance() {
+        if (instance == null) {
+            instance = new ResetPasswordController();
+        }
+
+        return instance;
+    }
+
     public void initialize() throws Exception {
-        title = "Reset Password";
+        stage.setTitle(ResetPasswordController.TITLE);
+        stage.setResizable(ResetPasswordController.RESIZABLE);
+        stage.setWidth(rootPane.getPrefWidth());
+        stage.setHeight(rootPane.getPrefHeight() + 20);
         rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-        width = rootPane.getPrefWidth();
-        height = rootPane.getPrefHeight() + 20;
-        resizable = false;
 
         resetPasswordTokenTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             if (!event.getCharacter().matches("[0-9]") || event.getCharacter().length() == 0 || resetPasswordTokenTextField.getText().length() >= 6 && resetPasswordTokenTextField.getSelectedText().length() == 0) {
                 event.consume();
             }
-
-            resetPasswordTokenTextField.positionCaret(resetPasswordTokenTextField.getText().length()); //! Fix me
         });
-
-        result = new HashMap<>();
-
-        //! Delete me
-        resetPasswordTokenTextField.setText("946930");
-        newPasswordField.setText("idkBruh21!");
-        confirmNewPasswordField.setText("idkBruh21!");
     }
 
     public String getTitle() {
@@ -57,6 +67,7 @@ public class ResetPasswordController extends DialogController {
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
         textField.getStyleClass().remove("error");
+        textField.positionCaret(textField.getText().length()); //! Fix me
     }
 
     @FXML public void handleResetButtonAction(ActionEvent event) {
@@ -155,7 +166,17 @@ public class ResetPasswordController extends DialogController {
         return true;
     }
 
-    public HashMap<String, String> getResult() {
+    public static HashMap<String, String> loadDialog() throws IOException {
+        Stage stage = new Stage();
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/ResetPasswordDialog.fxml"));
+        ResetPasswordController controller = ResetPasswordController.getInstance();
+        controller.setStage(stage);
+
+        loader.setController(controller);
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.showAndWait();
         return result;
     }
 }

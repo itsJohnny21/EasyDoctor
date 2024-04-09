@@ -1,5 +1,6 @@
 package edu.asu.easydoctor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -15,10 +16,6 @@ public class Utilities {
         } else {
             return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
         }
-    }
-
-    public static long getDeltaInMillis(LocalDateTime date1, LocalDateTime date2) {
-        return date1.toInstant(ZoneOffset.UTC).toEpochMilli() - date2.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
 
     public static boolean validate(ChoiceBox<String> choiceBox) { //! maybe remove
@@ -49,5 +46,13 @@ public class Utilities {
 
     public static void removeClass(Node node, String className) {
         node.getStyleClass().remove(className);
+    }
+
+    public static long getCurrentTimeEpochMillis() {
+        return LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+    }
+
+    public static long timestampToEpochMillis(Timestamp timestamp) {
+        return timestamp.getTime();
     }
 }

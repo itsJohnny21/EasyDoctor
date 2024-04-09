@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="rootPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.asu.easydoctor.controllers.SignInController">
+<AnchorPane fx:id="rootPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TextField fx:id="usernameTextField" layoutX="220.0" layoutY="153.0" onKeyPressed="#handleKeyPressed" onKeyReleased="#handleKeyReleased" onKeyTyped="#handleKeyTyped" onMouseDragReleased="#handleKeyReleased" prefWidth="160.0" />
       <Label layoutX="274.0" layoutY="138.0" text="Username" textFill="#e4e4e4">

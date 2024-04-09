@@ -12,8 +12,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -72,6 +72,7 @@ public abstract class Database {
     public static HashMap<String, HashMap<String, Boolean>> selectPermissions;
     public static HashMap<String, HashMap<String, Boolean>> insertPermissions;
     public static HashMap<String, Boolean> deletePermissions;
+    public final static long TOKEN_LIFESPAN = Duration.ofMinutes(5).toMillis();
 
     static {
         updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
@@ -436,14 +437,15 @@ public abstract class Database {
 
         if (resultSet.next()) {
             int userID = resultSet.getInt("userID");
-            LocalDateTime creationTime = resultSet.getTimestamp("creationTime").toLocalDateTime();
+            Timestamp creationTime = resultSet.getTimestamp("creationTime");
             boolean used = resultSet.getBoolean("used");
 
             if (used) {
                 throw new InvalidResetPasswordTokenException();
             }
+
             
-            if (Utilities.getDeltaInMillis(ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime(), creationTime) > Duration.ofMinutes(5).toMillis()) {
+            if (Utilities.getCurrentTimeEpochMillis() - Utilities.timestampToEpochMillis(creationTime) > Duration.ofMinutes(5).toMillis()) {
                 throw new ExpiredResetPasswordTokenException();
             }
 
