@@ -58,7 +58,7 @@ public class ResetPasswordController extends DialogController {
         if (!valid) return;
 
         try {
-            Database.resetPassword(Integer.parseInt(resetPasswordTokenTextField.getText()), newPasswordField.getText());
+            Database.resetPassword(Integer.parseInt(resetPasswordTokenTextField.getText()), newPasswordField.getText()); //TODO: Make sure the same password is not used again
 
             Stage stage = (Stage) resetButton.getScene().getWindow();
             

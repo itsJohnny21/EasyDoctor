@@ -55,6 +55,9 @@ public class SignUpController extends Controller {
     @FXML ChoiceBox<String> raceChoiceBox;
     @FXML ChoiceBox<String> ethnicityChoiceBox;
 
+    public String managerUsername;
+    public String managerPassword;
+
     public void initialize() {
         title = "Sign Up";
         rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
@@ -157,19 +160,36 @@ public class SignUpController extends Controller {
                     Ethnicity.valueOf(ethnicityChoiceBox.getValue())
                 );
 
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Success");
-                alert.setHeaderText("Sign up successful");
-                alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
-                alert.showAndWait();
-
-                if (alert.getResult().getText().equals("OK")) {
-                    App.loadPage("TestView", stage);
-                }
-
             } else {
                 Stage dailogPane = new Stage();
                 App.loadDialog("ManagerCredentialsDialog", dailogPane, (Controller) this);
+
+                Database.insertEmployee(
+                    usernameTextField.getText(),
+                    passwordField.getText(),
+                    Role.valueOf(roleChoiceBox.getValue()),
+                    firstNameTextField.getText(),
+                    lastNameTextField.getText(),
+                    Sex.valueOf(sexChoiceBox.getValue()),
+                    birthDateTextField.getText(),
+                    emailTextField.getText(),
+                    phoneTextField.getText(),
+                    addressTextField.getText(),
+                    managerUsername,
+                    managerPassword,
+                    Race.valueOf(raceChoiceBox.getValue()),
+                    Ethnicity.valueOf(ethnicityChoiceBox.getValue())
+                );
+            }
+
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Success");
+            alert.setHeaderText("Sign up successful");
+            alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
+            alert.showAndWait();
+
+            if (alert.getResult().getText().equals("OK")) {
+                App.loadPage("SignInView", stage);
             }
 
         } catch (Exception e) {

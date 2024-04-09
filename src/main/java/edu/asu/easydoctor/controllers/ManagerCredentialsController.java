@@ -2,16 +2,8 @@ package edu.asu.easydoctor.controllers;
 
 import java.sql.SQLException;
 
-import edu.asu.easydoctor.App;
-import edu.asu.easydoctor.Database;
-import edu.asu.easydoctor.Database.Ethnicity;
-import edu.asu.easydoctor.Database.Race;
-import edu.asu.easydoctor.Database.Role;
-import edu.asu.easydoctor.Database.Sex;
 import edu.asu.easydoctor.Utilities;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
@@ -46,43 +38,9 @@ public class ManagerCredentialsController extends DialogController {
 
     @FXML public void handleConfirmButtonAction() throws SQLException {
         SignUpController signUpController = (SignUpController) parentController;
-
-        try {
-            Database.insertEmployee(
-                signUpController.usernameTextField.getText(),
-                signUpController.passwordField.getText(),
-                Role.valueOf(signUpController.roleChoiceBox.getValue()),
-                signUpController.firstNameTextField.getText(),
-                signUpController.lastNameTextField.getText(),
-                Sex.valueOf(signUpController.sexChoiceBox.getValue()),
-                signUpController.birthDateTextField.getText(),
-                signUpController.emailTextField.getText(),
-                signUpController.phoneTextField.getText(),
-                signUpController.addressTextField.getText(),
-                managerUsernameTextField.getText(),
-                managerPasswordField.getText(),
-                Race.valueOf(signUpController.raceChoiceBox.getValue()),
-                Ethnicity.valueOf(signUpController.ethnicityChoiceBox.getValue())
-            );
-
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText("Sign up successful");
-            alert.setContentText(String.format("You have successfully signed up as a %s!", signUpController.roleChoiceBox.getValue().toLowerCase()));
-            alert.showAndWait();
-
-            if (alert.getResult().getText().equals("OK")) {
-                stage.close();
-                App.loadPage("SignInView", signUpController.stage);
-            }
-
-        } catch (Exception e) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("An error occurred");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-        }
+        signUpController.managerUsername  = managerUsernameTextField.getText();
+        signUpController.managerPassword = managerPasswordField.getText();
+        stage.close();
     }
 
     @FXML public void handleCancelButtonAction() {
