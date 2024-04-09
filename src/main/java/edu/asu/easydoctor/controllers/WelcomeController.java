@@ -34,8 +34,8 @@ public class WelcomeController extends Controller {
     }
 
     public void initialize() throws Exception {
-        stage.setTitle(WelcomeController.TITLE);
-        stage.setResizable(WelcomeController.RESIZABLE);
+        stage.setTitle(TITLE);
+        stage.setResizable(RESIZABLE);
         stage.setWidth(rootPane.getPrefWidth());
         stage.setHeight(rootPane.getPrefHeight());
         stage.centerOnScreen();
@@ -57,15 +57,19 @@ public class WelcomeController extends Controller {
         return title;
     }
 
-    public static void load(Stage stage) throws IOException, Exception {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/WelcomeView.fxml"));
+
+    public static void load(Stage stage) throws IOException {
         WelcomeController controller = WelcomeController.getInstance();
 
-        controller.setStage(stage);
-        
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+        if (controller.scene == null) {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("views/WelcomeView.fxml"));
+            controller.setStage(stage);
+            loader.setController(controller);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            controller.setScene(scene);
+        }
+
+        stage.setScene(controller.scene);
     }
 }

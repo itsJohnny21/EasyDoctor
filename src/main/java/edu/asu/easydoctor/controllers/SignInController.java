@@ -50,8 +50,8 @@ public class SignInController extends Controller {
     }
 
     public void initialize() throws Exception {
-        stage.setTitle(SignInController.TITLE);
-        stage.setResizable(SignInController.RESIZABLE);
+        stage.setTitle(TITLE);
+        stage.setResizable(RESIZABLE);
         stage.setWidth(rootPane.getPrefWidth());
         stage.setHeight(rootPane.getPrefHeight());
         stage.centerOnScreen();
@@ -71,7 +71,7 @@ public class SignInController extends Controller {
     
     @FXML public void handleSignInButtonAction(ActionEvent event) throws SQLException, UnknownHostException, IOException, Exception {
 
-        rememberMe(rememberMeCheckbox.isSelected());
+        rememberMe();
 
         if (usernameTextField.getText().isBlank()) {
             usernameTextField.requestFocus();
@@ -131,8 +131,8 @@ public class SignInController extends Controller {
         }
     }
 
-    public void rememberMe(boolean rememberMe) {
-        if (rememberMe) {
+    public void rememberMe() {
+        if (rememberMeCheckbox.isSelected()) {
             preferences.put("username", usernameTextField.getText());
             preferences.put("password", passwordTextField.getText());
             preferences.putBoolean("rememberMeChecked", rememberMeCheckbox.isSelected());
@@ -140,18 +140,27 @@ public class SignInController extends Controller {
             preferences.remove("username");
             preferences.remove("password");
             preferences.remove("rememberMeChecked");
-            preferences.remove("doctorNurseChecked");
         }
     }
 
     public static void load(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignInView.fxml"));
         SignInController controller = SignInController.getInstance();
-        controller.setStage(stage);
+        if (controller.scene == null) {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignInView.fxml"));
+            controller.setStage(stage);
+            loader.setController(controller);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            controller.setScene(scene);
+        } else {
+            controller.rememberMe();
+
+            if (!controller.rememberMeCheckbox.isSelected()) {
+                controller.usernameTextField.clear();
+                controller.passwordTextField.clear();
+            }
+        }
         
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+        stage.setScene(controller.scene);
     }
 }

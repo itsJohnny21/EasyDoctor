@@ -386,14 +386,18 @@ public class SignUpController extends Controller {
     }
 
     public static void load(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignUpView.fxml"));
         SignUpController controller = SignUpController.getInstance();
-        controller.setStage(stage);
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        controller.initialize();
+
+        if (controller.scene == null) {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignUpView.fxml"));
+            controller.setStage(stage);
+            loader.setController(controller);
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            controller.setScene(scene);
+        }
+
+        stage.setScene(controller.scene);
     }
 }
 
