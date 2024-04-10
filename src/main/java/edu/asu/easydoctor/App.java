@@ -9,6 +9,7 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import tests.Bypass;
 
 public class App extends Application {
 
@@ -29,6 +30,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		WelcomeController.getInstance().load(primaryStage);
+		Bypass.loginToPatientPortal("barb123", "barb123");
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -37,7 +39,6 @@ public class App extends Application {
 		System.exit(0);
 	}
 	public static void main(String[] args) {
-		System.out.println("This is for my commit for Phase III documentation");
 		System.out.println("Starting application...");
 		try {
 			launch(args);

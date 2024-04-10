@@ -88,10 +88,11 @@ public class SignInController extends Controller {
         boolean successful = Database.signIn(usernameTextField.getText(), passwordField.getText());
 
         if (successful) {
+            close();
             if (Database.role == Role.DOCTOR || Database.role == Role.NURSE) {
-                // App.loadPage("WorkPortalView", stage); //! Implement this
+                WorkPortalController.getInstance().load(stage);
             } else if (Database.role == Role.PATIENT) {
-                // App.loadPage("PatientPortalView", stage);
+                PatientPortalController.getInstance().load(stage);
             }
 
         } else {
