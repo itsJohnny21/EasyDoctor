@@ -45,8 +45,6 @@ public class TestController extends Controller {
 
     public void initialize() throws Exception {
         rootPane.getStylesheets().add(App.class.getResource("/styles/test.css").toExternalForm());
-        width = rootPane.getPrefWidth();
-        height = rootPane.getPrefHeight();
         resizable = true;
         
         Database.changeRole(null);

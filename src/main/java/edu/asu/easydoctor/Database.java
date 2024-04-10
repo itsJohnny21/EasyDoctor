@@ -387,7 +387,7 @@ public abstract class Database {
     public static String getMy(String columnName) throws Exception {
         PreparedStatement statement;
         if (role == Role.PATIENT) {
-            statement = connection.prepareStatement(String.format("SELECT %s FROM patients WHERE ID = ?;", columnName));
+            statement = connection.prepareStatement(String.format("SELECT %s FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;", columnName));
             statement.setInt(1, userID);
 
             ResultSet resultSet = statement.executeQuery();
@@ -395,7 +395,7 @@ public abstract class Database {
 
             return resultSet.getString(columnName);
         } else {
-            statement = connection.prepareStatement(String.format("SELECT %s FROM employees WHERE ID = ?;", columnName));
+            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = patients.ID WHERE employees.ID = ?;", columnName));
             statement.setInt(1, userID);
 
             ResultSet resultSet = statement.executeQuery();
