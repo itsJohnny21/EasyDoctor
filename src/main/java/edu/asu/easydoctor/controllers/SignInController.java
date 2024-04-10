@@ -7,6 +7,8 @@ import java.util.prefs.Preferences;
 
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Role;
+import edu.asu.easydoctor.ShowPasswordGroup;
+import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -14,6 +16,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -22,7 +25,8 @@ public class SignInController extends Controller {
     
     
     @FXML public TextField usernameTextField;
-    @FXML public PasswordField passwordTextField;
+    @FXML public PasswordField passwordField;
+    @FXML public ToggleButton showPasswordToggle;
     @FXML public Button signInButton;
     @FXML public Button goBackButton;
     @FXML public Hyperlink forgotUsernamePasswordHyperLink;
@@ -53,7 +57,7 @@ public class SignInController extends Controller {
 
     public void initialize() throws Exception {
         usernameTextField.setText(preferences.get("username", ""));
-        passwordTextField.setText(preferences.get("password", ""));
+        passwordField.setText(preferences.get("password", ""));
         rememberMeCheckbox.setSelected(preferences.getBoolean("rememberMeChecked", false));
 
         rootPane.setOnKeyPressed(event -> {
@@ -61,26 +65,27 @@ public class SignInController extends Controller {
                 signInButton.fire();
             }
         });
+
+        ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
+        spg.addPasswordField(passwordField);
     }
     
     @FXML public void handleSignInButtonAction(ActionEvent event) throws SQLException, UnknownHostException, IOException, Exception {
-
         rememberMe();
 
         if (usernameTextField.getText().isBlank()) {
             usernameTextField.requestFocus();
-            usernameTextField.setStyle("-fx-border-color: red;");
+            usernameTextField.getStyleClass().add("error");
             return;
         }
         
-        if (passwordTextField.getText().isEmpty()) {
-            passwordTextField.requestFocus();
-            passwordTextField.setStyle("-fx-border-color: red;");
+        if (passwordField.getText().isEmpty()) {
+            passwordField.requestFocus();
+            passwordField.getStyleClass().add("error");
             return;
         }
 
-        boolean successful = Database.signIn(usernameTextField.getText(), passwordTextField.getText());
-
+        boolean successful = Database.signIn(usernameTextField.getText(), passwordField.getText());
 
         if (successful) {
             if (Database.role == Role.DOCTOR || Database.role == Role.NURSE) {
@@ -91,8 +96,8 @@ public class SignInController extends Controller {
 
         } else {
             usernameTextField.requestFocus();
-            usernameTextField.setStyle("-fx-border-color: red;");
-            passwordTextField.setStyle("-fx-border-color: red;");
+            usernameTextField.getStyleClass().add("error");
+            passwordField.getStyleClass().add("error");
         }
     }
 
@@ -103,28 +108,17 @@ public class SignInController extends Controller {
     @FXML public void handleForgotUsernamePasswordButtonAction(ActionEvent event) throws IOException, Exception {
         ForgotUsernamePasswordController.getInstance().load(stage);
     }
-    
-    @FXML public void handleKeyTyped(KeyEvent event) {
-        passwordTextField.setStyle("-fx-border-color: none;");
-        usernameTextField.setStyle("-fx-border-color: none;");
-    }
-    
-    @FXML public void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            signInButton.setStyle("-fx-background-color: #d3d3d3;");
-        }
-    }
-    
-    @FXML public void handleKeyReleased(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            signInButton.fire();
-        }
+
+    @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
+        TextField textField = (TextField) event.getSource();
+        Utilities.removeClass(textField, "error");
     }
 
+    
     public void rememberMe() {
         if (rememberMeCheckbox.isSelected()) {
             preferences.put("username", usernameTextField.getText());
-            preferences.put("password", passwordTextField.getText());
+            preferences.put("password", passwordField.getText());
             preferences.putBoolean("rememberMeChecked", rememberMeCheckbox.isSelected());
         } else {
             preferences.remove("username");

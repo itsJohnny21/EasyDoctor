@@ -17,7 +17,7 @@ public abstract class Controller {
     public String styleFilename;
     public double width;
     public double height;
-    
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -37,8 +37,20 @@ public abstract class Controller {
             initializeStage();
         }
 
+        loadHelper();
         stage.setScene(this.scene);
         stage.show();
+    }
+
+    public void loadHelper() {
+        if (this instanceof SignInController) {
+            SignInController signInController = (SignInController) this;
+
+            if (!signInController.rememberMeCheckbox.isSelected()) {
+                signInController.usernameTextField.clear();
+                signInController.passwordField.clear();
+            }
+        }        
     }
 
     public void initializeStage() {
