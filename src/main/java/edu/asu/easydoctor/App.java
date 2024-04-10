@@ -6,6 +6,8 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Scalar.String;
+
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -13,15 +15,6 @@ import javafx.stage.Stage;
 public class App extends Application {
 
 	public static Properties properties;
-
-	@Override
-	public void start(Stage primaryStage) throws IOException, Exception {
-		Database.connect();
-		loadPage("WelcomeView", primaryStage);
-	}
-	
-	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
-		String resource = String.format("views/%s.fxml", filename);
 
 	static {
 		properties = new Properties();
