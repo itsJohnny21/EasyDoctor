@@ -1,50 +1,48 @@
 package edu.asu.easydoctor.controllers;
 
-import edu.asu.easydoctor.App;
-import javafx.animation.PauseTransition;
+import edu.asu.easydoctor.Database;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Duration;
 
 public class WelcomeController extends Controller {
+    
     @FXML public AnchorPane rootPane;
     @FXML public Button signInButton;
     @FXML public Button signUpButton;
     
-    public String title = "Welcome";
+    public static WelcomeController instance = null;
+    public final static String TITLE = "Welcome";
+    public final static boolean RESIZABLE = false;
+    public final static String VIEW_FILENAME = "WelcomeView";
+    public final static String STYLE_FILENAME = "WelcomeView";
+
+
+    private WelcomeController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
+
+    public static WelcomeController getInstance() {
+        if (instance == null) {
+            instance = new WelcomeController();
+        }
+
+        return instance;
+    }
 
     public void initialize() throws Exception {
-        rootPane.getStylesheets().add(App.class.getResource("styles/WelcomeView.css").toExternalForm());
-        width = rootPane.getPrefWidth();
-        height = rootPane.getPrefHeight();
-
-        //! Delete me!
-        PauseTransition pause = new PauseTransition(Duration.seconds(1));
-        pause.setOnFinished(e -> {
-            signUpButton.fire();
-        });
-        pause.play();
+        Database.connect();
     }
 
-    @FXML public void handleSignInButtonAction(ActionEvent event) {
-        try {
-            App.loadPage("SignInView", stage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @FXML public void handleSignInButtonAction(ActionEvent event) throws Exception {
+        SignInController.getInstance().load(stage);
     }
 
-    @FXML public void handleSignUpButtonAction(ActionEvent event) {
-        try {
-            App.loadPage("SignUpView", stage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getTitle() {
-        return title;
+    @FXML public void handleSignUpButtonAction(ActionEvent event) throws Exception {
+        SignUpController.getInstance().load(stage);
     }
 }

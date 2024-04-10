@@ -19,7 +19,6 @@ CREATE TABLE employees (
     FOREIGN KEY (managerID) REFERENCES users(ID) ON CASCADE DELETE
 );
 
-
 INSERT INTO users (username, password, userType)
 VALUES ('test', 'test', 'EMPLOYEE');
 

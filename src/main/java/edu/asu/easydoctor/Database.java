@@ -1,29 +1,30 @@
 package edu.asu.easydoctor;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.Properties;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import javax.mail.MessagingException;
+
+import edu.asu.easydoctor.exceptions.ExpiredResetPasswordTokenException;
+import edu.asu.easydoctor.exceptions.InvalidResetPasswordTokenException;
 
 public abstract class Database {
     		
@@ -69,6 +70,7 @@ public abstract class Database {
     public static HashMap<String, HashMap<String, Boolean>> selectPermissions;
     public static HashMap<String, HashMap<String, Boolean>> insertPermissions;
     public static HashMap<String, Boolean> deletePermissions;
+    public final static long TOKEN_LIFESPAN = Duration.ofMinutes(5).toMillis();
 
     static {
         updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
@@ -81,21 +83,16 @@ public abstract class Database {
     }
 
     public static void connect() throws SQLException, IOException {
-        Properties props = new Properties();
-        FileInputStream in = new FileInputStream(".env");
-        props.load(in);
-        in.close();
-
         String url = null;
 
         if (Database.role == null) {
-            url = props.getProperty("db_neutral_url");
+            url = App.properties.getProperty("db_neutral_url");
         } else if (role == Role.PATIENT) {
-            url = props.getProperty("db_patient_url");
+            url = App.properties.getProperty("db_patient_url");
         } else if (role == Role.DOCTOR) {
-            url = props.getProperty("db_doctor_url");
+            url = App.properties.getProperty("db_doctor_url");
         } else if (role == Role.NURSE) {
-            url = props.getProperty("db_nurse_url");
+            url = App.properties.getProperty("db_nurse_url");
         } else {
             throw new SQLException("Invalid role");
         }
@@ -201,18 +198,28 @@ public abstract class Database {
         statement.executeUpdate();
     }
 
-    public static void insertEmployee(String username, String password, Role role, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, String managerID, String managerPassword, Race race, Ethnicity ethnicity) throws Exception {
+    public static void insertEmployee(String username, String password, Role role, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, String managerUsername, String managerPassword, Race race, Ethnicity ethnicity) throws Exception {
         if (role != Role.DOCTOR && role != Role.NURSE) {
             throw new SQLException("Invalid role");
         }
 
-        if (!validateManager(managerID, managerPassword)) {
-            throw new SQLException("Invalid manager");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ? AND password = SHA2(?, 256) AND role = ?;");
+        statement.setString(1, managerUsername);
+        statement.setString(2, managerPassword);
+        statement.setString(3, Role.DOCTOR.toString()); //! Change to manager in the future
+
+        ResultSet resultSet = statement.executeQuery();
+
+        if (!resultSet.next()) {
+            throw new SQLException("Invalid manager credentials");
         }
+
+        int managerID = resultSet.getInt("ID");
+        resultSet.close();
 
         int userID = insertUser(username, password, role);
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO employees (ID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID, race, ethnicity) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?);");
+        statement = connection.prepareStatement("INSERT INTO employees (ID, firstName, lastName, sex, birthDate, hireDate, email, phone, address, managerID, race, ethnicity) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?);");
         statement.setInt(1, userID);
         statement.setString(2, firstName);
         statement.setString(3, lastName);
@@ -221,7 +228,7 @@ public abstract class Database {
         statement.setString(6, email);
         statement.setString(7, phone);
         statement.setString(8, address);
-        statement.setString(9, managerID);
+        statement.setInt(9, managerID);
         statement.setString(10, race.toString());
         statement.setString(11, ethnicity.toString());
 
@@ -258,16 +265,6 @@ public abstract class Database {
                 throw e;
             }
         }
-    }
-
-    public static boolean validateManager(String managerID, String managerPassword) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE ID = ? AND password = SHA2(?, 256) AND role = ?;");
-        statement.setString(1, managerID);
-        statement.setString(2, managerPassword);
-        statement.setString(3, Role.DOCTOR.toString()); //! Change to manager in the future
-        ResultSet resultSet = statement.executeQuery();
-
-        return resultSet.next();
     }
 
     public static void refreshUpdatePermissions() throws SQLException {
@@ -392,45 +389,102 @@ public abstract class Database {
         }
     }
 
-    public static class Encrypter {
-        private final static String key;
-        private final static String algorithm;
+    public static void insertResetPasswordToken(String usernameOrEmail, Role role) throws SQLException, UnknownHostException, MessagingException {
+        int token = generateRandomToken();
+        String IP = InetAddress.getLocalHost().getHostAddress();
 
-        static {
-            Properties props = new Properties();
+        PreparedStatement statement = connection.prepareStatement("SELECT users.ID, email, users.username FROM users JOIN patients ON users.ID = patients.ID WHERE username = ? AND role = ? UNION SELECT patients.ID, email, users.username FROM patients JOIN users on users.ID = patients.ID WHERE email = ? AND role = ? UNION SELECT employees.ID, email, users.username FROM employees JOIN users ON users.ID = employees.ID WHERE email = ? AND role = ?;");
+        statement.setString(1, usernameOrEmail);
+        statement.setString(2, role.toString());
+        statement.setString(3, usernameOrEmail);
+        statement.setString(4, role.toString());
+        statement.setString(5, usernameOrEmail);
+        statement.setString(6, role.toString());
 
-            try {
-                FileInputStream in = new FileInputStream(".env");
-                props.load(in);
-                in.close();
+        ResultSet resultSet = statement.executeQuery();
 
-            } catch (IOException e) {
-                System.out.println("Error reading .env file");
+        if (resultSet.next()) {
+            int userID = resultSet.getInt("ID");
+            String username = resultSet.getString("username");
+            String email = resultSet.getString("email");
+
+            statement = connection.prepareStatement("INSERT INTO resetPasswordTokens (token, userID, sourceIP) VALUES (?, ?, ?);");
+            statement.setInt(1, token);
+            statement.setInt(2, userID);
+            statement.setString(3, IP);
+            statement.executeUpdate();
+
+            long expiration = ZonedDateTime.now(ZoneOffset.systemDefault()).toInstant().toEpochMilli() + Duration.ofMinutes(5).toMillis();
+            EmailManager.sendResetPasswordEmail(email, username, token, expiration);
+
+        } else {
+            throw new IllegalArgumentException("Invalid username or email");
+        }
+
+    }
+
+    public static void resetPassword(int token, String password) throws SQLException, ExpiredResetPasswordTokenException, InvalidResetPasswordTokenException{
+        PreparedStatement statement = connection.prepareStatement("SELECT userID, creationTime, used FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
+        statement.setInt(1, token);
+        ResultSet resultSet = statement.executeQuery();
+
+        if (resultSet.next()) {
+            int userID = resultSet.getInt("userID");
+            Timestamp creationTime = resultSet.getTimestamp("creationTime");
+            boolean used = resultSet.getBoolean("used");
+
+            if (used) {
+                throw new InvalidResetPasswordTokenException();
+            }
+            
+            if (Utilities.getCurrentTimeEpochMillis() - Utilities.timestampToEpochMillis(creationTime) > Duration.ofMinutes(5).toMillis()) {
+                throw new ExpiredResetPasswordTokenException();
             }
 
-            key = props.getProperty("db_key");
-            algorithm = props.getProperty("db_algorithm");
+            statement = connection.prepareStatement("SELECT password FROM users WHERE ID = ? AND password = SHA2(?, 256);");
+            statement.setInt(1, userID);
+            statement.setString(2, password);
+
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                throw new IllegalArgumentException("The same password cannot be used. Please choose a different password.");
+            }
+
+            statement = connection.prepareStatement("UPDATE users SET password = SHA2(?, 256) WHERE ID = ?;");
+            statement.setString(1, password);
+            statement.setInt(2, userID);
+            statement.executeUpdate();
+
+            statement = connection.prepareStatement("UPDATE resetPasswordTokens SET used = TRUE WHERE token = ? AND userID = ?;");
+            statement.setInt(1, token);
+            statement.setInt(2, userID);
+            statement.executeUpdate();
+
+        } else {
+            throw new InvalidResetPasswordTokenException();
+        }
+    }
+
+    public static boolean emailExists(String email, Role role) throws SQLException {
+        PreparedStatement statement;
+
+        if (role == Role.PATIENT) {
+            statement = connection.prepareStatement("SELECT email FROM patients WHERE email = ?;");
+        } else {
+            statement = connection.prepareStatement("SELECT email FROM employees WHERE email = ?;");
         }
 
-        private Encrypter() {
-            System.out.println("Encrypter created! This should not happen! Use static methods instead!");
-        }
+        statement.setString(1, email);
+        ResultSet resultSet = statement.executeQuery();
 
-        public static String SHA256(String input) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(input.getBytes("UTF-8"));
-            byte[] digest = md.digest();
-            return String.format("%064x", new BigInteger(1, digest));
-        }
-    
-        public static String encrypt(String input) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(), algorithm);
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-    
-            byte[] encrypted = cipher.doFinal(input.getBytes());
-            String ecnryptedString = Base64.getEncoder().encodeToString(encrypted);
-            return ecnryptedString;
-        }
+        boolean valid = resultSet.next();
+        resultSet.close();
+
+        return valid;
+    }
+
+    public static int generateRandomToken() {
+        return (int) (Math.random() * 900000 + 100000);
     }
 }

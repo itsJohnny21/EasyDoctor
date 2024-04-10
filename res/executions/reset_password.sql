@@ -1,3 +1,3 @@
 use easydoctor;
 select * from users;
-UPDATE users SET passwordHash = SHA2('test', 256) WHERE username = 'doctor1';
+UPDATE users SET password = SHA2('meatCuh21!', 256) WHERE username = 'itsJohnnyDoctor21';

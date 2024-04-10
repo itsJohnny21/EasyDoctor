@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="rootPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.asu.easydoctor.controllers.SignUpController">
+<AnchorPane fx:id="rootPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="BOTTOM_CENTER" prefHeight="90.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -68,7 +68,7 @@
                   <PasswordField fx:id="confirmPasswordField" onKeyTyped="#handleTextFieldKeyTyped" />
                </children>
             </VBox>
-            <ToggleButton fx:id="viewPasswordToggle" mnemonicParsing="false" onAction="#handleViewPasswordButtonAction" prefHeight="26.0" prefWidth="48.0" text="View" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <ToggleButton fx:id="showPasswordToggle" mnemonicParsing="false" prefHeight="26.0" prefWidth="48.0" text="Show" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -118,7 +118,7 @@
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
                <children>
                   <Label text="Date of Birth" />
-                  <TextField fx:id="birthDateTextField" onKeyTyped="#handleTextFieldKeyTyped" promptText="mm-dd-yyyy" />
+                  <TextField fx:id="birthDateTextField" onKeyTyped="#handleTextFieldKeyTyped" promptText="yyyy-mm-dd" />
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
@@ -162,12 +162,12 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="goBackButton" mnemonicParsing="false" onAction="#handleGoBackButtonAction" prefHeight="20.0" prefWidth="100.0" text="Go Back" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+            <Button fx:id="goBackButton" mnemonicParsing="false" onAction="#handleGoBackButtonAction" prefHeight="26.0" prefWidth="100.0" text="Go Back" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets />
                </GridPane.margin>
             </Button>
-            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="20.0" prefWidth="100.0" text="Next" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="100.0" text="Next" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets />
                </GridPane.margin>
