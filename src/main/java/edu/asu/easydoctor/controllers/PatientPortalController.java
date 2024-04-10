@@ -76,12 +76,6 @@ public class PatientPortalController extends Controller {
         });
     }
     
-    public String getTitle() {
-        return this.title;
-    }
-
-    
-
     public void setCurrentTab(AnchorPane pane, Button button) {
         if (currentTab != null) {
             currentTab.setVisible(false);
