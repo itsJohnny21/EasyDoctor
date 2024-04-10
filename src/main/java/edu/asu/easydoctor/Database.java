@@ -111,6 +111,8 @@ public abstract class Database {
     }
 
     public static String getGrantee() {
+        if (role == null) return "\"'neutral'@'%'\"";
+        
         return String.format("\"'%s'@'%%'\"", role.toString().toLowerCase());
     }
 
@@ -153,6 +155,7 @@ public abstract class Database {
         String colummns = getPermissedColumns(tableName, "SELECT");
         PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE ID = ?;", colummns, tableName));
         statement2.setInt(1, rowID);
+        System.out.println(statement2.toString());
 
         ResultSet resultSet2 = statement2.executeQuery();
 
@@ -382,10 +385,23 @@ public abstract class Database {
     }
 
     public static String getMy(String columnName) throws Exception {
+        PreparedStatement statement;
         if (role == Role.PATIENT) {
-            return selectRow(0, "patients").getString(columnName);
+            statement = connection.prepareStatement(String.format("SELECT %s FROM patients WHERE ID = ?;", columnName));
+            statement.setInt(1, userID);
+
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+
+            return resultSet.getString(columnName);
         } else {
-            return selectRow(0, "employees").getString(columnName);
+            statement = connection.prepareStatement(String.format("SELECT %s FROM employees WHERE ID = ?;", columnName));
+            statement.setInt(1, userID);
+
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+
+            return resultSet.getString(columnName);
         }
     }
 
@@ -482,6 +498,17 @@ public abstract class Database {
         resultSet.close();
 
         return valid;
+    }
+
+    public static String getMyDoctor() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
+        statement.setInt(1, userID);
+        System.out.println(statement.toString());
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
     }
 
     public static int generateRandomToken() {

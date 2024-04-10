@@ -57,7 +57,7 @@ public class UITest {
 		welcomeController.signInButton.fire();
 		SignInController signInController = SignInController.getInstance();
 		signInController.usernameTextField.setText("signInTest");
-		signInController.passwordTextField.setText("passworD1!");
+		signInController.passwordField.setText("passworD1!");
 		signInController.signInButton.fire();
 
 		if (Database.userID == userID) {
@@ -135,7 +135,7 @@ public class UITest {
 		}
 
 		statement.close();
-		statement = Database.connection.prepareStatement("UPDATE users SET password = 'passworD1!' WHERE username = 'resetPasswordTest';");
+		statement = Database.connection.prepareStatement("UPDATE users SET password = SHA2('passworD1!', 256) WHERE username = 'resetPasswordTest';");
 		statement.executeUpdate();
 
 		WelcomeController welcomeController = WelcomeController.getInstance();
