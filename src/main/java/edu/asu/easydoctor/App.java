@@ -12,11 +12,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
-
+//Colt
 	@Override
 	public void start(Stage primaryStage) throws IOException, Exception {
 		Database.connect();
 		loadPage("WelcomeView", primaryStage);
+		int x = 1;
 	}
 	
 	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
