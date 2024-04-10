@@ -13,7 +13,15 @@ import javafx.stage.Stage;
 public class App extends Application {
 
 	public static Properties properties;
-	public static String johnnyCommit = "Johnny's commit";
+
+	@Override
+	public void start(Stage primaryStage) throws IOException, Exception {
+		Database.connect();
+		loadPage("WelcomeView", primaryStage);
+	}
+	
+	public static void loadPage(String filename, Stage primaryStage) throws IOException, Exception {
+		String resource = String.format("views/%s.fxml", filename);
 
 	static {
 		properties = new Properties();
