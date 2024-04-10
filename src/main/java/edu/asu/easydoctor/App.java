@@ -6,8 +6,6 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.mysql.cj.x.protobuf.MysqlxDatatypes.Scalar.String;
-
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
