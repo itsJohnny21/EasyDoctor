@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 public class App extends Application {
 
 	public static Properties properties;
+	public static String johnnyCommit = "Johnny's commit";
 
 	static {
 		properties = new Properties();
