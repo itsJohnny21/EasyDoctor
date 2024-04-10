@@ -28,6 +28,7 @@ CREATE TABLE patients (
     FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
     FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
+
 INSERT INTO users (username, password, userType)
 VALUES ('test', 'test', 'PATIENT');
 

@@ -67,7 +67,7 @@ public class ResetPasswordController extends Controller {
         if (!valid) return;
 
         try {
-            Database.resetPassword(Integer.parseInt(resetPasswordTokenTextField.getText()), newPasswordField.getText()); //TODO: Make sure the same password is not used again
+            Database.resetPassword(Integer.parseInt(resetPasswordTokenTextField.getText()), newPasswordField.getText());
             result.put("successful", "true");
             
             Alert alert = new Alert(AlertType.INFORMATION);
