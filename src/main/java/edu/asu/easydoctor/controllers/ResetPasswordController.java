@@ -24,17 +24,19 @@ import javafx.stage.Stage;
 
 public class ResetPasswordController extends Controller {
 
-    @FXML DialogPane rootPane;
-    @FXML Button resetButton;
-    @FXML Button cancelButton;
-    @FXML TextField resetPasswordTokenTextField;
-    @FXML PasswordField newPasswordField;
-    @FXML PasswordField confirmNewPasswordField;
+    @FXML public DialogPane rootPane;
+    @FXML public Button resetButton;
+    @FXML public Button cancelButton;
+    @FXML public TextField resetPasswordTokenTextField;
+    @FXML public PasswordField newPasswordField;
+    @FXML public PasswordField confirmNewPasswordField;
 
     public static ResetPasswordController instance = null;
     public static HashMap<String, String> result = new HashMap<>();
     public final static String TITLE = "Reset Password";
     public final static boolean RESIZABLE = false;
+    public final static String VIEW_FILENAME = "ResetPasswordDialog";
+    public final static String STYLE_FILENAME = "SignUpView";
 
     private ResetPasswordController() {}
 
@@ -47,12 +49,6 @@ public class ResetPasswordController extends Controller {
     }
 
     public void initialize() throws Exception {
-        stage.setTitle(ResetPasswordController.TITLE);
-        stage.setResizable(ResetPasswordController.RESIZABLE);
-        stage.setWidth(rootPane.getPrefWidth());
-        stage.setHeight(rootPane.getPrefHeight() + 20);
-        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-
         resetPasswordTokenTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             if (!event.getCharacter().matches("[0-9]") || event.getCharacter().length() == 0 || resetPasswordTokenTextField.getText().length() >= 6 && resetPasswordTokenTextField.getSelectedText().length() == 0) {
                 event.consume();
@@ -60,14 +56,10 @@ public class ResetPasswordController extends Controller {
         });
     }
 
-    public String getTitle() {
-        return title;
-    }
-
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
         textField.getStyleClass().remove("error");
-        textField.positionCaret(textField.getText().length()); //! Fix me
+        textField.positionCaret(textField.getText().length());
     }
 
     @FXML public void handleResetButtonAction(ActionEvent event) {
@@ -83,10 +75,9 @@ public class ResetPasswordController extends Controller {
             alert.setHeaderText(null);
             alert.setContentText("Password reset successfully");
             alert.showAndWait();
-
-            if (alert.getResult().getText().equals("OK")) {
-                stage.close();
-            }
+            ForgotUsernamePasswordController.getInstance().close();
+            close();
+            SignInController.getInstance().load(stage);
 
         } catch (InvalidResetPasswordTokenException e) {
             Utilities.addClass(resetPasswordTokenTextField, "error");
@@ -109,7 +100,12 @@ public class ResetPasswordController extends Controller {
 
         } catch (Exception e) {
             resetPasswordTokenTextField.getStyleClass().add("error");
-            e.printStackTrace();
+            
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Reset Password");
+            alert.setHeaderText(null);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 
@@ -176,7 +172,7 @@ public class ResetPasswordController extends Controller {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.showAndWait();
+        stage.show();
         return result;
     }
 }

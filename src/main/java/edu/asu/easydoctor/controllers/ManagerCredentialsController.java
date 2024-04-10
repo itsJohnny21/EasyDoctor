@@ -28,6 +28,8 @@ public class ManagerCredentialsController extends Controller {
     public static ManagerCredentialsController instance = null;
     public final static String TITLE = "Manager Credentials";
     public final static boolean RESIZABLE = false;
+    public final static String VIEW_FILENAME = "ManagerCredentialsDialog";
+    public final static String STYLE_FILENAME = "SignUpView";
     public static HashMap<String, String> result = new HashMap<>();
 
     private ManagerCredentialsController() {}
@@ -40,13 +42,7 @@ public class ManagerCredentialsController extends Controller {
         return instance;
     }
 
-    public void initialize() throws Exception {
-        stage.setTitle(ManagerCredentialsController.TITLE);
-        stage.setResizable(ManagerCredentialsController.RESIZABLE);
-        stage.setWidth(400);
-        stage.setHeight(300);
-        rootPane.getStylesheets().add("edu/asu/easydoctor/styles/SignUpView.css");
-    }
+    public void initialize() {}
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
@@ -85,10 +81,6 @@ public class ManagerCredentialsController extends Controller {
         }
 
         return true;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public static HashMap<String, String> loadDialog() throws Exception {

@@ -5,14 +5,10 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.prefs.Preferences;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Role;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
@@ -21,7 +17,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 
 public class SignInController extends Controller {
     
@@ -38,8 +33,15 @@ public class SignInController extends Controller {
     public static SignInController instance = null;
     public static final String TITLE = "Sign In";
     public static final boolean RESIZABLE = false;
+    public static final String VIEW_FILENAME = "SignInView";
+    public static final String STYLE_FILENAME = "SignUpView";
 
-    private SignInController() {}
+    private SignInController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
 
     public static SignInController getInstance() {
         if (instance == null) {
@@ -50,14 +52,6 @@ public class SignInController extends Controller {
     }
 
     public void initialize() throws Exception {
-        stage.setTitle(TITLE);
-        stage.setResizable(RESIZABLE);
-        stage.setWidth(rootPane.getPrefWidth());
-        stage.setHeight(rootPane.getPrefHeight());
-        stage.centerOnScreen();
-        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-        stage.show();
-
         usernameTextField.setText(preferences.get("username", ""));
         passwordTextField.setText(preferences.get("password", ""));
         rememberMeCheckbox.setSelected(preferences.getBoolean("rememberMeChecked", false));
@@ -103,17 +97,13 @@ public class SignInController extends Controller {
     }
 
     @FXML public void handleGoBackButtonAction(ActionEvent event) throws IOException, Exception {
-        WelcomeController.load(stage);
+        WelcomeController.getInstance().load(stage);
     }
     
     @FXML public void handleForgotUsernamePasswordButtonAction(ActionEvent event) throws IOException, Exception {
-        ForgotUsernamePasswordController.load(stage);
+        ForgotUsernamePasswordController.getInstance().load(stage);
     }
     
-    public String getTitle() {
-        return this.title;
-    }
-
     @FXML public void handleKeyTyped(KeyEvent event) {
         passwordTextField.setStyle("-fx-border-color: none;");
         usernameTextField.setStyle("-fx-border-color: none;");
@@ -141,26 +131,5 @@ public class SignInController extends Controller {
             preferences.remove("password");
             preferences.remove("rememberMeChecked");
         }
-    }
-
-    public static void load(Stage stage) throws IOException {
-        SignInController controller = SignInController.getInstance();
-        if (controller.scene == null) {
-            FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignInView.fxml"));
-            controller.setStage(stage);
-            loader.setController(controller);
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            controller.setScene(scene);
-        } else {
-            controller.rememberMe();
-
-            if (!controller.rememberMeCheckbox.isSelected()) {
-                controller.usernameTextField.clear();
-                controller.passwordTextField.clear();
-            }
-        }
-        
-        stage.setScene(controller.scene);
     }
 }

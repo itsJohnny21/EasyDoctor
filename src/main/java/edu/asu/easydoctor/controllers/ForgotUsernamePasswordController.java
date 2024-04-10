@@ -7,19 +7,14 @@ import java.util.HashMap;
 
 import javax.mail.MessagingException;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Utilities;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 
 public class ForgotUsernamePasswordController extends Controller {
 
@@ -32,8 +27,15 @@ public class ForgotUsernamePasswordController extends Controller {
     public static ForgotUsernamePasswordController instance = null;
     public static final String TITLE = "Forgot Username/Password";
     public static final boolean RESIZABLE = false;
+    public static final String VIEW_FILENAME = "ForgotUsernamePasswordView";
+    public static final String STYLE_FILENAME = "SignUpView";
 
-    private ForgotUsernamePasswordController() {}
+    private ForgotUsernamePasswordController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
 
     public static ForgotUsernamePasswordController getInstance() {
         if (instance == null) {
@@ -44,12 +46,6 @@ public class ForgotUsernamePasswordController extends Controller {
     }
 
     public void initialize() throws Exception {
-        stage.setTitle(ForgotUsernamePasswordController.TITLE);
-        stage.setResizable(ForgotUsernamePasswordController.RESIZABLE);
-        stage.setWidth(rootPane.getPrefWidth());
-        stage.setHeight(rootPane.getPrefHeight());
-        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-
         for (Role role : Role.values()) {
             roleChoiceBox.getItems().add(role.toString());
         }
@@ -66,11 +62,10 @@ public class ForgotUsernamePasswordController extends Controller {
 
         try {
             Database.insertResetPasswordToken(emailTextField.getText(), Role.valueOf(roleChoiceBox.getValue()));
-            Stage dialog = new Stage();
             HashMap<String, String> result = ResetPasswordController.loadDialog();
 
             if (result.get("successful") == "true") {
-                SignInController.load(stage);
+                SignInController.getInstance().load(stage);
             }
 
         } catch (MessagingException e) {
@@ -83,7 +78,8 @@ public class ForgotUsernamePasswordController extends Controller {
     }
 
     @FXML public void handleGoBackButtonAction() throws IOException, Exception {
-        SignInController.load(stage);
+        close();
+        SignInController.getInstance().load(stage);
     }
 
     public boolean validateEmail() {
@@ -94,21 +90,4 @@ public class ForgotUsernamePasswordController extends Controller {
 
         return true;
     }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public static void load(Stage stage) throws IOException, Exception {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/ForgotUsernamePasswordView.fxml"));
-        ForgotUsernamePasswordController controller = ForgotUsernamePasswordController.getInstance();
-        controller.setStage(stage);
-        
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
-    }
-
 }

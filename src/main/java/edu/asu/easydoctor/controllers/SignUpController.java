@@ -1,13 +1,11 @@
 package edu.asu.easydoctor.controllers;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
@@ -16,9 +14,6 @@ import edu.asu.easydoctor.Database.Sex;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -29,7 +24,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
 public class SignUpController extends Controller {
 
@@ -63,8 +57,15 @@ public class SignUpController extends Controller {
     public static SignUpController instance = null;
     public static final String TITLE = "Sign Up";
     public static final boolean RESIZABLE = false;
+    public static final String VIEW_FILENAME = "SignUpView";
+    public static final String STYLE_FILENAME = "SignUpView";
 
-    private SignUpController() {}
+    private SignUpController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
 
     public static SignUpController getInstance() {
         if (instance == null) {
@@ -75,16 +76,6 @@ public class SignUpController extends Controller {
     }
 
     public void initialize() {
-        stage.setTitle(TITLE);
-        stage.setResizable(RESIZABLE);
-        rootPane.getStylesheets().add(App.class.getResource("styles/SignUpView.css").toExternalForm());
-        stage.show();
-        
-        //! Delete me!
-        form1.setVisible(true);
-        form1.setDisable(false);
-        form2.setVisible(false);
-        form2.setDisable(true);
         setCurrentForm(form1);
 
         for (Ethnicity e : Ethnicity.values()) {
@@ -185,7 +176,7 @@ public class SignUpController extends Controller {
             alert.showAndWait();
 
             if (alert.getResult().getText().equals("OK")) {
-                SignInController.load(stage);
+                SignInController.getInstance().load(stage);
             }
 
         } catch (Exception e) {
@@ -213,7 +204,7 @@ public class SignUpController extends Controller {
         System.out.println("Go back button clicked");
 
         if (currentForm == form1) {
-            WelcomeController.load(stage);
+            WelcomeController.getInstance().load(stage);
         } else {
             setCurrentForm(form1);
         }
@@ -381,24 +372,10 @@ public class SignUpController extends Controller {
         signUpButton.setDisable(currentForm == form1);
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public static void load(Stage stage) throws IOException {
-        SignUpController controller = SignUpController.getInstance();
-
-        if (controller.scene == null) {
-            FXMLLoader loader = new FXMLLoader(App.class.getResource("views/SignUpView.fxml"));
-            controller.setStage(stage);
-            loader.setController(controller);
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            controller.setScene(scene);
-        }
-
-        stage.setScene(controller.scene);
-    }
+    // public static void load(Stage stage) throws IOException {
+    //     SignUpController controller = SignUpController.getInstance();
+    //     controller.loadHelper(VIEW_FILENAME, stage);
+    // }
 }
 
 
