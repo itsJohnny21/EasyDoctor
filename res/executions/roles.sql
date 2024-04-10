@@ -215,6 +215,6 @@ GRANT SELECT (email) ON employees TO 'neutral'@'%';
 GRANT SELECT (password) ON users TO 'patient'@'%';
 GRANT SELECT (userID, creationTime, token) ON resetPasswordTokens TO 'neutral'@'%';
 GRANT UPDATE (password) ON users TO 'neutral'@'%';
-GRANT SELECT (used) ON resetPasswordTokens TO 'neutral'@'%';
+GRANT SELECT (userID) ON resetPasswordTokens TO 'neutral'@'%';
 select * from users;
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'UPDATE' AND TABLE_NAME = 'users' AND GRANTEE = "'neutral'@'%'";

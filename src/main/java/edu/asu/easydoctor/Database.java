@@ -1,6 +1,5 @@
 package edu.asu.easydoctor;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -18,7 +17,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -85,21 +83,16 @@ public abstract class Database {
     }
 
     public static void connect() throws SQLException, IOException {
-        Properties props = new Properties();
-        FileInputStream in = new FileInputStream(".env");
-        props.load(in);
-        in.close();
-
         String url = null;
 
         if (Database.role == null) {
-            url = props.getProperty("db_neutral_url");
+            url = App.properties.getProperty("db_neutral_url");
         } else if (role == Role.PATIENT) {
-            url = props.getProperty("db_patient_url");
+            url = App.properties.getProperty("db_patient_url");
         } else if (role == Role.DOCTOR) {
-            url = props.getProperty("db_doctor_url");
+            url = App.properties.getProperty("db_doctor_url");
         } else if (role == Role.NURSE) {
-            url = props.getProperty("db_nurse_url");
+            url = App.properties.getProperty("db_nurse_url");
         } else {
             throw new SQLException("Invalid role");
         }
@@ -443,10 +436,19 @@ public abstract class Database {
             if (used) {
                 throw new InvalidResetPasswordTokenException();
             }
-
             
             if (Utilities.getCurrentTimeEpochMillis() - Utilities.timestampToEpochMillis(creationTime) > Duration.ofMinutes(5).toMillis()) {
                 throw new ExpiredResetPasswordTokenException();
+            }
+
+            statement = connection.prepareStatement("SELECT password FROM users WHERE ID = ? AND password = SHA2(?, 256);");
+            statement.setInt(1, userID);
+            statement.setString(2, password);
+
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                throw new IllegalArgumentException("The same password cannot be used. Please choose a different password.");
             }
 
             statement = connection.prepareStatement("UPDATE users SET password = SHA2(?, 256) WHERE ID = ?;");
