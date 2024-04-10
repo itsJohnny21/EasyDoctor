@@ -244,6 +244,7 @@ public class SignUpController extends Controller {
 
     @FXML public void handleNextButtonAction(ActionEvent event) throws SQLException {
         System.out.println("Next button clicked");
+        
 
         boolean valid = validateUsername() & validatePassword() & validateConfirmPassword() & validate(roleChoiceBox);
 

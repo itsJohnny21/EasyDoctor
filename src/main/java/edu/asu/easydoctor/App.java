@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 
 import edu.asu.easydoctor.controllers.Controller;
+import edu.asu.easydoctor.controllers.PatientPortalController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,8 +16,9 @@ public class App extends Application {
 //Colt
 	@Override
 	public void start(Stage primaryStage) throws IOException, Exception {
-		Database.connect();
-		loadPage("WelcomeView", primaryStage);
+//		Database.connect();
+		//loadPage("PatientPortalView", primaryStage);
+		PatientPortalController.load(primaryStage);
 		int x = 1;
 	}
 	
@@ -29,7 +31,7 @@ public class App extends Application {
 
 		Scene scene = new Scene(root);
 		controller.setStage(primaryStage);
-		primaryStage.setTitle(controller.getTitle());
+		//primaryStage.setTitle(controller.getTitle());
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(controller.resizable);
 		primaryStage.centerOnScreen();

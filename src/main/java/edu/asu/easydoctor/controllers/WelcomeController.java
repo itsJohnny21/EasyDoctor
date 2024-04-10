@@ -23,7 +23,7 @@ public class WelcomeController extends Controller {
         //! Delete me!
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         pause.setOnFinished(e -> {
-            signUpButton.fire();
+            //signUpButton.fire();
         });
         pause.play();
     }
