@@ -352,14 +352,14 @@ public abstract class Database {
     }
     
     public static void signOut() throws SQLException, UnknownHostException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO logbook (ID, IP, type) VALUES (?, ?, ?);");
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO logbook (userID, IP, type) VALUES (?, ?, ?);");
         String IP = InetAddress.getLocalHost().getHostAddress();
         
         statement.setInt(1, userID);
         statement.setString(2, IP);
         statement.setString(3, "SIGN_OUT");
         statement.executeUpdate();
-
+        
         System.out.println(getMy("username") + " signed out");
         userID = null;
         changeRole(null);
@@ -455,16 +455,6 @@ public abstract class Database {
             
             if (Utilities.getCurrentTimeEpochMillis() - Utilities.timestampToEpochMillis(creationTime) > Duration.ofMinutes(5).toMillis()) {
                 throw new ExpiredResetPasswordTokenException();
-            }
-
-            statement = connection.prepareStatement("SELECT password FROM users WHERE ID = ? AND password = SHA2(?, 256);");
-            statement.setInt(1, userID);
-            statement.setString(2, password);
-
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                throw new IllegalArgumentException("The same password cannot be used. Please choose a different password.");
             }
 
             statement = connection.prepareStatement("UPDATE users SET password = SHA2(?, 256) WHERE ID = ?;");

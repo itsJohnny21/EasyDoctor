@@ -122,8 +122,9 @@ public class PatientPortalController extends Controller {
         setCurrentTab(usernamePane, usernameButton);
     }
 
-    @FXML public void handleSignOutButtonAction(ActionEvent event) throws IOException {
+    @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
         close();
+        Database.signOut();
         SignInController.getInstance().load(stage);
     }
 

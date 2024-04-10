@@ -20,7 +20,7 @@ public class ForgotUsernamePasswordController extends Controller {
 
     @FXML public TextField emailTextField;
     @FXML public ChoiceBox<String> roleChoiceBox;
-    @FXML public Button resetPasswordButton;
+    @FXML public Button sendEmailButton;
     @FXML public Button goBackButton;
     @FXML public AnchorPane rootPane;
 
@@ -56,7 +56,7 @@ public class ForgotUsernamePasswordController extends Controller {
         });
     }
 
-    @FXML public void handleResetPasswordButtonAction() throws IOException {
+    @FXML public void handleSendEmailButtonAction() throws IOException {
         boolean valid = validateEmail() & Utilities.validate(roleChoiceBox);
         if (!valid) return;
 

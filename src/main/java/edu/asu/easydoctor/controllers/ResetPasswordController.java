@@ -172,6 +172,7 @@ public class ResetPasswordController extends Controller {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("views/ResetPasswordDialog.fxml"));
         ResetPasswordController controller = ResetPasswordController.getInstance();
         controller.setStage(stage);
+        // jsalazar6421@gmail.com
 
         loader.setController(controller);
         Parent root = loader.load();
