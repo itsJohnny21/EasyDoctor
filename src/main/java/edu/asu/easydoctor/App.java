@@ -37,6 +37,7 @@ public class App extends Application {
 		System.exit(0);
 	}
 	public static void main(String[] args) {
+		System.out.println("This is for my commit for Phase III documentation");
 		System.out.println("Starting application...");
 		try {
 			launch(args);
