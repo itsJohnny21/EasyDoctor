@@ -500,6 +500,17 @@ public abstract class Database {
         return valid;
     }
 
+    public static String getMyDoctor() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
+        statement.setInt(1, userID);
+        System.out.println(statement.toString());
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+    }
+
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
     }

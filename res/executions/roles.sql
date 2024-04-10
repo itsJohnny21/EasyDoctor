@@ -211,6 +211,7 @@ select * from surgeries;
 SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS can_update FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = "'doctor'@'%'";
 GRANT DELETE ON users to 'neutral'@'%';
 
+GRANT SELECT (ID) ON employees TO 'patient'@'%';
 GRANT SELECT (email) ON employees TO 'neutral'@'%';
 GRANT SELECT (password) ON users TO 'patient'@'%';
 GRANT SELECT (userID, creationTime, token) ON resetPasswordTokens TO 'neutral'@'%';

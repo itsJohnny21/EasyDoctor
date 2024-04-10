@@ -299,4 +299,61 @@ public abstract  class DataRow {
             return doctors;
         }
     }
+
+    public static void main(String[] args) {
+        try {
+            Database.connect();
+            Database.signIn("barb123", "barb123");
+            System.out.println(Database.userID);
+            String firstName = Database.getMy("firstName");
+            String lastName = Database.getMy("lastName");
+            String phoneNumber = Database.getMy("phone");
+            String sex = Database.getMy("sex");
+            String birthDate = Database.getMy("birthDate");
+            String email = Database.getMy("email");
+            String address = Database.getMy("address");
+            String preferredDoctorID = Database.getMy("preferredDoctorID");
+            String doctorFullName = Database.getMyDoctor();
+            String bloodType = Database.getMy("bloodType");
+            String height = Database.getMy("height");
+            String weight = Database.getMy("weight");
+            String race = Database.getMy("race");
+            String ethnicity = Database.getMy("ethnicity");
+            String insuranceProvider = Database.getMy("insuranceProvider");
+            String insuranceID = Database.getMy("insuranceID");
+            String emergencyContactName = Database.getMy("emergencyContactName");
+            String emergencyContactPhone = Database.getMy("emergencyContactPhone");
+            String motherFirstName = Database.getMy("motherFirstName");
+            String motherLastName = Database.getMy("motherLastName");
+            String fatherFirstName = Database.getMy("fatherFirstName");
+            String fatherLastName = Database.getMy("fatherLastName");
+
+            System.out.println("First name: " + firstName);
+            System.out.println("Last name: " + lastName);
+            System.out.println("Phone number: " + phoneNumber);
+            System.out.println("Sex: " + sex);
+            System.out.println("Birth date: " + birthDate);
+            System.out.println("Email: " + email);
+            System.out.println("Address: " + address);
+            System.out.println("Preferred doctor ID: " + preferredDoctorID);
+            System.out.println("Doctor full name: " + doctorFullName);
+            System.out.println("Blood type: " + bloodType);
+            System.out.println("Height: " + height);
+            System.out.println("Weight: " + weight);
+            System.out.println("Race: " + race);
+            System.out.println("Ethnicity: " + ethnicity);
+            System.out.println("Insurance provider: " + insuranceProvider);
+            System.out.println("Insurance ID: " + insuranceID);
+            System.out.println("Emergency contact name: " + emergencyContactName);
+            System.out.println("Emergency contact phone: " + emergencyContactPhone);
+            System.out.println("Mother first name: " + motherFirstName);
+            System.out.println("Mother last name: " + motherLastName);
+            System.out.println("Father first name: " + fatherFirstName);
+            System.out.println("Father last name: " + fatherLastName);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
