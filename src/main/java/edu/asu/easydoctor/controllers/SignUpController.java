@@ -27,32 +27,32 @@ import javafx.scene.layout.GridPane;
 
 public class SignUpController extends Controller {
 
-    @FXML AnchorPane rootPane;
+    @FXML public AnchorPane rootPane;
 
-    @FXML GridPane form1;
-    @FXML GridPane form2;
+    @FXML public GridPane form1;
+    @FXML public GridPane form2;
     GridPane currentForm;
 
-    @FXML TextField usernameTextField;
-    @FXML ChoiceBox<String> roleChoiceBox;
-    @FXML PasswordField passwordField;
-    @FXML PasswordField confirmPasswordField;
+    @FXML public TextField usernameTextField;
+    @FXML public ChoiceBox<String> roleChoiceBox;
+    @FXML public PasswordField passwordField;
+    @FXML public PasswordField confirmPasswordField;
 
-    @FXML Button goBackButton;
-    @FXML Button nextButton;
-    @FXML Button signUpButton;
-    @FXML ToggleButton viewPasswordToggle;
+    @FXML public Button goBackButton;
+    @FXML public Button nextButton;
+    @FXML public Button signUpButton;
+    @FXML public ToggleButton viewPasswordToggle;
 
-    @FXML TextField firstNameTextField;
-    @FXML TextField middleNameTextField;
-    @FXML TextField lastNameTextField;
-    @FXML TextField emailTextField;
-    @FXML TextField phoneTextField;
-    @FXML TextField birthDateTextField;
-    @FXML TextField addressTextField;
-    @FXML ChoiceBox<String> sexChoiceBox;
-    @FXML ChoiceBox<String> raceChoiceBox;
-    @FXML ChoiceBox<String> ethnicityChoiceBox;
+    @FXML public TextField firstNameTextField;
+    @FXML public TextField middleNameTextField;
+    @FXML public TextField lastNameTextField;
+    @FXML public TextField emailTextField;
+    @FXML public TextField phoneTextField;
+    @FXML public TextField birthDateTextField;
+    @FXML public TextField addressTextField;
+    @FXML public ChoiceBox<String> sexChoiceBox;
+    @FXML public ChoiceBox<String> raceChoiceBox;
+    @FXML public ChoiceBox<String> ethnicityChoiceBox;
 
     public static SignUpController instance = null;
     public static final String TITLE = "Sign Up";
@@ -175,9 +175,8 @@ public class SignUpController extends Controller {
             alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
             alert.showAndWait();
 
-            if (alert.getResult().getText().equals("OK")) {
-                SignInController.getInstance().load(stage);
-            }
+            close();
+            SignInController.getInstance().load(stage);
 
         } catch (Exception e) {
             Alert alert = new Alert(AlertType.ERROR);
@@ -185,10 +184,6 @@ public class SignUpController extends Controller {
             alert.setHeaderText("An error occurred");
             alert.setContentText(e.getMessage());
             alert.showAndWait();
-
-            if (alert.getResult().getText().equals("OK")) {
-                signUpButton.fire();
-            }
         }
     }
 
