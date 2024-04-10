@@ -6,6 +6,7 @@ import edu.asu.easydoctor.App;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public abstract class Controller {
@@ -15,8 +16,6 @@ public abstract class Controller {
     public boolean resizable;
     public String viewFilename;
     public String styleFilename;
-    public double width;
-    public double height;
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -34,6 +33,7 @@ public abstract class Controller {
             Parent root = loader.load();
             Scene scene = new Scene(root);
             this.scene = scene;
+            scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", styleFilename)).toExternalForm());
             initializeStage();
         }
 
@@ -56,17 +56,12 @@ public abstract class Controller {
     public void initializeStage() {
         stage.setTitle(title);
         stage.setResizable(resizable);
-        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                double decorationWidth = stage.getWidth() - width;
-                double decorationHeight = stage.getHeight() - height;
-                
-                stage.setWidth(width + decorationWidth);
-                stage.setHeight(height + decorationHeight);
-            }
-        });
-        scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", styleFilename)).toExternalForm());
         stage.centerOnScreen();
+        Pane root = (Pane) scene.getRoot();
+        double width = root.getPrefWidth();
+        double height = root.getPrefHeight();
+        stage.setWidth(width);
+        stage.setHeight(height);
     }
 
     public void close() {
