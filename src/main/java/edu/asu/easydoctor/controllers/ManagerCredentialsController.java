@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.App;
+import edu.asu.easydoctor.ShowPasswordGroup;
 import edu.asu.easydoctor.Utilities;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
@@ -21,7 +23,7 @@ public class ManagerCredentialsController extends Controller {
     @FXML DialogPane rootPane;
     @FXML Button confirmButton;
     @FXML Button cancelButton;
-    @FXML Button showButton;
+    @FXML ToggleButton showPasswordToggle;
     @FXML TextField managerUsernameTextField;
     @FXML PasswordField managerPasswordField;
 
@@ -29,10 +31,15 @@ public class ManagerCredentialsController extends Controller {
     public final static String TITLE = "Manager Credentials";
     public final static boolean RESIZABLE = false;
     public final static String VIEW_FILENAME = "ManagerCredentialsDialog";
-    public final static String STYLE_FILENAME = "SignUpView";
+    public final static String STYLE_FILENAME = "Basic";
     public static HashMap<String, String> result = new HashMap<>();
 
-    private ManagerCredentialsController() {}
+    private ManagerCredentialsController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
 
     public static ManagerCredentialsController getInstance() {
         if (instance == null) {
@@ -42,7 +49,10 @@ public class ManagerCredentialsController extends Controller {
         return instance;
     }
 
-    public void initialize() {}
+    public void initialize() {
+        ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
+        spg.addPasswordField(managerPasswordField);
+    }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
@@ -58,21 +68,7 @@ public class ManagerCredentialsController extends Controller {
     @FXML public void handleCancelButtonAction() {
         stage.close();
     }
-
-    @FXML public void handleShowButtonAction() {
-        if (!managerPasswordField.isDisabled()) { //! Use toggle instead and use css
-            managerPasswordField.setPromptText(managerPasswordField.getText());
-            managerPasswordField.setText("");
-            managerPasswordField.setDisable(true);
-            showButton.setText("Show");
-        } else {
-            managerPasswordField.setText(managerPasswordField.getPromptText());
-            managerPasswordField.setPromptText("");
-            managerPasswordField.setDisable(false);
-            showButton.setText("Hide");
-        }
-    }
-
+    
     public boolean validateUsername() throws SQLException {
         if (managerUsernameTextField.getText().isBlank() || !managerUsernameTextField.getText().matches("^[a-zA-Z][a-zA-Z0-9_]{4,}$") || managerUsernameTextField.getText().length() < 5) {
             managerUsernameTextField.requestFocus();

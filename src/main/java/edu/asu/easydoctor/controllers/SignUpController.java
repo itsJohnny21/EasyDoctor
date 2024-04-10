@@ -11,6 +11,7 @@ import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Database.Sex;
+import edu.asu.easydoctor.ShowPasswordGroup;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,7 +42,7 @@ public class SignUpController extends Controller {
     @FXML public Button goBackButton;
     @FXML public Button nextButton;
     @FXML public Button signUpButton;
-    @FXML public ToggleButton viewPasswordToggle;
+    @FXML public ToggleButton showPasswordToggle;
 
     @FXML public TextField firstNameTextField;
     @FXML public TextField middleNameTextField;
@@ -126,6 +127,9 @@ public class SignUpController extends Controller {
                 event.consume();
             }
         });
+
+        ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
+        spg.addPasswordFields(passwordField, confirmPasswordField);
     }
 
     @FXML public void handleSignUpButtonAction() {
@@ -210,28 +214,6 @@ public class SignUpController extends Controller {
         Utilities.removeClass(textField, "error");
     }
     
-    @FXML public void handleViewPasswordButtonAction (ActionEvent event) {
-        ToggleButton viewPasswordToggle = (ToggleButton) event.getSource();
-
-        if (viewPasswordToggle.isSelected()) {
-            passwordField.setPromptText(passwordField.getText());
-            passwordField.setText("");
-            passwordField.setDisable(true);
-
-            confirmPasswordField.setPromptText(confirmPasswordField.getText());
-            confirmPasswordField.setText("");
-            confirmPasswordField.setDisable(true);
-        } else {
-            passwordField.setText(passwordField.getPromptText());
-            passwordField.setPromptText("");
-            passwordField.setDisable(false);
-
-            confirmPasswordField.setText(confirmPasswordField.getPromptText());
-            confirmPasswordField.setPromptText("");
-            confirmPasswordField.setDisable(false);
-        }
-    }
-
     public boolean validate(TextField textField, String regex) {
         if (textField.getText().isBlank()) {
             textField.requestFocus();

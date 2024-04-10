@@ -38,7 +38,12 @@ public class ResetPasswordController extends Controller {
     public final static String VIEW_FILENAME = "ResetPasswordDialog";
     public final static String STYLE_FILENAME = "SignUpView";
 
-    private ResetPasswordController() {}
+    private ResetPasswordController() {
+        title = TITLE;
+        resizable = RESIZABLE;
+        viewFilename = VIEW_FILENAME;
+        styleFilename = STYLE_FILENAME;
+    }
 
     public static ResetPasswordController getInstance() {
         if (instance == null) {
