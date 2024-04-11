@@ -66,6 +66,6 @@ public abstract class Controller {
 
     public void close() {
         stage.close();
-        scene = null;
+        scene = null; //! no longer needed?
     }
 }

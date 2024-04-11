@@ -59,6 +59,10 @@ public class ResetPasswordController extends Controller {
                 event.consume();
             }
         });
+
+        stage.setOnCloseRequest(event -> {
+            close2();
+        });
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -81,7 +85,7 @@ public class ResetPasswordController extends Controller {
             alert.setContentText("Password reset successfully");
             alert.showAndWait();
             ForgotUsernamePasswordController.getInstance().close();
-            close();
+            close2();
             SignInController.getInstance().load(stage);
 
         } catch (InvalidResetPasswordTokenException e) {
@@ -168,8 +172,10 @@ public class ResetPasswordController extends Controller {
     }
 
     public static HashMap<String, String> loadDialog() throws IOException {
+        if (instance != null) return result;
+
         Stage stage = new Stage();
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("views/ResetPasswordDialog.fxml"));
+        FXMLLoader loader = new FXMLLoader(App.class.getResource(String.format("views/%s.fxml", VIEW_FILENAME)));
         ResetPasswordController controller = ResetPasswordController.getInstance();
         controller.setStage(stage);
 
@@ -177,7 +183,15 @@ public class ResetPasswordController extends Controller {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", STYLE_FILENAME)).toExternalForm());
         stage.show();
+
         return result;
+    }
+
+    public void close2() {
+        stage.close();
+        instance = null;
+        scene = null;
     }
 }

@@ -18,6 +18,6 @@ GRANT INSERT ON logbook TO 'doctor';
 GRANT INSERT ON logbook TO 'nurse';
 GRANT INSERT ON logbook TO 'neutral';
 
-DELETE FROM logbook;
+use easydoctor;
 SELECT * FROM logbook;
 ```
