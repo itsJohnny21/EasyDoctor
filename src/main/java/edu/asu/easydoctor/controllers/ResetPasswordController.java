@@ -84,9 +84,7 @@ public class ResetPasswordController extends Controller {
             alert.setHeaderText(null);
             alert.setContentText("Password reset successfully");
             alert.showAndWait();
-            ForgotUsernamePasswordController.getInstance().close();
             close2();
-            SignInController.getInstance().load(stage);
 
         } catch (InvalidResetPasswordTokenException e) {
             Utilities.addClass(resetPasswordTokenTextField, "error");
@@ -119,8 +117,7 @@ public class ResetPasswordController extends Controller {
     }
 
     @FXML public void handleCancelButtonAction(ActionEvent event) {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+        close2();
     }
 
     @FXML public void handleShowPasswordButtonAction(ActionEvent event) {
@@ -172,7 +169,7 @@ public class ResetPasswordController extends Controller {
     }
 
     public static HashMap<String, String> loadDialog() throws IOException {
-        if (instance != null) return result;
+        if (instance != null) return null;
 
         Stage stage = new Stage();
         FXMLLoader loader = new FXMLLoader(App.class.getResource(String.format("views/%s.fxml", VIEW_FILENAME)));

@@ -64,7 +64,7 @@ public class ForgotUsernamePasswordController extends Controller {
             Database.insertResetPasswordToken(emailTextField.getText(), Role.valueOf(roleChoiceBox.getValue()));
             HashMap<String, String> result = ResetPasswordController.loadDialog();
 
-            if (result.get("successful") == "true") {
+            if (result != null && result.get("successful") == "true") {
                 SignInController.getInstance().load(stage);
             }
 

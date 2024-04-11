@@ -151,7 +151,6 @@ public class SignUpController extends Controller {
                 );
 
             } else {
-                // HashMap<String, String> result = new HashMap<>();
                 HashMap<String, String> result = ManagerCredentialsController.loadDialog();
 
                 if (result.get("successful") == "true") {
