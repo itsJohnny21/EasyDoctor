@@ -38,6 +38,10 @@ public abstract class UI {
         }
     
         public void buildTitle() {
+            if (this.title == null) {
+                return;
+            }
+
             HBox titleBox = new HBox();
             Label titleLabel = new Label(this.title);
             titleBox.getChildren().add(titleLabel);

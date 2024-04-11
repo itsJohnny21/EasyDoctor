@@ -300,60 +300,63 @@ public abstract  class DataRow {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            Database.connect();
-            Database.signIn("barb123", "barb123");
-            System.out.println(Database.userID);
-            String firstName = Database.getMy("firstName");
-            String lastName = Database.getMy("lastName");
-            String phoneNumber = Database.getMy("phone");
-            String sex = Database.getMy("sex");
-            String birthDate = Database.getMy("birthDate");
-            String email = Database.getMy("email");
-            String address = Database.getMy("address");
-            String preferredDoctorID = Database.getMy("preferredDoctorID");
-            String doctorFullName = Database.getMyDoctor();
-            String bloodType = Database.getMy("bloodType");
-            String height = Database.getMy("height");
-            String weight = Database.getMy("weight");
-            String race = Database.getMy("race");
-            String ethnicity = Database.getMy("ethnicity");
-            String insuranceProvider = Database.getMy("insuranceProvider");
-            String insuranceID = Database.getMy("insuranceID");
-            String emergencyContactName = Database.getMy("emergencyContactName");
-            String emergencyContactPhone = Database.getMy("emergencyContactPhone");
-            String motherFirstName = Database.getMy("motherFirstName");
-            String motherLastName = Database.getMy("motherLastName");
-            String fatherFirstName = Database.getMy("fatherFirstName");
-            String fatherLastName = Database.getMy("fatherLastName");
+    public static class Visit extends DataRow {
+        public Datum creationTime;
+        public Datum creationType;
+        public Datum date;
+        public Datum userID;
+        public Datum doctorID;
+        public Datum completed;
+        public Datum reason;
+        public Datum description;
 
-            System.out.println("First name: " + firstName);
-            System.out.println("Last name: " + lastName);
-            System.out.println("Phone number: " + phoneNumber);
-            System.out.println("Sex: " + sex);
-            System.out.println("Birth date: " + birthDate);
-            System.out.println("Email: " + email);
-            System.out.println("Address: " + address);
-            System.out.println("Preferred doctor ID: " + preferredDoctorID);
-            System.out.println("Doctor full name: " + doctorFullName);
-            System.out.println("Blood type: " + bloodType);
-            System.out.println("Height: " + height);
-            System.out.println("Weight: " + weight);
-            System.out.println("Race: " + race);
-            System.out.println("Ethnicity: " + ethnicity);
-            System.out.println("Insurance provider: " + insuranceProvider);
-            System.out.println("Insurance ID: " + insuranceID);
-            System.out.println("Emergency contact name: " + emergencyContactName);
-            System.out.println("Emergency contact phone: " + emergencyContactPhone);
-            System.out.println("Mother first name: " + motherFirstName);
-            System.out.println("Mother last name: " + motherLastName);
-            System.out.println("Father first name: " + fatherFirstName);
-            System.out.println("Father last name: " + fatherLastName);
+        public static ArrayList<Visit> getAllFor(int userID) throws Exception {
+            ResultSet resultSet = Database.selectMultiRow(userID, "visits");
+            ArrayList<Visit> visits = new ArrayList<Visit>();
+            
+            while (resultSet.next()) {
+                Visit visit = new Visit(resultSet);
+                visits.add(visit);
+            }
+            resultSet.close();
 
+            return visits;
+        }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        public static Visit getFor(int rowID) throws Exception {
+            ResultSet resultSet = Database.selectRow(rowID, "visits");
+
+            if (!resultSet.next()) {
+                return null;
+            }
+
+            Visit visit = new Visit(resultSet);
+            resultSet.close();
+
+            return visit;
+        }
+
+        public Visit(ResultSet resultSet) throws Exception {
+            this.tableName = "visits";
+
+            String creationTimeColumn = "creationTime";
+            String creationTypeColumn = "creationType";
+            String dateColumn = "date";
+            String userIDColumn = "userID";
+            String doctorIDColumn = "doctorID";
+            String completedColumn = "completed";
+            String reasonColumn = "reason";
+            String descriptionColumn = "description";
+
+            this.rowID = resultSet.getInt("ID");
+            this.creationTime = new Datum(this, resultSet.getString(creationTimeColumn), creationTimeColumn);
+            this.creationType = new Datum(this, resultSet.getString(creationTypeColumn), creationTypeColumn);
+            this.date = new Datum(this, resultSet.getString(dateColumn), dateColumn);
+            this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
+            this.doctorID = new Datum(this, resultSet.getString(doctorIDColumn), doctorIDColumn);
+            this.completed = new Datum(this, resultSet.getString(completedColumn), completedColumn);
+            this.reason = new Datum(this, resultSet.getString(reasonColumn), reasonColumn);
+            this.description = new Datum(this, resultSet.getString(descriptionColumn), descriptionColumn);
         }
     }
 }

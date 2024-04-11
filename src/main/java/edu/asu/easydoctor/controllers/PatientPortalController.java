@@ -1,8 +1,19 @@
 package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Time;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
+import edu.asu.easydoctor.DataRow;
+import edu.asu.easydoctor.DataRow.Visit;
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Row;
+import edu.asu.easydoctor.SelectableTable;
+import edu.asu.easydoctor.ValueLabel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -57,9 +68,9 @@ public class PatientPortalController extends Controller {
 
     public static PatientPortalController instance = null;
     public static final String TITLE = "Patient Portal";
-    public static final boolean RESIZABLE = false;
+    public static final boolean RESIZABLE = true;
     public static final String VIEW_FILENAME = "PatientPortalView";
-    public static final String STYLE_FILENAME = "SignUpView";
+    public static final String STYLE_FILENAME = "PatientPortalView";
 
     private PatientPortalController() {
         title = TITLE;
@@ -78,7 +89,6 @@ public class PatientPortalController extends Controller {
     
     public void initialize() throws Exception {
 
-        setCurrentTab(myVisitsPane, myVisitsButton);
         usernameButton.setText(Database.getMy("username"));
 
         mainPane.setOnKeyPressed(event -> {
@@ -96,35 +106,116 @@ public class PatientPortalController extends Controller {
                 myPillsButton.fire();
             }
         });
+
+        myVisitsButton.fire();
     }
 
-    @FXML public void handleMyVisitsButtonAction(ActionEvent event) {
+    @FXML public void handleMyVisitsButtonAction(ActionEvent event) throws Exception {
+        if (currentTab == myVisitsPane) {
+            return;
+        }
+
         setCurrentTab(myVisitsPane, myVisitsButton);
-    }
+
+        ArrayList<Visit> visits = DataRow.Visit.getAllFor(Database.userID);
+        Row[] rows = new Row[visits.size()];
+
+        for (int i = 0; i < visits.size(); i++) {
+            Visit visit = visits.get(i);
+
+            String doctorName = Database.getEmployeeNameFor(Integer.parseInt(visit.doctorID.originalValue));
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(visit.date.originalValue, formatter);
+            DayOfWeek day = dateTime.getDayOfWeek();
+            Time time = Time.valueOf(dateTime.toLocalTime());
+            Date date = Date.valueOf(dateTime.toLocalDate()); 
+
+            ValueLabel doctorLabel = new ValueLabel(doctorName);
+            ValueLabel dayLabel = new ValueLabel(day.toString());
+            ValueLabel timeLabel = new ValueLabel(time.toString());
+            ValueLabel dateLabel = new ValueLabel(date.toString());
+            ValueLabel reasonLabel = new ValueLabel(visit.reason.originalValue);
+            ValueLabel completedLabel = new ValueLabel(visit.completed.originalValue == "1" ? "Complete" : "Incomplete");
+
+            
+            rows[i] = new Row(
+                visit.tableName,
+                visit.rowID,
+                doctorLabel,
+                dateLabel,
+                dayLabel,
+                timeLabel,
+                reasonLabel,
+                completedLabel
+            );
+        }
+
+        SelectableTable myVisitsTables = new SelectableTable();
+        myVisitsTables
+            .withRowAction(row -> {
+                row.setOnMouseClicked(event2 -> {
+                    try {
+                        boolean deleted = SelectedVisitController.loadDialog(row.rowID);
+                        if (deleted) {
+                            myVisitsTables.getChildren().remove(row);
+                        }
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            })
+            .withRows(rows)
+            .build();
+
+        myVisitsScrollPane.setContent(myVisitsTables);
+    }   
 
     @FXML public void handleMyInformationButtonAction(ActionEvent event) {
+        if (currentTab == myInformationPane) {
+            return;
+        }
+
         setCurrentTab(myInformationPane, myInformationButton);
     }
 
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
+        if (currentTab == scheduleVisitPane) {
+            return;
+        }
+
         setCurrentTab(scheduleVisitPane, scheduleVisitButton);
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) {
+        if (currentTab == inboxPane) {
+            return;
+        }
+
         setCurrentTab(inboxPane, inboxButton);
     }
 
     @FXML public void handleMyPillsButtonAction(ActionEvent event) {
+        if (currentTab == myPillsPane) {
+            return;
+        }
+
         setCurrentTab(myPillsPane, myPillsButton);
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
+        if (currentTab == usernamePane) {
+            return;
+        }
+
         setCurrentTab(usernamePane, usernameButton);
     }
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
         close();
         Database.signOut();
+        SignInController.getInstance().load(stage);
     }
 
     @FXML public void handleScheduleVisitButton(ActionEvent event) throws IOException {

@@ -12,6 +12,10 @@ public class ValueLabel extends Label implements Connectable {
         this.datum = datum;
     }
 
+    public ValueLabel (String label) {
+        super(label);
+    }
+
     public void onEdit() {}
 
     public void onSave() throws SQLException {}

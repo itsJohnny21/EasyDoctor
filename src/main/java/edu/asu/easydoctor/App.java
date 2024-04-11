@@ -9,6 +9,7 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import tests.Bypass;
 
 public class App extends Application {
 
@@ -29,6 +30,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		WelcomeController.getInstance().load(primaryStage);
+		Bypass.toPatientPortal("barb123", "barb123");
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -46,3 +48,6 @@ public class App extends Application {
 		}
 	}
 }
+
+//TODO: Custom dialogs need some major bug fixes and redesign
+//TODO: Fix visits table so that it has a date field and time field separately and make sure rows are unique for date and userID
