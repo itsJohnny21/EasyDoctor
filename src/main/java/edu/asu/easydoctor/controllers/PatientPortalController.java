@@ -125,7 +125,6 @@ public class PatientPortalController extends Controller {
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
         close();
         Database.signOut();
-        SignInController.getInstance().load(stage);
     }
 
     @FXML public void handleScheduleVisitButton(ActionEvent event) throws IOException {
