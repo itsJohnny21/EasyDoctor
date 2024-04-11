@@ -9,11 +9,25 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class PatientPortalController 	extends Controller {
 
 	@FXML public Button button1;
+	@FXML public Label usernameLabel;
+	@FXML public Label firstNameLabel;
+	@FXML public Label lastNameLabel;
+	@FXML public Label fatherLabel;
+	@FXML public Label motherLabel;
+	@FXML public Label dobLabel;
+	@FXML public Label medsLabel;
+	@FXML public Label phoneLabel;
+	@FXML public Label insuranceLabel;
+	@FXML public Label addressLabel;
+	@FXML public Label pharmLabel;
+	@FXML public Label doctorLabel;
+	@FXML public Label emailLabel;
 	public static PatientPortalController instance = null;
 	public static void main (String args) {
 		
@@ -23,6 +37,8 @@ public class PatientPortalController 	extends Controller {
 	}
 	public void initialize() throws Exception{
 		stage.setTitle(TITLE);
+		Database.connect();
+		syncinfo();
 	}
 	
 	
@@ -66,7 +82,6 @@ public void syncinfo() throws Exception {
     String height = Database.getMy("height");
     String weight = Database.getMy("weight");
     String race = Database.getMy("race");
-    String ethnicity = Database.getMy("ethnicity");
     String insuranceProvider = Database.getMy("insuranceProvider");
     String insuranceID = Database.getMy("insuranceID");
     String emergencyContactName = Database.getMy("emergencyContactName");
@@ -76,6 +91,35 @@ public void syncinfo() throws Exception {
     String fatherFirstName = Database.getMy("fatherFirstName");
     String fatherLastName = Database.getMy("fatherLastName");
     
+    
+    
+//    @FXML public Button button1;
+//	@FXML public Label usernameLabel;
+//	@FXML public Label firstNameLabel;
+//	@FXML public Label lastNameLabel;
+//	@FXML public Label fatherLabel;
+//	@FXML public Label motherLabel;
+//	@FXML public Label dobLabel;
+//	@FXML public Label medsLabel;
+//	@FXML public Label phoneLabel;
+//	@FXML public Label insuranceLabel;
+//	@FXML public Label addressLabel;
+//	@FXML public Label pharmLabel;
+//	@FXML public Label doctorLabel;
+    System.out.println(firstName);
+    usernameLabel.setText(Database.getMy("username"))  ;
+    emailLabel.setText(Database.getMy("email"))  ;
+    firstNameLabel.setText(Database.getMy("firstName"))  ;
+    lastNameLabel.setText(Database.getMy("lastName"))  ;
+   fatherLabel.setText(Database.getMy("fatherFirstName") + Database.getMy("fatherLastName"))  ;
+    motherLabel.setText(Database.getMy("motherFirstName") + Database.getMy("motherLastName"))  ;
+   dobLabel.setText(Database.getMy("birthDate"))  ;
+   //medsLabel.setText(Database.getMy("birthDate"))  ;
+   phoneLabel.setText(Database.getMy("phone"))  ;
+    insuranceLabel.setText(Database.getMy("insuranceID"))  ;
+   addressLabel.setText(Database.getMy("address"))  ;
+   // pharmLabel.setText(Database.getMy("address"))  ;
+   doctorLabel.setText(Database.getMyDoctor())  ;
 }
 
 public static void load(Stage stage) throws IOException {

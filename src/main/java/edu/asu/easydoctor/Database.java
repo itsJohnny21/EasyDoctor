@@ -270,6 +270,7 @@ public abstract class Database {
         }
     }
 
+    
     public static boolean validateManager(String managerID, String managerPassword) throws Exception {
         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE ID = ? AND password = SHA2(?, 256) AND role = ?;");
         statement.setString(1, managerID);
@@ -395,13 +396,27 @@ public abstract class Database {
     }
 
     public static String getMy(String columnName) throws Exception {
+        PreparedStatement statement;
         if (role == Role.PATIENT) {
-            return selectRow(0, "patients").getString(columnName);
+            statement = connection.prepareStatement(String.format("SELECT %s FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;", columnName));
+            statement.setInt(1, userID);
+
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+
+            return resultSet.getString(columnName);
         } else {
-            return selectRow(0, "employees").getString(columnName);
+            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = patients.ID WHERE employees.ID = ?;", columnName));
+            statement.setInt(1, userID);
+
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+
+            return resultSet.getString(columnName);
         }
     }
-
+    
+    
     public static class Encrypter {
         private final static String key;
         private final static String algorithm;

@@ -15,7 +15,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="usernameLabel" layoutX="198.0" layoutY="93.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="198.0" layoutY="93.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -25,7 +25,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="firstNameLabel" layoutX="198.0" layoutY="129.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="198.0" layoutY="129.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -35,7 +35,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="motherLabel" layoutX="198.0" layoutY="165.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="198.0" layoutY="165.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -45,7 +45,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="dobLabel" layoutX="198.0" layoutY="201.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="198.0" layoutY="201.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -55,7 +55,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="emailLabel" layoutX="380.0" layoutY="93.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="380.0" layoutY="93.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -65,7 +65,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="lastNameLabel" layoutX="380.0" layoutY="130.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="380.0" layoutY="130.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -75,7 +75,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="fatherLabel" layoutX="380.0" layoutY="165.0" prefHeight="17.0" prefWidth="97.0" text="...">
+      <Label layoutX="380.0" layoutY="165.0" prefHeight="17.0" prefWidth="97.0" text="...">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -85,7 +85,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="medsLabel" layoutX="380.0" layoutY="201.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="380.0" layoutY="201.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -95,7 +95,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="phoneLabel" layoutX="198.0" layoutY="237.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="198.0" layoutY="237.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -105,7 +105,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="addressLabel" layoutX="380.0" layoutY="237.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="380.0" layoutY="237.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -115,7 +115,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="pharmLabel" layoutX="198.0" layoutY="273.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="198.0" layoutY="273.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -125,7 +125,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="doctorLabel" layoutX="380.0" layoutY="273.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="380.0" layoutY="273.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>
@@ -135,7 +135,7 @@
             <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="insuranceLabel" layoutX="280.0" layoutY="309.0" prefHeight="17.0" prefWidth="97.0" text="....">
+      <Label layoutX="280.0" layoutY="309.0" prefHeight="17.0" prefWidth="97.0" text="....">
          <font>
             <Font name="System Bold" size="13.0" />
          </font>

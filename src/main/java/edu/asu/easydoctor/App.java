@@ -19,7 +19,7 @@ public class App extends Application {
 //		Database.connect();
 		//loadPage("PatientPortalView", primaryStage);
 		PatientPortalController.load(primaryStage);
-		int x = 1;
+		//int x = 1;
 		 
 	}
 	
