@@ -1,0 +1,1 @@
+mysql -h easydoctor.c1wkcaa6ol0w.us-east-2.rds.amazonaws.com -P 3306 -u admin -p

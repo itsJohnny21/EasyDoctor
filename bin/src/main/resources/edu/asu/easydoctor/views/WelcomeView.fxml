@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="rootPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #595959;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="signInButton" layoutX="200.0" layoutY="150.0" mnemonicParsing="false" onAction="#handleSignInButtonAction" prefHeight="40.0" prefWidth="200.0" styleClass="signIn-button" text="Sign In" />
+      <Button fx:id="signUpButton" layoutX="200.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleSignUpButtonAction" prefHeight="40.0" prefWidth="200.0" styleClass="signUp-button" text="Sign Up" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" />
+      <HBox alignment="BOTTOM_CENTER" prefHeight="150.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label styleClass="welcome-label" text="Welcome to Easy Doctor!" textAlignment="CENTER" textFill="WHITE">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <font>
+                  <Font size="21.0" />
+               </font>
+               <HBox.margin>
+                  <Insets bottom="20.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
