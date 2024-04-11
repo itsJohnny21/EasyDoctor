@@ -9,7 +9,6 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import tests.Bypass;
 
 public class App extends Application {
 
