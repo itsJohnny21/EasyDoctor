@@ -30,7 +30,9 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		WelcomeController.getInstance().load(primaryStage);
-		Bypass.loginToPatientPortal("barb123", "barb123");
+		// Bypass.toPatientPortal("barb123", "barb123");
+		// Bypass.toResetPasswordDialog("meatCuh21!");
+		Bypass.toMangerCredentialsDialog("fakeusername", "passworD1!");
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {

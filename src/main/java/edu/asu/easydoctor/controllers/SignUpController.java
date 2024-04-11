@@ -15,8 +15,6 @@ import edu.asu.easydoctor.ShowPasswordGroup;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.PasswordField;
@@ -153,41 +151,17 @@ public class SignUpController extends Controller {
                 );
 
             } else {
+                // HashMap<String, String> result = new HashMap<>();
                 HashMap<String, String> result = ManagerCredentialsController.loadDialog();
 
-                Database.insertEmployee(
-                    usernameTextField.getText(),
-                    passwordField.getText(),
-                    Role.valueOf(roleChoiceBox.getValue()),
-                    firstNameTextField.getText(),
-                    lastNameTextField.getText(),
-                    Sex.valueOf(sexChoiceBox.getValue()),
-                    birthDateTextField.getText(),
-                    emailTextField.getText(),
-                    phoneTextField.getText(),
-                    addressTextField.getText(),
-                    result.get("managerUsername"),
-                    result.get("managerPassword"),
-                    Race.valueOf(raceChoiceBox.getValue()),
-                    Ethnicity.valueOf(ethnicityChoiceBox.getValue())
-                );
+                if (result.get("successful") == "true") {
+                    close();
+                    SignInController.getInstance().load(stage);
+                }
             }
 
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText("Sign up successful");
-            alert.setContentText(String.format("You have successfully signed up as a %s!", roleChoiceBox.getValue().toLowerCase()));
-            alert.showAndWait();
-
-            close();
-            SignInController.getInstance().load(stage);
-
         } catch (Exception e) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("An error occurred");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            e.printStackTrace();
         }
     }
 

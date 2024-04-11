@@ -145,7 +145,7 @@ public class UITest {
 		ForgotUsernamePasswordController forgotUsernamePasswordController = ForgotUsernamePasswordController.getInstance();
 		forgotUsernamePasswordController.roleChoiceBox.setValue(Role.PATIENT.toString());
 		forgotUsernamePasswordController.emailTextField.setText("jsalazar6421@gmail.com");
-		forgotUsernamePasswordController.resetPasswordButton.fire();
+		forgotUsernamePasswordController.sendEmailButton.fire();
 
 		statement = Database.connection.prepareStatement("SELECT token FROM resetPasswordTokens ORDER BY creationTime DESC LIMIT 1");
 		resultSet = statement.executeQuery();
