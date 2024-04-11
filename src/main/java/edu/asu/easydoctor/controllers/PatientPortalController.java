@@ -3,6 +3,7 @@ package edu.asu.easydoctor.controllers;
 import java.io.IOException;
 
 import edu.asu.easydoctor.App;
+import edu.asu.easydoctor.Database;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -45,7 +46,37 @@ public class PatientPortalController 	extends Controller {
 	
 		}
 
-
+	
+	
+public void syncinfo() throws Exception {
+	
+	Database.connect();
+    Database.signIn("barb123", "barb123");
+    System.out.println(Database.userID);
+    String firstName = Database.getMy("firstName");
+    String lastName = Database.getMy("lastName");
+    String phoneNumber = Database.getMy("phone");
+    String sex = Database.getMy("sex");
+    String birthDate = Database.getMy("birthDate");
+    String email = Database.getMy("email");
+    String address = Database.getMy("address");
+    String preferredDoctorID = Database.getMy("preferredDoctorID");
+    String doctorFullName = Database.getMyDoctor();
+    String bloodType = Database.getMy("bloodType");
+    String height = Database.getMy("height");
+    String weight = Database.getMy("weight");
+    String race = Database.getMy("race");
+    String ethnicity = Database.getMy("ethnicity");
+    String insuranceProvider = Database.getMy("insuranceProvider");
+    String insuranceID = Database.getMy("insuranceID");
+    String emergencyContactName = Database.getMy("emergencyContactName");
+    String emergencyContactPhone = Database.getMy("emergencyContactPhone");
+    String motherFirstName = Database.getMy("motherFirstName");
+    String motherLastName = Database.getMy("motherLastName");
+    String fatherFirstName = Database.getMy("fatherFirstName");
+    String fatherLastName = Database.getMy("fatherLastName");
+    
+}
 
 public static void load(Stage stage) throws IOException {
 	PatientPortalController controller = PatientPortalController.getInstance();

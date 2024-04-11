@@ -62,6 +62,16 @@ public abstract class Database {
         }
     }
 
+    
+    public static String getMyDoctor() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+    }
     public static Connection connection;
     public static Integer userID;
     public static Role role;
