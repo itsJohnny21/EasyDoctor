@@ -218,9 +218,9 @@ public class TestController extends Controller {
         return title;
     }
 
-    public void close() {
-        stage.close();
-        scene = null;
-        stage = null;
+    public void closeAndNullify() {
+        // stage.close();
+        // scene = null;
+        // stage = null;
     }
 }

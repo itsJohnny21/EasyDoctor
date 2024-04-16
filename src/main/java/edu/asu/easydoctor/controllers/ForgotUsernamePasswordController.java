@@ -66,7 +66,7 @@ public class ForgotUsernamePasswordController extends Controller {
             HashMap<String, Object> result = ResetPasswordController.getInstance().loadDialog(data);
 
             if (result != null && result.get("successful") == "true") {
-                SignInController.getInstance().load(stage);
+                SignInController.getInstance().load();
             }
 
         } catch (MessagingException e) {
@@ -79,8 +79,8 @@ public class ForgotUsernamePasswordController extends Controller {
     }
 
     @FXML public void handleGoBackButtonAction() throws IOException, Exception {
-        close();
-        SignInController.getInstance().load(stage);
+        closeAndNullify();
+        SignInController.getInstance().load();
     }
 
     public boolean validateEmail() {
@@ -94,10 +94,8 @@ public class ForgotUsernamePasswordController extends Controller {
 
     public void loadHelper() {}
     
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        scene = null;
-        stage = null;
+        close();
     }
 }

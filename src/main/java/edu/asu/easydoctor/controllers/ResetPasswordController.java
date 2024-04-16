@@ -53,10 +53,6 @@ public class ResetPasswordController extends DialogController {
                 event.consume();
             }
         });
-
-        stage.setOnCloseRequest(event -> {
-            close();
-        });
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -78,7 +74,7 @@ public class ResetPasswordController extends DialogController {
             alert.setHeaderText(null);
             alert.setContentText("Password reset successfully");
             alert.showAndWait();
-            close();
+            closeAndNullify();
 
         } catch (InvalidResetPasswordTokenException e) {
             Utilities.addClass(resetPasswordTokenTextField, "error");
@@ -111,7 +107,7 @@ public class ResetPasswordController extends DialogController {
     }
 
     @FXML public void handleCancelButtonAction(ActionEvent event) {
-        close();
+        closeAndNullify();
     }
 
     @FXML public void handleShowPasswordButtonAction(ActionEvent event) {
@@ -165,10 +161,8 @@ public class ResetPasswordController extends DialogController {
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        stage = null;
-        scene = null;
+        close();
     }
 }

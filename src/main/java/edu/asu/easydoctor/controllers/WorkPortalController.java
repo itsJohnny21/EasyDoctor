@@ -107,8 +107,8 @@ public class WorkPortalController extends Controller {
     }
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws IOException {
-        close();
-        SignInController.getInstance().load(stage);
+        closeAndNullify();
+        SignInController.getInstance().load();
     }
     
     public void setCurrentTab(AnchorPane pane, Button button) {
@@ -124,10 +124,8 @@ public class WorkPortalController extends Controller {
         currentButton = button;
     }
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        scene = null;
-        stage = null;
+        close();
     }
 }

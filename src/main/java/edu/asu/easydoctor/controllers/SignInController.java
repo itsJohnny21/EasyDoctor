@@ -88,11 +88,11 @@ public class SignInController extends Controller {
         boolean successful = Database.signIn(usernameTextField.getText(), passwordField.getText());
 
         if (successful) {
-            close();
+            closeAndNullify();
             if (Database.role == Role.DOCTOR || Database.role == Role.NURSE) {
-                WorkPortalController.getInstance().load(stage);
+                WorkPortalController.getInstance().load();
             } else if (Database.role == Role.PATIENT) {
-                PatientPortalController.getInstance().load(stage);
+                PatientPortalController.getInstance().load();
             }
 
         } else {
@@ -103,11 +103,11 @@ public class SignInController extends Controller {
     }
 
     @FXML public void handleGoBackButtonAction(ActionEvent event) throws IOException, Exception {
-        WelcomeController.getInstance().load(stage);
+        WelcomeController.getInstance().load();
     }
     
     @FXML public void handleForgotUsernamePasswordButtonAction(ActionEvent event) throws IOException, Exception {
-        ForgotUsernamePasswordController.getInstance().load(stage);
+        ForgotUsernamePasswordController.getInstance().load();
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -128,10 +128,8 @@ public class SignInController extends Controller {
         }
     }
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        scene = null;
-        stage = null;
+        close();
     }
 }

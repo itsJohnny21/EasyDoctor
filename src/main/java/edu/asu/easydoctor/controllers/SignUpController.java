@@ -155,8 +155,8 @@ public class SignUpController extends Controller {
                 HashMap<String, Object> result = ManagerCredentialsController.getInstance().loadDialog(data);
 
                 if (result.get("successful") == "true") {
-                    close();
-                    SignInController.getInstance().load(stage);
+                    closeAndNullify();
+                    SignInController.getInstance().load();
                 }
             }
 
@@ -177,7 +177,7 @@ public class SignUpController extends Controller {
         System.out.println("Go back button clicked");
 
         if (currentForm == form1) {
-            WelcomeController.getInstance().load(stage);
+            WelcomeController.getInstance().load();
         } else {
             setCurrentForm(form1);
         }
@@ -323,11 +323,9 @@ public class SignUpController extends Controller {
         signUpButton.setDisable(currentForm == form1);
     }
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        scene = null;
-        stage = null;
+        close();
     }
 }
 

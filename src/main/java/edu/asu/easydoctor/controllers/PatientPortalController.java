@@ -27,6 +27,7 @@ public class PatientPortalController extends Controller {
 
     public AnchorPane currentTab;
     public Button currentButton;
+    public DialogController currentDialog;
     
     @FXML public AnchorPane myVisitsPane;
     @FXML public AnchorPane myPillsPane;
@@ -122,8 +123,8 @@ public class PatientPortalController extends Controller {
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
             ValueLabel doctorLabel = new ValueLabel(Database.getEmployeeNameFor(visits2.getInt("doctorID")));
-            ValueLabel dateLabel = new ValueLabel(visits2.getDate("date2").toLocalDate().format(dateFormatter));
-            ValueLabel dayLabel = new ValueLabel(visits2.getDate("date2").toLocalDate().getDayOfWeek().toString());
+            ValueLabel dateLabel = new ValueLabel(visits2.getDate("date").toLocalDate().format(dateFormatter));
+            ValueLabel dayLabel = new ValueLabel(visits2.getDate("date").toLocalDate().getDayOfWeek().toString());
             ValueLabel timeLabel = new ValueLabel(visits2.getTime("time").toLocalTime().format(timeFormatter));
             ValueLabel reasonLabel = new ValueLabel(visits2.getString("reason"));
             ValueLabel completedLabel = new ValueLabel(visits2.getBoolean("completed") ? "Complete" : "Incomplete");
@@ -140,7 +141,7 @@ public class PatientPortalController extends Controller {
                     try {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put("rowID", row.rowID);
-                        HashMap<String, Object> result = SelectedVisitController.getInstance().loadDialog(data);
+                        HashMap<String, Object> result = loadDialog(SelectedVisitController.getInstance(), data);
 
                         if (result != null && (boolean) result.containsKey("deleted")) {
                             myVisitsTables.getChildren().remove(row);
@@ -198,17 +199,17 @@ public class PatientPortalController extends Controller {
     }
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
-        close();
+        closeAndNullify();
         Database.signOut();
-        SignInController.getInstance().load(stage);
+        SignInController.getInstance().load();
     }
 
     @FXML public void handleScheduleVisitButton(ActionEvent event) throws IOException {
-        // ScheduleVisitController.getInstance().load(stage); //! Implement this
+        // ScheduleVisitController.getInstance().load(); //! Implement this
     }
 
     @FXML public void handleNewMessageButtonAction(ActionEvent event) throws IOException {
-        // NewMessageController.getInstance().load(stage); //! Implement this
+        // NewMessageController.getInstance().load(); //! Implement this
     }
 
     public void setCurrentTab(AnchorPane pane, Button button) {
@@ -224,10 +225,17 @@ public class PatientPortalController extends Controller {
         currentButton = button;
     }
 
-    public void close() {
+    public HashMap<String, Object> loadDialog(DialogController dialogController, HashMap<String, Object> data) throws Exception {
+        currentDialog = dialogController;
+        return dialogController.loadDialog(data);
+    }
+
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        scene = null;
-        stage = null;
+        close();
+        
+        if (currentDialog != null) {
+            currentDialog.closeAndNullify();
+        }
     }
 }

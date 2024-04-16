@@ -53,10 +53,6 @@ public class ManagerCredentialsController extends DialogController {
     public void initialize() {
         ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
         spg.addPasswordField(managerPasswordField);
-
-        stage.setOnCloseRequest(event -> {
-            close();
-        });
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -110,7 +106,7 @@ public class ManagerCredentialsController extends DialogController {
     }
 
     @FXML public void handleCancelButtonAction() {
-        close();
+        closeAndNullify();
     }
     
     public boolean validateUsername() throws SQLException {
@@ -125,10 +121,8 @@ public class ManagerCredentialsController extends DialogController {
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        stage = null;
-        scene = null;
+        close();
     }
 }

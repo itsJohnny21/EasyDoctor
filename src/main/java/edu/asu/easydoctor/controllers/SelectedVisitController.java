@@ -56,14 +56,10 @@ public class SelectedVisitController extends DialogController {
 
     public void initialize() throws Exception {
         addressLabel.setText("Address: 2601 E Roosevelt St Phoenix, AZ 85008 United States");
-
-        stage.setOnCloseRequest(event -> {
-            close();
-        });
     }
 
     @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
-        close();
+        closeAndNullify();
     }
 
     @FXML public void handleCancelVisitButtonAction(ActionEvent event) throws Exception {
@@ -76,7 +72,7 @@ public class SelectedVisitController extends DialogController {
         if (alert.getResult().getText().equals("OK")) {
             Database.deleteRow("visits", rowID);
             result.put("deleted", true);
-            close();
+            closeAndNullify();
         }
     }
 
@@ -89,8 +85,8 @@ public class SelectedVisitController extends DialogController {
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
             doctorLabel.setText(Database.getEmployeeNameFor(visit.getInt("doctorID")));
-            dateLabel.setText(visit.getDate("date2").toLocalDate().format(dateFormatter));
-            dayLabel.setText(visit.getDate("date2").toLocalDate().getDayOfWeek().toString());
+            dateLabel.setText(visit.getDate("date").toLocalDate().format(dateFormatter));
+            dayLabel.setText(visit.getDate("date").toLocalDate().getDayOfWeek().toString());
             timeLabel.setText(visit.getTime("time").toLocalTime().format(timeFormatter));
             reasonLabel.setText(visit.getString("reason"));
             statusLabel.setText(visit.getBoolean("completed") ? "Complete" : "Incomplete");
@@ -98,10 +94,8 @@ public class SelectedVisitController extends DialogController {
         }
     }
 
-    public void close() {
+    public void closeAndNullify() {
         instance = null;
-        stage.close();
-        stage = null;
-        scene = null;
+        close();
     }
 }
