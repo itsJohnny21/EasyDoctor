@@ -127,4 +127,11 @@ public class SignInController extends Controller {
             preferences.remove("rememberMeChecked");
         }
     }
+
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
+    }
 }

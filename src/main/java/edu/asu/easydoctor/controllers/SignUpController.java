@@ -151,7 +151,8 @@ public class SignUpController extends Controller {
                 );
 
             } else {
-                HashMap<String, String> result = ManagerCredentialsController.loadDialog();
+                HashMap<String, Object> data = new HashMap<>();
+                HashMap<String, Object> result = ManagerCredentialsController.getInstance().loadDialog(data);
 
                 if (result.get("successful") == "true") {
                     close();
@@ -322,10 +323,12 @@ public class SignUpController extends Controller {
         signUpButton.setDisable(currentForm == form1);
     }
 
-    // public static void load(Stage stage) throws IOException {
-    //     SignUpController controller = SignUpController.getInstance();
-    //     controller.loadHelper(VIEW_FILENAME, stage);
-    // }
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
+    }
 }
 
 

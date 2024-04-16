@@ -217,4 +217,10 @@ public class TestController extends Controller {
     public String getTitle() {
         return title;
     }
+
+    public void close() {
+        stage.close();
+        scene = null;
+        stage = null;
+    }
 }

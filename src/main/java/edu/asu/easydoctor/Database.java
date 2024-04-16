@@ -471,24 +471,6 @@ public abstract class Database {
         }
     }
 
-    public static boolean emailExists(String email, Role role) throws SQLException {
-        PreparedStatement statement;
-
-        if (role == Role.PATIENT) {
-            statement = connection.prepareStatement("SELECT email FROM patients WHERE email = ?;");
-        } else {
-            statement = connection.prepareStatement("SELECT email FROM employees WHERE email = ?;");
-        }
-
-        statement.setString(1, email);
-        ResultSet resultSet = statement.executeQuery();
-
-        boolean valid = resultSet.next();
-        resultSet.close();
-
-        return valid;
-    }
-
     public static String getMyDoctor() throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
         statement.setInt(1, userID);
@@ -513,8 +495,16 @@ public abstract class Database {
     }
 
     public static ResultSet getMyVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType FROM visits WHERE userID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
         statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getVisitFor(int rowID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
+        statement.setInt(1, rowID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;

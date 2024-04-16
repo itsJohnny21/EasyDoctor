@@ -3,7 +3,6 @@ package edu.asu.easydoctor.controllers;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
@@ -12,9 +11,6 @@ import edu.asu.easydoctor.Database.Sex;
 import edu.asu.easydoctor.ShowPasswordGroup;
 import edu.asu.easydoctor.Utilities;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -23,9 +19,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 
-public class ManagerCredentialsController extends Controller {
+public class ManagerCredentialsController extends DialogController {
 
     @FXML public DialogPane rootPane;
     @FXML public Button confirmButton;
@@ -39,7 +34,6 @@ public class ManagerCredentialsController extends Controller {
     public final static boolean RESIZABLE = false;
     public final static String VIEW_FILENAME = "ManagerCredentialsDialog";
     public final static String STYLE_FILENAME = "Basic";
-    public static HashMap<String, String> result = new HashMap<>();
 
     private ManagerCredentialsController() {
         title = TITLE;
@@ -61,7 +55,7 @@ public class ManagerCredentialsController extends Controller {
         spg.addPasswordField(managerPasswordField);
 
         stage.setOnCloseRequest(event -> {
-            close2();
+            close();
         });
     }
 
@@ -71,10 +65,6 @@ public class ManagerCredentialsController extends Controller {
     }
 
     @FXML public void handleConfirmButtonAction() throws SQLException {
-        // result.put("managerUsername", managerUsernameTextField.getText());
-        // result.put("managerPassword", managerPasswordField.getText());
-        // close2();
-
         try {
             Database.insertEmployee(
                 SignUpController.getInstance().usernameTextField.getText(),
@@ -100,7 +90,7 @@ public class ManagerCredentialsController extends Controller {
             alert.showAndWait();
 
             result.put("successful", "true");
-            close2();
+            close();
 
         } catch (SQLException e) {
             Alert alert = new Alert(AlertType.ERROR);
@@ -120,7 +110,7 @@ public class ManagerCredentialsController extends Controller {
     }
 
     @FXML public void handleCancelButtonAction() {
-        close2();
+        close();
     }
     
     public boolean validateUsername() throws SQLException {
@@ -133,27 +123,12 @@ public class ManagerCredentialsController extends Controller {
         return true;
     }
 
-    public static HashMap<String, String> loadDialog() throws Exception {
-        if (instance != null) return null;
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
-        Stage stage = new Stage();
-        FXMLLoader loader = new FXMLLoader(App.class.getResource(String.format("views/%s.fxml", VIEW_FILENAME)));
-        ManagerCredentialsController controller = ManagerCredentialsController.getInstance();
-        controller.setStage(stage);
-
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", STYLE_FILENAME)).toExternalForm());
-        stage.show();
-
-        return result;
-    }
-
-    public void close2() {
-        stage.close();
+    public void close() {
         instance = null;
+        stage.close();
+        stage = null;
         scene = null;
     }
 }

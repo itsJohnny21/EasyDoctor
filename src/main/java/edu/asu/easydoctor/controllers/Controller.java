@@ -64,8 +64,5 @@ public abstract class Controller {
         stage.setHeight(height);
     }
 
-    public void close() {
-        stage.close();
-        scene = null; //! no longer needed?
-    }
+    public abstract void close();
 }

@@ -45,4 +45,11 @@ public class WelcomeController extends Controller {
     @FXML public void handleSignUpButtonAction(ActionEvent event) throws Exception {
         SignUpController.getInstance().load(stage);
     }
+
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
+    }
 }

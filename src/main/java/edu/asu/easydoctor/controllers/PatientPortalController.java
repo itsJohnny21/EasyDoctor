@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Row;
@@ -130,14 +131,18 @@ public class PatientPortalController extends Controller {
             Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, completedLabel);
             rows.add(row);  
         }
+        visits2.close();
 
         SelectableTable myVisitsTables = new SelectableTable();
         myVisitsTables
             .withRowAction(row -> {
                 row.setOnMouseClicked(event2 -> {
                     try {
-                        boolean deleted = SelectedVisitController.loadDialog(row.rowID);
-                        if (deleted) {
+                        HashMap<String, Object> data = new HashMap<>();
+                        data.put("rowID", row.rowID);
+                        HashMap<String, Object> result = SelectedVisitController.getInstance().loadDialog(data);
+
+                        if (result != null && (boolean) result.containsKey("deleted")) {
                             myVisitsTables.getChildren().remove(row);
                         }
                         
@@ -206,8 +211,6 @@ public class PatientPortalController extends Controller {
         // NewMessageController.getInstance().load(stage); //! Implement this
     }
 
-
-
     public void setCurrentTab(AnchorPane pane, Button button) {
         if (currentTab != null) {
             currentTab.setVisible(false);
@@ -219,5 +222,12 @@ public class PatientPortalController extends Controller {
         currentTab.setDisable(false);
 
         currentButton = button;
+    }
+
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
     }
 }

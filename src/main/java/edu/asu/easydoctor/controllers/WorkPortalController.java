@@ -123,4 +123,11 @@ public class WorkPortalController extends Controller {
 
         currentButton = button;
     }
+
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
+    }
 }

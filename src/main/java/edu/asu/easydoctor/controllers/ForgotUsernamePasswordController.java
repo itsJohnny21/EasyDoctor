@@ -62,7 +62,8 @@ public class ForgotUsernamePasswordController extends Controller {
 
         try {
             Database.insertResetPasswordToken(emailTextField.getText(), Role.valueOf(roleChoiceBox.getValue()));
-            HashMap<String, String> result = ResetPasswordController.loadDialog();
+            HashMap<String, Object> data = new HashMap<>();
+            HashMap<String, Object> result = ResetPasswordController.getInstance().loadDialog(data);
 
             if (result != null && result.get("successful") == "true") {
                 SignInController.getInstance().load(stage);
@@ -89,5 +90,14 @@ public class ForgotUsernamePasswordController extends Controller {
         }
 
         return true;
+    }
+
+    public void loadHelper() {}
+    
+    public void close() {
+        instance = null;
+        stage.close();
+        scene = null;
+        stage = null;
     }
 }

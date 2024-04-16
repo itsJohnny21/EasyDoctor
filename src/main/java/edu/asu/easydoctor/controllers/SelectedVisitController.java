@@ -1,29 +1,20 @@
 package edu.asu.easydoctor.controllers;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 
-import edu.asu.easydoctor.App;
-import edu.asu.easydoctor.DataRow;
-import edu.asu.easydoctor.DataRow.Employee;
-import edu.asu.easydoctor.DataRow.Visit;
 import edu.asu.easydoctor.Database;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 
-public class SelectedVisitController extends Controller {
+public class SelectedVisitController extends DialogController {
     
     @FXML public AnchorPane rootPane;
     @FXML public Button closeButton;
@@ -37,10 +28,8 @@ public class SelectedVisitController extends Controller {
     @FXML public Label statusLabel;
 
     @FXML public TextArea descriptionTextArea;
-
     @FXML public Label addressLabel;
 
-    
     public static SelectedVisitController instance = null;
     public final static String TITLE = "Visit";
     public final static boolean RESIZABLE = false;
@@ -48,7 +37,6 @@ public class SelectedVisitController extends Controller {
     public final static String STYLE_FILENAME = "PatientPortalView";
 
     public Integer rowID;
-    public static boolean result;
 
 
     private SelectedVisitController() {
@@ -70,13 +58,12 @@ public class SelectedVisitController extends Controller {
         addressLabel.setText("Address: 2601 E Roosevelt St Phoenix, AZ 85008 United States");
 
         stage.setOnCloseRequest(event -> {
-            close2();
+            close();
         });
     }
 
     @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
-        result = false;
-        close2();
+        close();
     }
 
     @FXML public void handleCancelVisitButtonAction(ActionEvent event) throws Exception {
@@ -88,53 +75,33 @@ public class SelectedVisitController extends Controller {
 
         if (alert.getResult().getText().equals("OK")) {
             Database.deleteRow("visits", rowID);
-            result = true;
-            close2();
+            result.put("deleted", true);
+            close();
         }
     }
 
-    public static boolean loadDialog(int rowID) throws Exception {
-        if (instance != null) return false;
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        rowID = (Integer) data.get("rowID");
+        ResultSet visit = Database.getVisitFor(rowID);
 
-        Stage stage = new Stage();
-        FXMLLoader loader = new FXMLLoader(App.class.getResource(String.format("views/%s.fxml", VIEW_FILENAME)));
-        SelectedVisitController controller = SelectedVisitController.getInstance();
-        controller.setStage(stage);
+        if (visit.next()) {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", STYLE_FILENAME)).toExternalForm());
-
-        controller.rowID = rowID;
-        Visit visit = Visit.getFor(rowID);
-
-        Employee doctor = DataRow.Employee.getFor(Integer.parseInt(visit.doctorID.originalValue));
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(visit.date.originalValue, formatter);
-        DayOfWeek day = dateTime.getDayOfWeek();
-        Time time = Time.valueOf(dateTime.toLocalTime());
-        Date date = Date.valueOf(dateTime.toLocalDate()); 
-
-        controller.doctorLabel.setText(doctor.firstName.originalValue + " " + doctor.lastName.originalValue);
-        controller.dayLabel.setText(day.toString());
-        controller.timeLabel.setText(time.toString());
-        controller.dateLabel.setText(date.toString());
-        controller.reasonLabel.setText(visit.reason.originalValue);
-        controller.statusLabel.setText(visit.completed.originalValue == "1" ? "Complete" : "Incomplete");
-
-        controller.descriptionTextArea.setText(visit.description.originalValue);
-
-        stage.showAndWait();
-        return result;
-
+            doctorLabel.setText(Database.getEmployeeNameFor(visit.getInt("doctorID")));
+            dateLabel.setText(visit.getDate("date2").toLocalDate().format(dateFormatter));
+            dayLabel.setText(visit.getDate("date2").toLocalDate().getDayOfWeek().toString());
+            timeLabel.setText(visit.getTime("time").toLocalTime().format(timeFormatter));
+            reasonLabel.setText(visit.getString("reason"));
+            statusLabel.setText(visit.getBoolean("completed") ? "Complete" : "Incomplete");
+            descriptionTextArea.setText(visit.getString("description"));
+        }
     }
 
-    public void close2() {
-        stage.close();
+    public void close() {
         instance = null;
+        stage.close();
+        stage = null;
         scene = null;
     }
 }
