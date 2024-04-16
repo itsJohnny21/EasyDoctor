@@ -4,7 +4,8 @@ CREATE TABLE visits (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     creationType ENUM('IN-PERSON', 'ONLINE') NOT NULL,
-    date DATETIME NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
     userID INT NOT NULL,
     doctorID INT NOT NULL,
     completed BOOLEAN DEFAULT FALSE NOT NULL,
@@ -12,9 +13,10 @@ CREATE TABLE visits (
     description TEXT,
     FOREIGN KEY (userID) REFERENCES users(ID),
     FOREIGN KEY (doctorID) REFERENCES users(ID),
+    ALTER TABLE visits,
+    UNIQUE (userID, date);
 );
 
-alter table visits change column userID userID INT NOT NULL;
 
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('IN-PERSON', '2021-01-01 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
@@ -43,8 +45,8 @@ INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('ONLINE', '2025-04-03:09:14:21', 2, 3, 'Checkup', 'Mental health checkup');
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('ONLINE', '2025-04-03:09:14:54', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-03:09:14:55', 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, date, userID, doctorID, reason, description, date2, time)
+VALUES ('ONLINE', '2025-04-03:09:14:55', 2, 3, 'Checkup', 'Mental health checkup', '1999-02-23', '12:55:00');
 
 UPDATE visits SET completed = TRUE WHERE userID =2;
 SELECT * FROM visits;

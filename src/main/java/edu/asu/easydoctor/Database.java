@@ -512,6 +512,14 @@ public abstract class Database {
         return firstName + " " + lastName;
     }
 
+    public static ResultSet getMyVisits() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType FROM visits WHERE userID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
     }

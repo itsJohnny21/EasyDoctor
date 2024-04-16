@@ -1,15 +1,10 @@
 package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.Time;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.sql.ResultSet;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import edu.asu.easydoctor.DataRow;
-import edu.asu.easydoctor.DataRow.Visit;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
@@ -117,38 +112,23 @@ public class PatientPortalController extends Controller {
 
         setCurrentTab(myVisitsPane, myVisitsButton);
 
-        ArrayList<Visit> visits = DataRow.Visit.getAllFor(Database.userID);
-        Row[] rows = new Row[visits.size()];
+        ResultSet visits2 = Database.getMyVisits();
+        ArrayList<Row> rows = new ArrayList<>();
 
-        for (int i = 0; i < visits.size(); i++) {
-            Visit visit = visits.get(i);
+        while (visits2.next()) {
+            int rowID = visits2.getInt("ID");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-            String doctorName = Database.getEmployeeNameFor(Integer.parseInt(visit.doctorID.originalValue));
+            ValueLabel doctorLabel = new ValueLabel(Database.getEmployeeNameFor(visits2.getInt("doctorID")));
+            ValueLabel dateLabel = new ValueLabel(visits2.getDate("date2").toLocalDate().format(dateFormatter));
+            ValueLabel dayLabel = new ValueLabel(visits2.getDate("date2").toLocalDate().getDayOfWeek().toString());
+            ValueLabel timeLabel = new ValueLabel(visits2.getTime("time").toLocalTime().format(timeFormatter));
+            ValueLabel reasonLabel = new ValueLabel(visits2.getString("reason"));
+            ValueLabel completedLabel = new ValueLabel(visits2.getBoolean("completed") ? "Complete" : "Incomplete");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime dateTime = LocalDateTime.parse(visit.date.originalValue, formatter);
-            DayOfWeek day = dateTime.getDayOfWeek();
-            Time time = Time.valueOf(dateTime.toLocalTime());
-            Date date = Date.valueOf(dateTime.toLocalDate()); 
-
-            ValueLabel doctorLabel = new ValueLabel(doctorName);
-            ValueLabel dayLabel = new ValueLabel(day.toString());
-            ValueLabel timeLabel = new ValueLabel(time.toString());
-            ValueLabel dateLabel = new ValueLabel(date.toString());
-            ValueLabel reasonLabel = new ValueLabel(visit.reason.originalValue);
-            ValueLabel completedLabel = new ValueLabel(visit.completed.originalValue == "1" ? "Complete" : "Incomplete");
-
-            
-            rows[i] = new Row(
-                visit.tableName,
-                visit.rowID,
-                doctorLabel,
-                dateLabel,
-                dayLabel,
-                timeLabel,
-                reasonLabel,
-                completedLabel
-            );
+            Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, completedLabel);
+            rows.add(row);  
         }
 
         SelectableTable myVisitsTables = new SelectableTable();

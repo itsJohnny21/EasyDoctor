@@ -36,6 +36,14 @@ public abstract class UI {
     
             return this;
         }
+
+        public Table withRows(ArrayList<Row> rows) {
+            for (Row row : rows) {
+                this.rows.add(row);
+            }
+    
+            return this;
+        }
     
         public void buildTitle() {
             if (this.title == null) {
