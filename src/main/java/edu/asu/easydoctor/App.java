@@ -14,6 +14,7 @@ import tests.Bypass;
 public class App extends Application {
 
 	public static Properties properties;
+	public static Stage primaryStage;
 
 	static {
 		properties = new Properties();
@@ -29,7 +30,19 @@ public class App extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
-		WelcomeController.getInstance().load(primaryStage);
+		App.primaryStage = primaryStage;
+
+		primaryStage.setOnCloseRequest(event -> {
+            try {
+				quit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+        });
+
+		WelcomeController.getInstance().load();
+		// Bypass.toResetPasswordDialog("newPassworD!1");
+		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
 		Bypass.toPatientPortal("barb123", "barb123");
 	}
 

@@ -15,6 +15,6 @@ use easydoctor;
 SELECT * FROM users;
 SELECT * FROM patients;
 SELECT * FROM employees;
-delete from users where ID = 192;
+delete from users where ID = 194;
 
 SELECT users.ID, email, users.username FROM users JOIN patients ON users.ID = patients.ID WHERE username = 'jsalazar6421@gmail.com' AND role = 'PATIENT' UNION SELECT patients.ID, email, users.username FROM patients JOIN users on users.ID = patients.ID WHERE email = 'jsalazar6421@gmail.com' AND role = 'PATIENT' UNION SELECT employees.ID, email, users.username FROM employees JOIN users ON users.ID = employees.ID WHERE email = 'jsalazar6421@gmail.com' AND role = 'PATIENT';

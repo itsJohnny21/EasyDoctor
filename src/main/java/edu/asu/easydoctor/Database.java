@@ -495,7 +495,7 @@ public abstract class Database {
     }
 
     public static ResultSet getMyVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -503,7 +503,7 @@ public abstract class Database {
     }
 
     public static ResultSet getVisitFor(int rowID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date2, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
         statement.setInt(1, rowID);
 
         ResultSet resultSet = statement.executeQuery();
