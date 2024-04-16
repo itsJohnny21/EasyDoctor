@@ -51,3 +51,4 @@ public class App extends Application {
 
 //TODO: Custom dialogs need some major bug fixes and redesign
 //TODO: Fix visits table so that it has a date field and time field separately and make sure rows are unique for date and userID
+//TODO: Add pharmacy to patients table
