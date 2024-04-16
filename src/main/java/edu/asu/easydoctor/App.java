@@ -9,7 +9,7 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import tests.Bypass;
+import tests.Test;
 
 public class App extends Application {
 
@@ -41,12 +41,13 @@ public class App extends Application {
         });
 
 		WelcomeController.getInstance().load();
-		Bypass.toPatientPortal("barb123", "barb123");
+		// Bypass.toPatientPortal("barb123", "barb123");
 
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
-		// Test.signUpTest();
-		// Test.signUpTest();
+			// Test.signUp();
+			// Test.signUp();
+			Test.resetPassword();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -69,3 +70,5 @@ public class App extends Application {
 //TODO: Fix visits table so that it has a date field and time field separately and make sure rows are unique for date and userID
 //TODO: Add pharmacy to patients table
 //TODO: Fix bug when trying to sign in and the show toggle button is toggled on. Update ShowPasswordGroup to handle this (pass it a button)
+//TODO: Delete branches: PrimaryStage, DialogController, Polish-MyVists, PatientPortal-Base
+//TODO: Fix this warning: WARNING: Loading FXML document with JavaFX API of version 21 by JavaFX runtime of version 18-ea

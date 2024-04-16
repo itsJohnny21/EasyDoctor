@@ -5,7 +5,9 @@ import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.CountDownLatch;
 
+import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
@@ -26,7 +28,7 @@ import javafx.stage.Window;
 
 public class Test {
 
-	public static void signInTest() throws Exception {
+	public static void signIn() throws Exception {
 		PreparedStatement statement;
 
 		statement = Database.connection.prepareStatement("SELECT ID FROM users WHERE username = 'signInTest';");
@@ -41,7 +43,7 @@ public class Test {
 			statement = Database.connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (@userID, 'signInTest', 'signInTest',  'OTHER', '2000-01-01', 'signInTest@gmail.com', '1234567890', 'signInTest', 'WHITE', 'HISPANIC');");
 			statement.executeUpdate();
 			statement.close();
-			signInTest();
+			signIn();
 			return;
 		}
 
@@ -67,7 +69,7 @@ public class Test {
 		System.exit(0);
 	}
 
-	public static void signUpTest() throws SQLException, UnknownHostException, Exception {
+	public static void signUp() throws SQLException, UnknownHostException, Exception {
 		PreparedStatement statement;
 
 		statement = Database.connection.prepareStatement("SELECT ID FROM users WHERE username = 'signUpTest';");
@@ -77,7 +79,7 @@ public class Test {
 			statement = Database.connection.prepareStatement("DELETE FROM users WHERE username = 'signUpTest';");
 			statement.executeUpdate();
 			statement.close();
-			signUpTest();
+			signUp();
 			return;
 		}
 
@@ -115,7 +117,7 @@ public class Test {
 		System.exit(0);
 	}
 
-	public static void resetPasswordTest() throws SQLException, UnknownHostException, Exception {
+	public static void resetPassword() throws SQLException, UnknownHostException, Exception {
 		PreparedStatement statement;
 
 		statement = Database.connection.prepareStatement("SELECT ID FROM users WHERE username = 'resetPasswordTest';");
@@ -129,7 +131,7 @@ public class Test {
 			statement = Database.connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (@userID, 'resetPasswordTest', 'resetPasswordTest',  'OTHER', '2000-01-01', 'resetPasswordTest@gmail.com', '1234567890', '123 Test St', 'WHITE', 'HISPANIC');");
 			statement.executeUpdate();
 			statement.close();
-			resetPasswordTest();
+			resetPassword();
 			return;
 		}
 
@@ -197,5 +199,31 @@ public class Test {
 				}
 			});
 		}).start();
+		
+	}
+
+	public static void startApp() {
+		CountDownLatch latch = new CountDownLatch(1);
+
+		Platform.startup(() -> {
+			try {
+				new App().start(new Stage());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			latch.countDown();
+
+			try {
+				resetPassword();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
