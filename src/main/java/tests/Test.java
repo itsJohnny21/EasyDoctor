@@ -26,7 +26,7 @@ import javafx.scene.control.DialogPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-public class UITest {
+public class Test {
 
 	public static void signInTest() throws Exception {
 		PreparedStatement statement;
