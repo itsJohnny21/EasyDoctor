@@ -1,18 +1,14 @@
 package edu.asu.easydoctor.controllers;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.exceptions.ExpiredResetPasswordTokenException;
 import edu.asu.easydoctor.exceptions.InvalidResetPasswordTokenException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -20,9 +16,8 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 
-public class ResetPasswordController extends Controller {
+public class ResetPasswordController extends DialogController {
 
     @FXML public DialogPane rootPane;
     @FXML public Button resetButton;
@@ -32,7 +27,6 @@ public class ResetPasswordController extends Controller {
     @FXML public PasswordField confirmNewPasswordField;
 
     public static ResetPasswordController instance = null;
-    public static HashMap<String, String> result = new HashMap<>();
     public final static String TITLE = "Reset Password";
     public final static boolean RESIZABLE = false;
     public final static String VIEW_FILENAME = "ResetPasswordDialog";
@@ -59,10 +53,6 @@ public class ResetPasswordController extends Controller {
                 event.consume();
             }
         });
-
-        stage.setOnCloseRequest(event -> {
-            close2();
-        });
     }
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
@@ -84,7 +74,7 @@ public class ResetPasswordController extends Controller {
             alert.setHeaderText(null);
             alert.setContentText("Password reset successfully");
             alert.showAndWait();
-            close2();
+            closeAndNullify();
 
         } catch (InvalidResetPasswordTokenException e) {
             Utilities.addClass(resetPasswordTokenTextField, "error");
@@ -117,7 +107,7 @@ public class ResetPasswordController extends Controller {
     }
 
     @FXML public void handleCancelButtonAction(ActionEvent event) {
-        close2();
+        closeAndNullify();
     }
 
     @FXML public void handleShowPasswordButtonAction(ActionEvent event) {
@@ -152,6 +142,7 @@ public class ResetPasswordController extends Controller {
 
     public boolean validateConfirmNewPassword() {
         if (confirmNewPasswordField.getText().isBlank() || !confirmNewPasswordField.getText().equals(newPasswordField.getText()) || !confirmNewPasswordField.getText().matches("^(?=.*[A-Z])(?=.*[!@#$%&*()_+=|<>?{}\\[\\]~-]).{8,}$")) {
+            Utilities.addClass(newPasswordField, "error");
             Utilities.addClass(confirmNewPasswordField, "error");
             return false;
         }
@@ -168,27 +159,10 @@ public class ResetPasswordController extends Controller {
         return true;
     }
 
-    public static HashMap<String, String> loadDialog() throws IOException {
-        if (instance != null) return null;
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
-        Stage stage = new Stage();
-        FXMLLoader loader = new FXMLLoader(App.class.getResource(String.format("views/%s.fxml", VIEW_FILENAME)));
-        ResetPasswordController controller = ResetPasswordController.getInstance();
-        controller.setStage(stage);
-
-        loader.setController(controller);
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", STYLE_FILENAME)).toExternalForm());
-        stage.show();
-
-        return result;
-    }
-
-    public void close2() {
-        stage.close();
+    public void closeAndNullify() {
         instance = null;
-        scene = null;
+        close();
     }
 }

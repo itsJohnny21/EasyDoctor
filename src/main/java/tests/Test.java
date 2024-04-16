@@ -5,9 +5,7 @@ import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.CountDownLatch;
 
-import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
@@ -26,7 +24,7 @@ import javafx.scene.control.DialogPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-public class UITest {
+public class Test {
 
 	public static void signInTest() throws Exception {
 		PreparedStatement statement;
@@ -35,11 +33,12 @@ public class UITest {
 		ResultSet resultSet = statement.executeQuery();
 
 		if (!resultSet.next()) {
-			statement = Database.connection.prepareStatement("INSERT INTO users (username, password, role) VALUES ('signInTest', 'passworD1!', 'PATIENT');");
+			statement = Database.connection.prepareStatement("INSERT INTO users (username, password, role) VALUES ('signInTest', SHA2('passworD1!', 256), 'PATIENT');");
 			statement.executeUpdate();
 			statement.close();
 			statement = Database.connection.prepareStatement("SET @userID = LAST_INSERT_ID();");
-			statement = Database.connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (@userID, 'signUpTest', 'signUpTest',  'OTHER', '2000-01-01', 'signUpTest@gmail.com', '1234567890', '123 Test St', 'WHITE', 'HISPANIC');");
+			statement.execute();
+			statement = Database.connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (@userID, 'signInTest', 'signInTest',  'OTHER', '2000-01-01', 'signInTest@gmail.com', '1234567890', 'signInTest', 'WHITE', 'HISPANIC');");
 			statement.executeUpdate();
 			statement.close();
 			signInTest();
@@ -52,7 +51,7 @@ public class UITest {
 		statement = Database.connection.prepareStatement("UPDATE users SET password = SHA2('passworD1!', 256) WHERE username = 'signInTest';");
 		statement.executeUpdate();
 		statement.close();
-		
+
 		WelcomeController welcomeController = WelcomeController.getInstance();
 		welcomeController.signInButton.fire();
 		SignInController signInController = SignInController.getInstance();
@@ -198,30 +197,5 @@ public class UITest {
 				}
 			});
 		}).start();
-	}
-
-	public static void main(String[] args) {
-		CountDownLatch latch = new CountDownLatch(1);
-
-		Platform.startup(() -> {
-			try {
-				new App().start(new Stage());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			latch.countDown();
-
-			try {
-				resetPasswordTest();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 }

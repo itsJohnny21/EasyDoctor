@@ -1,0 +1,151 @@
+
+.root {
+    -fx-font-family: "Arial";
+    -fx-font-size: 12pt;
+}
+
+/* Table Styles */
+
+.table {
+    -fx-background-color:   #fff6eb;
+    -fx-background-radius: 0;
+    -fx-alignment: center;
+    -fx-pref-width: 9999px;
+}
+
+.table-title {
+    -fx-background-color:  #ab5b67;
+    -fx-background-radius: 0;
+    -fx-font-size: 14pt;
+    -fx-alignment: center;
+    -fx-pref-width: 9999px;
+}
+
+.table-label {
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+    -fx-alignment: center;
+}
+
+.table-header {
+    -fx-background-color:  #ab5b67;
+    -fx-background-radius: 0;
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+}
+
+.table-row {
+    -fx-background-color:   #fff6eb;
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+}
+
+.table-selectable-row {
+    -fx-background-color:   #fff6eb;
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+}
+
+.table-field {
+    -fx-pref-width: 9999px;
+    -fx-alignment: center;
+}
+
+.table-option {
+    -fx-background-color:#ea20f5;
+    -fx-pref-width: 9999px;
+    -fx-alignment: center;
+}
+
+.table-delete-button {
+    -fx-background-color: #f8f9a9;
+    -fx-pref-width: 9999px;
+}
+
+.table-selectable-row:hover {
+    -fx-background-color: #f7d9c4;
+}
+
+/* Form Styles */
+
+.form {
+    -fx-background-color:   #fff6eb;
+    -fx-background-radius: 0;
+    -fx-alignment: center;
+    -fx-pref-width: 9999px;
+}
+
+.form-title {
+    -fx-background-color:  #ab5b67;
+    -fx-font-size: 14pt;
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+}
+
+.form-field {
+    -fx-pref-width: 9999px;
+}
+
+.form-field-box {
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+    -fx-alignment: center;
+}
+
+.form-label {
+    -fx-alignment: center;
+    -fx-pref-width: 9999px;
+}
+
+.form-option {
+    -fx-background-color: #eb8f34;
+    -fx-aligntment: center;
+    -fx-pref-width: 9999px;
+}
+
+.form-button-row {
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+    -fx-pref-width: 9999px;
+}
+
+.form-submit-button {
+    -fx-background-color: #28699f;
+    -fx-alignment: center;
+}
+
+/* Button Styles */
+
+.update-button-box {
+    -fx-alignment: center;
+    -fx-pref-width: 9999px;
+}
+
+.edit-button {
+    -fx-background-color: #123456;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
+}
+
+.cancel-button {
+    -fx-background-color: #734567;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
+}
+
+.save-button {
+    -fx-background-color: #54a678;
+    -fx-background-radius: 0;
+    -fx-pref-width: 100px;
+}

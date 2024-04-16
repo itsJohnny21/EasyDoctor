@@ -155,7 +155,6 @@ public abstract class Database {
         String colummns = getPermissedColumns(tableName, "SELECT");
         PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE ID = ?;", colummns, tableName));
         statement2.setInt(1, rowID);
-        System.out.println(statement2.toString());
 
         ResultSet resultSet2 = statement2.executeQuery();
 
@@ -472,33 +471,43 @@ public abstract class Database {
         }
     }
 
-    public static boolean emailExists(String email, Role role) throws SQLException {
-        PreparedStatement statement;
-
-        if (role == Role.PATIENT) {
-            statement = connection.prepareStatement("SELECT email FROM patients WHERE email = ?;");
-        } else {
-            statement = connection.prepareStatement("SELECT email FROM employees WHERE email = ?;");
-        }
-
-        statement.setString(1, email);
-        ResultSet resultSet = statement.executeQuery();
-
-        boolean valid = resultSet.next();
-        resultSet.close();
-
-        return valid;
-    }
-
     public static String getMyDoctor() throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
         statement.setInt(1, userID);
-        System.out.println(statement.toString());
 
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
 
         return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+    }
+
+    public static String getEmployeeNameFor(int employeeID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName FROM employees WHERE employees.ID = ?;");
+        statement.setInt(1, employeeID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        String firstName = resultSet.getString("firstName");
+        String lastName = resultSet.getString("lastName");
+
+        return firstName + " " + lastName;
+    }
+
+    public static ResultSet getMyVisits() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getVisitFor(int rowID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
+        statement.setInt(1, rowID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
 
     public static int generateRandomToken() {

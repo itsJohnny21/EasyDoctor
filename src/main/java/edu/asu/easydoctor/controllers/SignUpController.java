@@ -151,11 +151,12 @@ public class SignUpController extends Controller {
                 );
 
             } else {
-                HashMap<String, String> result = ManagerCredentialsController.loadDialog();
+                HashMap<String, Object> data = new HashMap<>();
+                HashMap<String, Object> result = ManagerCredentialsController.getInstance().loadDialog(data);
 
                 if (result.get("successful") == "true") {
-                    close();
-                    SignInController.getInstance().load(stage);
+                    closeAndNullify();
+                    SignInController.getInstance().load();
                 }
             }
 
@@ -176,7 +177,7 @@ public class SignUpController extends Controller {
         System.out.println("Go back button clicked");
 
         if (currentForm == form1) {
-            WelcomeController.getInstance().load(stage);
+            WelcomeController.getInstance().load();
         } else {
             setCurrentForm(form1);
         }
@@ -322,10 +323,10 @@ public class SignUpController extends Controller {
         signUpButton.setDisable(currentForm == form1);
     }
 
-    // public static void load(Stage stage) throws IOException {
-    //     SignUpController controller = SignUpController.getInstance();
-    //     controller.loadHelper(VIEW_FILENAME, stage);
-    // }
+    public void closeAndNullify() {
+        instance = null;
+        close();
+    }
 }
 
 

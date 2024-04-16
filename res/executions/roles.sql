@@ -219,3 +219,8 @@ GRANT UPDATE (password) ON users TO 'neutral'@'%';
 GRANT SELECT (userID) ON resetPasswordTokens TO 'neutral'@'%';
 select * from users;
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE PRIVILEGE_TYPE = 'UPDATE' AND TABLE_NAME = 'users' AND GRANTEE = "'neutral'@'%'";
+GRANT SELECT (creationTime, creationType, date, userID, doctorID, completed, reason, description) ON visits TO 'patient'@'%';
+GRANT SELECT (ID, firstName, lastName, sex, birthDate, email, phone, address, managerID) ON employees TO 'patient'@'%';
+GRANT SELECT (ID) ON visits TO 'patient'@'%';
+GRANT DELETE ON visits TO 'patient'@'%';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'patient'@'%'";
