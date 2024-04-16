@@ -55,4 +55,14 @@ public class Utilities {
     public static long timestampToEpochMillis(Timestamp timestamp) {
         return timestamp.getTime();
     }
+
+    public static String getVisitStatus(LocalDateTime dateTime, boolean completed) {
+        if (completed) {
+            return "Completed";
+        } else if (LocalDateTime.now().isAfter(dateTime)) {
+            return "Missed";
+        } else {
+            return "Upcoming";
+        }
+    }
 }

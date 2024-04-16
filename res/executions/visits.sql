@@ -17,6 +17,8 @@ CREATE TABLE visits (
     UNIQUE (userID, date)
 );
 
+show create table visits;
+
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('IN-PERSON', '2021-01-01 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
@@ -39,13 +41,13 @@ VALUES ('ONLINE', '2025-04-02:09:00:00', 2, 3, 'Checkup', 'Mental health checkup
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('ONLINE', '2025-04-02:09:13:49', 2, 3, 'Checkup', 'Mental health checkup');
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-03:09:14:53', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-03:09:14:21', 2, 3, 'Checkup', 'Mental health checkup');
+VALUES ('ONLINE', '2025-12-03:09:14:53', 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, date, userID, doctorID, reason, description, time)
+VALUES ('ONLINE', '2025-06-03:09:14:21', 2, 3, 'Checkup', 'Mental health checkup', '12:52:00');
 INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
 VALUES ('ONLINE', '2025-04-03:09:14:54', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description, date2, time)
-VALUES ('ONLINE', '2025-04-03:09:14:55', 2, 3, 'Checkup', 'Mental health checkup', '1999-02-21', '12:57:00');
+INSERT INTO visits (creationType, date, userID, doctorID, reason, description, time)
+VALUES ('ONLINE', '2025-04-03:09:14:55', 2, 3, 'Checkup', 'Mental health checkup', '12:57:00');
 INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
 VALUES ('ONLINE', 2, 3, 'Checkup', 'Mental health checkup', '1999-02-22', '12:56:00');
 INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
@@ -56,3 +58,5 @@ SELECT * FROM visits;
 use easydoctor;
 SELECT * FROM visits;
 SELECT * FROM visits WHERE userID = 2 AND date = '2021-01-03';
+
+SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = 2 ORDER BY date DESC;

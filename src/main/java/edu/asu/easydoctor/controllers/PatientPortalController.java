@@ -2,6 +2,7 @@ package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
+import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.ValueLabel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -119,17 +121,29 @@ public class PatientPortalController extends Controller {
 
         while (visits.next()) {
             int rowID = visits.getInt("ID");
+
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-            ValueLabel doctorLabel = new ValueLabel(Database.getEmployeeNameFor(visits.getInt("doctorID")));
-            ValueLabel dateLabel = new ValueLabel(visits.getDate("date").toLocalDate().format(dateFormatter));
-            ValueLabel dayLabel = new ValueLabel(visits.getDate("date").toLocalDate().getDayOfWeek().toString());
-            ValueLabel timeLabel = new ValueLabel(visits.getTime("time").toLocalTime().format(timeFormatter));
-            ValueLabel reasonLabel = new ValueLabel(visits.getString("reason"));
-            ValueLabel completedLabel = new ValueLabel(visits.getBoolean("completed") ? "Complete" : "Incomplete");
+            String doctor = Database.getEmployeeNameFor(visits.getInt("doctorID"));
+            String dayOfWeek = visits.getDate("date").toLocalDate().getDayOfWeek().toString();
+            String time = visits.getTime("time").toLocalTime().format(timeFormatter);
+            String date = visits.getDate("date").toLocalDate().format(dateFormatter);
+            String reason = visits.getString("reason");
+            String description = visits.getString("description");
+            boolean completed = visits.getBoolean("completed");
 
-            Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, completedLabel);
+            LocalDateTime dateTime = LocalDateTime.of(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime());
+
+            ValueLabel doctorLabel = new ValueLabel(doctor);
+            ValueLabel dateLabel = new ValueLabel(date);
+            ValueLabel dayLabel = new ValueLabel(dayOfWeek);
+            ValueLabel timeLabel = new ValueLabel(time);
+            ValueLabel reasonLabel = new ValueLabel(reason);
+            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatus(dateTime, completed));
+
+
+            Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, statusLabel);
             rows.add(row);  
         }
         visits.close();

@@ -63,6 +63,34 @@ public abstract class Database {
         }
     }
 
+    public enum CreationType {
+        ONLINE, IN_PERSON;
+    }
+
+    public enum DrugType {
+        FOOD, DRUG , ENVIRONMENTAL , INSECT , ANIMAL , PLANT , OTHER;
+    }
+
+    public enum PrescriptionForm {
+         TABLET , CAPSULE , LIQUID , INJECTION , CREAM , OINTMENT , INHALER , SUPPOSITORY , SOLUTION , SUSPENSION , SYRUP , SPRAY , LOZENGE , POWDER , GEL;
+    }
+
+    public enum VaccineGroup {
+        COVID_19 , Influenza , Hepatitis_A , Hepatitis_B , Varicella , Polio , Pneumococcal , MMR , HPV , Shingles;
+    }
+
+    public enum DayOfWeek {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
+    }
+
+    public enum HealthConditionType {
+        PHYSICAL, MENTAL;
+    }
+
+    public enum Units {
+        ML , MG , G , IU , UNITS;
+    }
+
     public static Connection connection;
     public static Integer userID;
     public static Role role;
@@ -494,20 +522,59 @@ public abstract class Database {
         return firstName + " " + lastName;
     }
 
-    public static ResultSet getMyVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
+    public static void insertVisitFor(int userID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        ResultSet upcomingVisit = getUpcomingVisitFor(userID);
+
+        if (upcomingVisit.next()) {
+            throw new SQLException("Upcoming visit already exists");
+        }
+
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO visits (userID, creationType, doctorID, reason, description, date, time) VALUES (?, ?, ?, ?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setString(2, creationType.toString());
+        statement.setInt(3, doctorID);
+        statement.setString(4, reason);
+        statement.setString(5, description);
+        statement.setString(6, date);
+        statement.setString(7, time);
+
+        statement.executeUpdate();
+    }
+
+    public static void insertMyVisit(CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        insertVisitFor(userID, creationType, doctorID, reason, description, date, time);
+    }
+
+    public static ResultSet getVisitsFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? ORDER BY date DESC;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }
 
-    public static ResultSet getVisitFor(int rowID) throws SQLException {
+    public static ResultSet getMyVisits() throws SQLException {
+        return getVisitsFor(userID);
+    }
+
+    public static ResultSet getVisit(int rowID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
         statement.setInt(1, rowID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
+    }
+
+    public static ResultSet getUpcomingVisitFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? AND completed = FALSE AND date >= CURRENT_DATE LIMIT 1;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMyUpcomingVisit() throws SQLException {
+        return getUpcomingVisitFor(userID);
     }
 
     public static int generateRandomToken() {
