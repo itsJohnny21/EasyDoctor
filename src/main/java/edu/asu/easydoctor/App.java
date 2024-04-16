@@ -41,9 +41,12 @@ public class App extends Application {
         });
 
 		WelcomeController.getInstance().load();
+		Bypass.toPatientPortal("barb123", "barb123");
+
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
-		Bypass.toPatientPortal("barb123", "barb123");
+		// Test.signUpTest();
+		// Test.signUpTest();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -65,3 +68,4 @@ public class App extends Application {
 //TODO: Custom dialogs need some major bug fixes and redesign
 //TODO: Fix visits table so that it has a date field and time field separately and make sure rows are unique for date and userID
 //TODO: Add pharmacy to patients table
+//TODO: Fix bug when trying to sign in and the show toggle button is toggled on. Update ShowPasswordGroup to handle this (pass it a button)

@@ -114,25 +114,25 @@ public class PatientPortalController extends Controller {
 
         setCurrentTab(myVisitsPane, myVisitsButton);
 
-        ResultSet visits2 = Database.getMyVisits();
+        ResultSet visits = Database.getMyVisits();
         ArrayList<Row> rows = new ArrayList<>();
 
-        while (visits2.next()) {
-            int rowID = visits2.getInt("ID");
+        while (visits.next()) {
+            int rowID = visits.getInt("ID");
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-            ValueLabel doctorLabel = new ValueLabel(Database.getEmployeeNameFor(visits2.getInt("doctorID")));
-            ValueLabel dateLabel = new ValueLabel(visits2.getDate("date").toLocalDate().format(dateFormatter));
-            ValueLabel dayLabel = new ValueLabel(visits2.getDate("date").toLocalDate().getDayOfWeek().toString());
-            ValueLabel timeLabel = new ValueLabel(visits2.getTime("time").toLocalTime().format(timeFormatter));
-            ValueLabel reasonLabel = new ValueLabel(visits2.getString("reason"));
-            ValueLabel completedLabel = new ValueLabel(visits2.getBoolean("completed") ? "Complete" : "Incomplete");
+            ValueLabel doctorLabel = new ValueLabel(Database.getEmployeeNameFor(visits.getInt("doctorID")));
+            ValueLabel dateLabel = new ValueLabel(visits.getDate("date").toLocalDate().format(dateFormatter));
+            ValueLabel dayLabel = new ValueLabel(visits.getDate("date").toLocalDate().getDayOfWeek().toString());
+            ValueLabel timeLabel = new ValueLabel(visits.getTime("time").toLocalTime().format(timeFormatter));
+            ValueLabel reasonLabel = new ValueLabel(visits.getString("reason"));
+            ValueLabel completedLabel = new ValueLabel(visits.getBoolean("completed") ? "Complete" : "Incomplete");
 
             Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, completedLabel);
             rows.add(row);  
         }
-        visits2.close();
+        visits.close();
 
         SelectableTable myVisitsTables = new SelectableTable();
         myVisitsTables

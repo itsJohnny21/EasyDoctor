@@ -78,7 +78,7 @@ public class SignInController extends Controller {
             usernameTextField.getStyleClass().add("error");
             return;
         }
-        
+
         if (passwordField.getText().isEmpty()) {
             passwordField.requestFocus();
             passwordField.getStyleClass().add("error");
