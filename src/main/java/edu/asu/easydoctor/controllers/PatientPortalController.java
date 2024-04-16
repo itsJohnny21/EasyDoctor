@@ -33,7 +33,7 @@ public class PatientPortalController extends Controller {
     
     @FXML public AnchorPane myVisitsPane;
     @FXML public AnchorPane myPillsPane;
-    @FXML public AnchorPane usernamePane;
+    @FXML public AnchorPane myAccountPane;
     
     @FXML public Button myVisitsButton;
     @FXML public Button myPillsButton;
@@ -130,7 +130,6 @@ public class PatientPortalController extends Controller {
             String time = visits.getTime("time").toLocalTime().format(timeFormatter);
             String date = visits.getDate("date").toLocalDate().format(dateFormatter);
             String reason = visits.getString("reason");
-            String description = visits.getString("description");
             boolean completed = visits.getBoolean("completed");
 
             LocalDateTime dateTime = LocalDateTime.of(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime());
@@ -205,11 +204,11 @@ public class PatientPortalController extends Controller {
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
-        if (currentTab == usernamePane) {
+        if (currentTab == myAccountPane) {
             return;
         }
 
-        setCurrentTab(usernamePane, usernameButton);
+        setCurrentTab(myAccountPane, usernameButton);
     }
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {

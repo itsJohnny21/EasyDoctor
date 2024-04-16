@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
@@ -498,6 +499,41 @@
                </rowConstraints>
                <children>
                   <Button fx:id="inboxNewMessageButton" mnemonicParsing="false" onAction="#handleNewMessageButtonAction" prefHeight="40.0" prefWidth="200.0" text="New Message" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                     <font>
+                        <Font name="Arial" size="21.0" />
+                     </font>
+                  </Button>
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="myAccountPane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false">
+         <children>
+            <HBox prefHeight="120.0" prefWidth="1512.0">
+               <children>
+                  <Label alignment="CENTER" prefHeight="170.0" prefWidth="1512.0" text="Account Settings" textAlignment="CENTER">
+                     <font>
+                        <Font name="Arial" size="42.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <ScrollPane fitToWidth="true" layoutY="120.0" prefHeight="520.0" prefWidth="1512.0" />
+            <GridPane layoutY="690.0" prefHeight="102.0" prefWidth="1512.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Button fx:id="inboxNewMessageButton1" mnemonicParsing="false" onAction="#handleNewMessageButtonAction" prefHeight="40.0" prefWidth="200.0" text="New Message" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <GridPane.margin>
                         <Insets />
                      </GridPane.margin>
