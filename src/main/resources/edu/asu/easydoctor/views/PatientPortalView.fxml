@@ -332,7 +332,7 @@
             <TextArea fx:id="scheduleVisitDescriptionTextArea" layoutX="506.0" layoutY="272.0" prefHeight="200.0" prefWidth="500.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="inboxPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;">
+      <AnchorPane fx:id="chatPane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false">
          <children>
             <HBox prefHeight="120.0" prefWidth="1512.0" AnchorPane.bottomAnchor="670.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
@@ -343,7 +343,7 @@
                   </Label>
                </children>
             </HBox>
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" layoutY="120.0" prefHeight="470.0" prefWidth="1512.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="120.0">
+            <ScrollPane fx:id="chatScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="120.0" prefHeight="470.0" prefWidth="1512.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="120.0">
                <content>
                   <GridPane alignment="CENTER" prefHeight="511.0" prefWidth="1510.0" vgap="30.0">
                     <columnConstraints>
@@ -563,7 +563,7 @@
             </GridPane>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="myAccountPane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false">
+      <AnchorPane fx:id="usernamePane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false">
          <children>
             <HBox prefHeight="120.0" prefWidth="1512.0">
                <children>

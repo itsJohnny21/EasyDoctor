@@ -28,6 +28,11 @@ import javafx.stage.Window;
 
 public class Test {
 
+	// @Test
+	// public void scheduleVisit() throws Exception {
+	// 	assertEquals(1, 1);
+	// }
+
 	public static void signIn() throws Exception {
 		PreparedStatement statement;
 

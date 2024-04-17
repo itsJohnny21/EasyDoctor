@@ -2,6 +2,7 @@ package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,19 +32,15 @@ public class PatientPortalController extends Controller {
     public Button currentButton;
     public DialogController currentDialog;
     
-    @FXML public AnchorPane myVisitsPane;
-    @FXML public AnchorPane myPillsPane;
-    @FXML public AnchorPane myAccountPane;
-    
-    @FXML public Button myVisitsButton;
-    @FXML public Button myPillsButton;
-    @FXML public Button usernameButton;
     @FXML public Button signOutButton;
     
-    @FXML public ScrollPane myVisitsScrollPane;
-    @FXML public ScrollPane myPillsScrollPane;
+    @FXML public AnchorPane usernamePane;
+    @FXML public Button usernameButton;
     @FXML public ScrollPane usernameScrollPane;
-    @FXML public ScrollPane signOutScrollPane;
+    
+    @FXML public AnchorPane myVisitsPane;
+    @FXML public ScrollPane myVisitsScrollPane;
+    @FXML public Button myVisitsButton;
     
     @FXML public AnchorPane myInformationPane;
     @FXML public ScrollPane myInformationScrollPane;
@@ -51,11 +48,6 @@ public class PatientPortalController extends Controller {
     @FXML public Button myInformationEditButton;
     @FXML public Button myInformationSaveButton;
     @FXML public Button myInformationCancelButton;
-
-    @FXML public AnchorPane inboxPane;
-    @FXML public ScrollPane inboxScrollPane;
-    @FXML public Button inboxButton;
-    @FXML public Button inboxNewMessageButton;
     
     @FXML public AnchorPane scheduleVisitPane;
     @FXML public ScrollPane scheduleVisitScrollPane;
@@ -64,6 +56,16 @@ public class PatientPortalController extends Controller {
     @FXML public ChoiceBox<String> scheduleVisitDateChoiceBox;
     @FXML public ChoiceBox<String> scheduleVisitTimeChoiceBox;
     @FXML public TextArea scheduleVisitDescriptionTextArea;
+
+    @FXML public AnchorPane chatPane;
+    @FXML public ScrollPane chatScrollPane;
+    @FXML public Button chatButton;
+    @FXML public Button inboxNewMessageButton;
+    
+    @FXML public AnchorPane myPillsPane;
+    @FXML public ScrollPane myPillsScrollPane;
+    @FXML public Button myPillsButton;
+    
 
     public static PatientPortalController instance = null;
     public static final String TITLE = "Patient Portal";
@@ -100,7 +102,7 @@ public class PatientPortalController extends Controller {
             } else if (event.getCode() == KeyCode.DIGIT3) {
                 scheduleVisitButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT4) {
-                inboxButton.fire();
+                chatButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT5) {
                 myPillsButton.fire();
             }
@@ -187,12 +189,32 @@ public class PatientPortalController extends Controller {
         setCurrentTab(scheduleVisitPane, scheduleVisitButton);
     }
 
-    @FXML public void handleInboxButtonAction(ActionEvent event) {
-        if (currentTab == inboxPane) {
+    @FXML public void handleChatButtonAction(ActionEvent event) throws SQLException {
+        if (currentTab == chatPane) {
             return;
         }
 
-        setCurrentTab(inboxPane, inboxButton);
+        setCurrentTab(chatPane, chatButton);
+
+        ResultSet messages = Database.getMyChatMessages();
+
+        while (messages.next()) {
+            LocalDateTime creationTime = messages.getTimestamp("creationTime").toLocalDateTime();
+            String message = messages.getString("message");
+            boolean readStatus = messages.getBoolean("readStatus");
+            int senderID = messages.getInt("senderID");
+            int receiverID = messages.getInt("receiverID");
+
+            if (senderID == 3) {
+                System.out.println("Doctor: " + message);
+            } else {
+                System.out.println("Patient: " + message);
+            }
+            System.out.println("Read: " + readStatus);
+            System.out.println("Sent: " + creationTime);
+            System.out.println();
+        }
+        messages.close();
     }
 
     @FXML public void handleMyPillsButtonAction(ActionEvent event) {
@@ -204,11 +226,11 @@ public class PatientPortalController extends Controller {
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
-        if (currentTab == myAccountPane) {
+        if (currentTab == usernamePane) {
             return;
         }
 
-        setCurrentTab(myAccountPane, usernameButton);
+        setCurrentTab(usernamePane, usernameButton);
     }
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {

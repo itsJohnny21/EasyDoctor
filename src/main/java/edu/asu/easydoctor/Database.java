@@ -577,6 +577,42 @@ public abstract class Database {
         return getUpcomingVisitFor(userID);
     }
 
+    public static ResultSet getMyChatMessages() throws SQLException {
+        if (role == Role.PATIENT) {
+            return getChatMessagesForPatient(userID);
+        } else {
+            return getChatMessagesForEmployee(userID);
+        }
+    }
+
+    public static ResultSet getChatMessagesForEmployee(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
+        statement.setInt(1, userID);
+        statement.setInt(2, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getChatMessagesForPatient(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        int doctorID = resultSet.getInt("preferredDoctorID");
+
+        statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = ? AND senderID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY creationTime ASC;");
+        statement.setInt(1, doctorID);
+        statement.setInt(2, userID);
+        statement.setInt(3, doctorID);
+        statement.setInt(4, userID);
+
+        resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
     }
