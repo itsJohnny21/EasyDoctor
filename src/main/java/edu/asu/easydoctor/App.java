@@ -9,7 +9,6 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import tests.Bypass;
 
 public class App extends Application {
 
@@ -42,7 +41,7 @@ public class App extends Application {
 
 
 		WelcomeController.getInstance().load();
-		Bypass.toPatientPortal("barb123", "barb123");
+		// Bypass.toPatientPortal("barb123", "barb123");
 		
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");

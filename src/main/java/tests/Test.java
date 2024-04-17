@@ -69,15 +69,12 @@ public class Test {
 		LocalDateTime localDateTime = Utilities.convertUTCtoLocal(resultSet.getTimestamp("creationTime"));
 		statement.close();
 
-		System.out.println("UTCDateTime: " + UTCDateTime);
-		System.out.println("localDateTime: " + localDateTime);
-		
 		if (UTCDateTime.getHour() - localDateTime.getHour() == LocalDateTime.now(ZoneId.of("UTC")).getHour() - LocalDateTime.now().getHour()) {
 			System.out.println("Test passed");
 		} else {
 			System.out.println("Test failed");
 		}
-		System.exit(0);
+		App.quit();
 	}
 
 	public static void signIn() throws Exception {
@@ -118,7 +115,7 @@ public class Test {
 		} else {
 			System.out.println("Test failed");
 		}
-		System.exit(0);
+		App.quit();
 	}
 
 	public static void signUp() throws SQLException, UnknownHostException, Exception {
@@ -166,7 +163,7 @@ public class Test {
 		} else {
 			System.out.println("Test failed");
 		}
-		System.exit(0);
+		App.quit();
 	}
 
 	public static void resetPassword() throws SQLException, UnknownHostException, Exception {
@@ -198,19 +195,40 @@ public class Test {
 		ForgotUsernamePasswordController forgotUsernamePasswordController = ForgotUsernamePasswordController.getInstance();
 		forgotUsernamePasswordController.roleChoiceBox.setValue(Role.PATIENT.toString());
 		forgotUsernamePasswordController.emailTextField.setText("jsalazar6421@gmail.com");
+		new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			Platform.runLater(() -> {
+				for (Window window : Window.getWindows()) {
+					if (window instanceof Stage) {
+						Stage stage = (Stage) window;
+						if (stage.getScene().getRoot() instanceof DialogPane) {
+							String token = "";
+							try {
+								PreparedStatement statement2 = Database.connection.prepareStatement("SELECT token FROM resetPasswordTokens ORDER BY creationTime DESC LIMIT 1");
+								ResultSet resultSet2 = statement2.executeQuery();
+								resultSet2.next();
+								token = resultSet2.getString("token");
+							} catch (SQLException e) {
+							}
+					
+							ResetPasswordController resetPasswordController = ResetPasswordController.getInstance();
+							resetPasswordController.resetPasswordTokenTextField.setText(token);
+							resetPasswordController.newPasswordField.setText("passworD2!");
+							resetPasswordController.confirmNewPasswordField.setText("passworD2!");
+							closeShowAndWait();
+							resetPasswordController.resetButton.fire();
+							break;
+						}
+					}
+				}
+			});
+		}).start();
 		forgotUsernamePasswordController.sendEmailButton.fire();
-
-		statement = Database.connection.prepareStatement("SELECT token FROM resetPasswordTokens ORDER BY creationTime DESC LIMIT 1");
-		resultSet = statement.executeQuery();
-		resultSet.next();
-		int token = resultSet.getInt("token");
-
-		ResetPasswordController resetPasswordController = ResetPasswordController.getInstance();
-		resetPasswordController.resetPasswordTokenTextField.setText(String.valueOf(token));
-		resetPasswordController.newPasswordField.setText("passworD2!");
-		resetPasswordController.confirmNewPasswordField.setText("passworD2!");
-		closeShowAndWait();
-		resetPasswordController.resetButton.fire();
 
 		statement = Database.connection.prepareStatement("SELECT password FROM users WHERE password = SHA2('passworD2!', 256);");
 		resultSet = statement.executeQuery();
@@ -220,7 +238,7 @@ public class Test {
 		} else {
 			System.out.println("Test failed");
 		}
-		System.exit(0);
+		App.quit();
 	}
 
 	public static void closeShowAndWait() {
