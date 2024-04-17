@@ -3,6 +3,7 @@ package edu.asu.easydoctor;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
@@ -64,5 +65,10 @@ public class Utilities {
         } else {
             return "Upcoming";
         }
+    }
+
+    public static String prettyDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMM d '@' h:mm a");
+        return dateTime.format(formatter);
     }
 }

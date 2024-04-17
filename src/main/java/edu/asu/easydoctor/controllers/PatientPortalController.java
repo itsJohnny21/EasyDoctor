@@ -2,7 +2,6 @@ package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -13,15 +12,20 @@ import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
 import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.ValueLabel;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class PatientPortalController extends Controller {
 
@@ -61,6 +65,7 @@ public class PatientPortalController extends Controller {
     @FXML public ScrollPane chatScrollPane;
     @FXML public Button chatButton;
     @FXML public Button inboxNewMessageButton;
+    @FXML public Label doctorNameLabel;
     
     @FXML public AnchorPane myPillsPane;
     @FXML public ScrollPane myPillsScrollPane;
@@ -108,6 +113,8 @@ public class PatientPortalController extends Controller {
             }
         });
 
+        //! Delete me!
+        // chatScrollPane.setContent(new Label("Chat coming soon!"));
         myVisitsButton.fire();
     }
 
@@ -189,7 +196,7 @@ public class PatientPortalController extends Controller {
         setCurrentTab(scheduleVisitPane, scheduleVisitButton);
     }
 
-    @FXML public void handleChatButtonAction(ActionEvent event) throws SQLException {
+    @FXML public void handleChatButtonAction(ActionEvent event) throws Exception {
         if (currentTab == chatPane) {
             return;
         }
@@ -197,6 +204,14 @@ public class PatientPortalController extends Controller {
         setCurrentTab(chatPane, chatButton);
 
         ResultSet messages = Database.getMyChatMessages();
+        int myID = Database.getMyID();
+        String myDoctor = Database.getMyDoctor();
+        doctorNameLabel.setText(myDoctor);
+        
+        GridPane contentPane = new GridPane();
+        Utilities.addClass(contentPane, "chat-content-pane");
+
+        int counter = 0;
 
         while (messages.next()) {
             LocalDateTime creationTime = messages.getTimestamp("creationTime").toLocalDateTime();
@@ -205,16 +220,56 @@ public class PatientPortalController extends Controller {
             int senderID = messages.getInt("senderID");
             int receiverID = messages.getInt("receiverID");
 
-            if (senderID == 3) {
-                System.out.println("Doctor: " + message);
+            VBox messageVBox = new VBox();
+            Utilities.addClass(messageVBox, "chat-message-vbox");
+
+            HBox messageHBox = new HBox();
+            Utilities.addClass(messageHBox, "chat-message-hbox");
+
+            Label dateTimeLabel = new Label(Utilities.prettyDateTime(creationTime));
+            Label messageLabel = new Label(message);
+            messageLabel.setWrapText(true);
+
+            if (senderID == myID) {
+                // Image icon = new Image(getClass().getResourceAsStream("/icons/patient.png")); //! Not working. Use fontAwesome instead
+                // ImageView iconView = new ImageView(icon);
+                // HBox.setMargin(iconView, new Insets(0, 50, 0, 50));
+
+                Utilities.addClass(messageVBox, "chat-message-vbox-right");
+                Utilities.addClass(messageHBox, "chat-message-hbox-right");
+                GridPane.setMargin(messageVBox, new Insets(0, 0, 0, 500));
+                VBox.setMargin(dateTimeLabel, new Insets(0, 50, 0, 0));
+
+                messageHBox.getChildren().add(messageLabel);
+                // messageHBox.getChildren().add(iconView);
             } else {
-                System.out.println("Patient: " + message);
+                // Image icon = new Image(getClass().getResourceAsStream("/icons/doctor.png")); //! Not working. Use fontAwesome instead
+                // ImageView iconView = new ImageView(icon);
+                // HBox.setMargin(iconView, new Insets(0, 50, 0, 50));
+
+                Utilities.addClass(messageVBox, "chat-message-vbox-left");
+                Utilities.addClass(messageHBox, "chat-message-hbox-left");
+                GridPane.setMargin(messageVBox, new Insets(0, 500, 0, 0));
+                VBox.setMargin(dateTimeLabel, new Insets(0, 0, 0, 50));
+
+                // messageHBox.getChildren().add(iconView);
+                messageHBox.getChildren().add(messageLabel);
             }
-            System.out.println("Read: " + readStatus);
-            System.out.println("Sent: " + creationTime);
-            System.out.println();
+
+            messageVBox.getChildren().add(dateTimeLabel);
+            messageVBox.getChildren().add(messageHBox);
+            contentPane.add(messageVBox, 0, counter++);
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    messageHBox.prefHeightProperty().bind(messageLabel.heightProperty());
+                }
+            });
         }
         messages.close();
+            
+        chatScrollPane.setContent(contentPane);
     }
 
     @FXML public void handleMyPillsButtonAction(ActionEvent event) {

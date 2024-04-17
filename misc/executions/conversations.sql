@@ -44,6 +44,10 @@ VALUES ('I am sorry, but I cannot provide you with more drugs.', 3, 2);
 SET @rowID = LAST_INSERT_ID();
 UPDATE conversations SET readStatus = TRUE WHERE ID = @rowID;
 
+INSERT INTO conversations (message, senderID, receiverID)
+VALUES ('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', 2, 3);
+
+
 select * from users;
 select * from conversations;
 use easydoctor;

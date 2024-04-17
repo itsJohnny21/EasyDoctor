@@ -6,7 +6,6 @@ module edu.asu.easydoctor {
     requires javax.mail;
     requires javafx.graphics;
     requires java.desktop;
-    // requires java.junit.jupiter;
 
     opens edu.asu.easydoctor.controllers to javafx.fxml;
     exports edu.asu.easydoctor;

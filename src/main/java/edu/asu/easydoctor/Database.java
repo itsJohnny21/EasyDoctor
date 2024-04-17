@@ -613,6 +613,10 @@ public abstract class Database {
         return resultSet;
     }
 
+    public static Integer getMyID() {
+        return userID;
+    }
+
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
     }

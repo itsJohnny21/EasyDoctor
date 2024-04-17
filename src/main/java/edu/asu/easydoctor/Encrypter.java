@@ -36,7 +36,7 @@ public  class Encrypter {
         algorithm = props.getProperty("db_algorithm");
     }
 
-    private Encrypter() {
+    private Encrypter() { //! Turn into a singleton
         System.out.println("Encrypter created! This should not happen! Use static methods instead!");
     }
 

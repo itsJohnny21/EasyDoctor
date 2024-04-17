@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.gluonhq.charm.glisten.control.Icon?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
@@ -332,11 +333,11 @@
             <TextArea fx:id="scheduleVisitDescriptionTextArea" layoutX="506.0" layoutY="272.0" prefHeight="200.0" prefWidth="500.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="chatPane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false">
+      <AnchorPane fx:id="chatPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;">
          <children>
             <HBox prefHeight="120.0" prefWidth="1512.0" AnchorPane.bottomAnchor="670.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="120.0" prefWidth="1512.0" text="Doctor Name" textAlignment="CENTER">
+                  <Label fx:id="doctorNameLabel" alignment="CENTER" prefHeight="120.0" prefWidth="1512.0" text="Doctor Name" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="42.0" />
                      </font>
@@ -357,19 +358,22 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
-                              <Label alignment="CENTER" prefWidth="756.0" text="Tuesday, Apr 16 @ 5:48 PM" textAlignment="CENTER">
+                              <Label prefWidth="1010.0" text="Tuesday, Apr 16 @ 5:48 PM" textAlignment="CENTER">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
+                                 <VBox.margin>
+                                    <Insets left="50.0" />
+                                 </VBox.margin>
                               </Label>
-                              <HBox prefHeight="100.0" prefWidth="200.0">
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                                  <children>
                                     <Button minWidth="100.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0" text="Button">
                                        <HBox.margin>
                                           <Insets left="50.0" right="50.0" />
                                        </HBox.margin>
                                     </Button>
-                                    <Label contentDisplay="RIGHT" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." textOverrun="CENTER_ELLIPSIS" wrapText="true">
+                                    <Label contentDisplay="RIGHT" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." wrapText="true">
                                        <HBox.margin>
                                           <Insets />
                                        </HBox.margin>
@@ -386,14 +390,17 @@
                         </VBox>
                         <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
                            <children>
-                              <Label alignment="CENTER" prefWidth="756.0" text="Tuesday, Apr 16 @ 5:50 PM" textAlignment="CENTER">
+                              <Label alignment="CENTER_RIGHT" prefWidth="1010.0" text="Tuesday, Apr 16 @ 5:50 PM" textAlignment="CENTER">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
+                                 <VBox.margin>
+                                    <Insets right="50.0" />
+                                 </VBox.margin>
                               </Label>
-                              <HBox prefHeight="100.0" prefWidth="200.0">
+                              <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                                  <children>
-                                    <Label contentDisplay="RIGHT" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." textOverrun="CENTER_ELLIPSIS" wrapText="true">
+                                    <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Hello how are you" textOverrun="CENTER_ELLIPSIS" wrapText="true">
                                        <HBox.margin>
                                           <Insets />
                                        </HBox.margin>
@@ -413,6 +420,7 @@
                               <Insets left="500.0" />
                            </GridPane.margin>
                         </VBox>
+                        <Icon content="HELP_OUTLINE" GridPane.rowIndex="2" />
                      </children>
                   </GridPane>
                </content></ScrollPane>
