@@ -179,9 +179,9 @@ public abstract class Database {
     }
 
     public static Integer insertUser(String username, String password, Role role) throws Exception {
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, SHA2(?, 256), ?);");
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, ?, ?);");
         statement.setString(1, username);
-        statement.setString(2, password);
+        statement.setString(2, Encrypter.SHA256(password));
         statement.setString(3, role.toString());
         statement.executeUpdate();
 
@@ -205,9 +205,9 @@ public abstract class Database {
             throw new SQLException("Invalid role");
         }
 
-        PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ? AND password = SHA2(?, 256) AND role = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ? AND password = ? AND role = ?;");
         statement.setString(1, managerUsername);
-        statement.setString(2, managerPassword);
+        statement.setString(2, Encrypter.SHA256(managerPassword));
         statement.setString(3, Role.DOCTOR.toString()); //! Change to manager in the future
 
         ResultSet resultSet = statement.executeQuery();
@@ -324,9 +324,9 @@ public abstract class Database {
     public static boolean signIn(String username, String password) throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
         boolean successful = false;
 
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, username, role FROM users WHERE username = ? AND password = SHA2(?, 256);");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, username, role FROM users WHERE username = ? AND password = ?;");
         statement.setString(1, username);
-        statement.setString(2, password);
+        statement.setString(2, Encrypter.SHA256(password));
 
         ResultSet resultSet = statement.executeQuery();
         successful = resultSet.next();
@@ -438,7 +438,7 @@ public abstract class Database {
 
     }
 
-    public static void resetPassword(int token, String password) throws SQLException, ExpiredResetPasswordTokenException, InvalidResetPasswordTokenException{
+    public static void resetPassword(int token, String password) throws SQLException, ExpiredResetPasswordTokenException, InvalidResetPasswordTokenException, NoSuchAlgorithmException, UnsupportedEncodingException {
         PreparedStatement statement = connection.prepareStatement("SELECT userID, creationTime, used FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
         statement.setInt(1, token);
         ResultSet resultSet = statement.executeQuery();
@@ -456,8 +456,8 @@ public abstract class Database {
                 throw new ExpiredResetPasswordTokenException();
             }
 
-            statement = connection.prepareStatement("UPDATE users SET password = SHA2(?, 256) WHERE ID = ?;");
-            statement.setString(1, password);
+            statement = connection.prepareStatement("UPDATE users SET password = ? WHERE ID = ?;");
+            statement.setString(1, Encrypter.SHA256(password));
             statement.setInt(2, userID);
             statement.executeUpdate();
 
