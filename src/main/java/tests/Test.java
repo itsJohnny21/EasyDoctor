@@ -5,6 +5,8 @@ import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.CountDownLatch;
 
 import edu.asu.easydoctor.App;
@@ -13,6 +15,7 @@ import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Database.Sex;
+import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.controllers.ForgotUsernamePasswordController;
 import edu.asu.easydoctor.controllers.ResetPasswordController;
 import edu.asu.easydoctor.controllers.SignInController;
@@ -29,9 +32,53 @@ import javafx.stage.Window;
 public class Test {
 
 	// @Test
-	// public void scheduleVisit() throws Exception {
-	// 	assertEquals(1, 1);
-	// }
+	public static void convertUTCtoLocal() throws Exception {
+		Database.connect();
+		PreparedStatement statement;
+
+		statement = Database.connection.prepareStatement("SELECT ID FROM users WHERE username = 'convertUTCtoLocalTest';");
+		ResultSet resultSet = statement.executeQuery();
+
+		if (!resultSet.next()) {
+			statement = Database.connection.prepareStatement("INSERT INTO users (username, password, role) VALUES ('convertUTCtoLocalTest', SHA2('convertUTCtoLocalTest', 256), 'PATIENT');");
+			statement.executeUpdate();
+			convertUTCtoLocal();
+			return;
+		}
+
+		Database.signIn("convertUTCtoLocalTest", "convertUTCtoLocalTest");
+		int userID = Database.userID;
+		
+		statement.close();
+		statement = Database.connection.prepareStatement("SELECT creationTime FROM conversations WHERE senderID = ? OR receiverID = ? LIMIT 1;");
+		statement.setInt(1, userID);
+		statement.setInt(2, userID);
+		resultSet = statement.executeQuery();
+
+		if (!resultSet.next()) {
+			statement = Database.connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, 'test message');");
+			statement.setInt(1, userID);
+			statement.setInt(2, userID);
+			statement.executeUpdate();
+			statement.close();
+			convertUTCtoLocal();
+			return;
+		}
+
+		LocalDateTime UTCDateTime = resultSet.getTimestamp("creationTime").toLocalDateTime();
+		LocalDateTime localDateTime = Utilities.convertUTCtoLocal(resultSet.getTimestamp("creationTime"));
+		statement.close();
+
+		System.out.println("UTCDateTime: " + UTCDateTime);
+		System.out.println("localDateTime: " + localDateTime);
+		
+		if (UTCDateTime.getHour() - localDateTime.getHour() == LocalDateTime.now(ZoneId.of("UTC")).getHour() - LocalDateTime.now().getHour()) {
+			System.out.println("Test passed");
+		} else {
+			System.out.println("Test failed");
+		}
+		System.exit(0);
+	}
 
 	public static void signIn() throws Exception {
 		PreparedStatement statement;
