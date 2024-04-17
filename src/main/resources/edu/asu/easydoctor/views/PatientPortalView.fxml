@@ -164,7 +164,7 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="scheduleVisitButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" text="Schedule Visit" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="scheduleVisitButton" mnemonicParsing="false" onAction="#handleScheduleVisitButtonAction" prefHeight="40.0" prefWidth="200.0" text="Schedule Visit" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <GridPane.margin>
                         <Insets />
                      </GridPane.margin>
