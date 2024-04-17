@@ -15,6 +15,7 @@ public class App extends Application {
 
 	public static Properties properties;
 	public static Stage primaryStage;
+	int johnny = 0;
 
 	static {
 		properties = new Properties();
