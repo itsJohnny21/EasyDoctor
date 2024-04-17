@@ -2,8 +2,6 @@ package edu.asu.easydoctor.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
@@ -83,25 +81,20 @@ public class SelectedVisitController extends DialogController {
         ResultSet visit = Database.getVisit(rowID);
 
         if (visit.next()) {
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-
             String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
             String dayOfWeek = visit.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String time = visit.getTime("time").toLocalTime().format(timeFormatter);
-            String date = visit.getDate("date").toLocalDate().format(dateFormatter);
+            String time = Utilities.prettyTime(visit.getTime("time"));
+            String date = Utilities.prettyDate(visit.getDate("date"));
             String reason = visit.getString("reason");
             String description = visit.getString("description");
             boolean completed = visit.getBoolean("completed");
-
-            LocalDateTime dateTime = LocalDateTime.of(visit.getDate("date").toLocalDate(), visit.getTime("time").toLocalTime());
 
             doctorLabel.setText(doctor);
             dateLabel.setText(date);
             dayLabel.setText(dayOfWeek);
             timeLabel.setText(time);
             reasonLabel.setText(reason);
-            statusLabel.setText(Utilities.getVisitStatus(dateTime, completed));
+            statusLabel.setText(Utilities.getVisitStatus(visit.getDate("date"), visit.getTime("time"), completed));
             descriptionTextArea.setText(description);
         }
         visit.close();

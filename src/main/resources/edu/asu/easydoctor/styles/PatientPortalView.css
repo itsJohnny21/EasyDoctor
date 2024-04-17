@@ -157,6 +157,11 @@
 
 .chat-content-pane {
     -fx-min-width: 1512px;
+    -fx-max-width: 1512px;
+    -fx-vgap: 30;
+}
+
+.chat-message-label {
 }
 
 .chat-message-vbox-right {
@@ -185,4 +190,16 @@
     -fx-min-width: 100px;
     -fx-font-size: 32pt;
     -fx-font-family: "Arial";
+}
+
+.chat-icon-vbox {
+    -fx-alignment: top-center;
+}
+
+.chat-icon {
+
+}
+
+.error {
+    -fx-border-color: #ff0000
 }

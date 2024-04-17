@@ -2,11 +2,12 @@ package edu.asu.easydoctor.controllers;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
@@ -21,7 +22,10 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -64,8 +68,10 @@ public class PatientPortalController extends Controller {
     @FXML public AnchorPane chatPane;
     @FXML public ScrollPane chatScrollPane;
     @FXML public Button chatButton;
-    @FXML public Button inboxNewMessageButton;
-    @FXML public Label doctorNameLabel;
+    @FXML public Button chatSendButton;
+    @FXML public Button chatChangeDoctorButton;
+    @FXML public TextArea chatMessageTextArea;
+    @FXML public Label chatDoctorNameLabel;
     
     @FXML public AnchorPane myPillsPane;
     @FXML public ScrollPane myPillsScrollPane;
@@ -77,6 +83,7 @@ public class PatientPortalController extends Controller {
     public static final boolean RESIZABLE = true;
     public static final String VIEW_FILENAME = "PatientPortalView";
     public static final String STYLE_FILENAME = "PatientPortalView";
+    public final Integer myID = Database.getMyID();
 
     private PatientPortalController() {
         title = TITLE;
@@ -114,15 +121,31 @@ public class PatientPortalController extends Controller {
         });
 
         //! Delete me!
-        // chatScrollPane.setContent(new Label("Chat coming soon!"));
+        chatPane.setVisible(false);
+        chatPane.setDisable(true);
+        chatScrollPane.setContent(null);
+
+        //! Keep me!
+        chatMessageTextArea.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                event.consume();
+            }
+        });
+
+        chatMessageTextArea.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                if (event.isShiftDown()) {
+                    chatMessageTextArea.appendText("\n");
+                } else {
+                    chatSendButton.fire();
+                }
+            }
+        });
+
         myVisitsButton.fire();
     }
 
     @FXML public void handleMyVisitsButtonAction(ActionEvent event) throws Exception {
-        if (currentTab == myVisitsPane) {
-            return;
-        }
-
         setCurrentTab(myVisitsPane, myVisitsButton);
 
         ResultSet visits = Database.getMyVisits();
@@ -131,24 +154,19 @@ public class PatientPortalController extends Controller {
         while (visits.next()) {
             int rowID = visits.getInt("ID");
 
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-
             String doctor = Database.getEmployeeNameFor(visits.getInt("doctorID"));
             String dayOfWeek = visits.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String time = visits.getTime("time").toLocalTime().format(timeFormatter);
-            String date = visits.getDate("date").toLocalDate().format(dateFormatter);
+            String date = Utilities.prettyDate(visits.getDate("date"));
+            String time = Utilities.prettyTime(visits.getTime("time"));
             String reason = visits.getString("reason");
             boolean completed = visits.getBoolean("completed");
-
-            LocalDateTime dateTime = LocalDateTime.of(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime());
 
             ValueLabel doctorLabel = new ValueLabel(doctor);
             ValueLabel dateLabel = new ValueLabel(date);
             ValueLabel dayLabel = new ValueLabel(dayOfWeek);
             ValueLabel timeLabel = new ValueLabel(time);
             ValueLabel reasonLabel = new ValueLabel(reason);
-            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatus(dateTime, completed));
+            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatus(visits.getDate("date"), visits.getTime("time"), completed));
 
 
             Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, statusLabel);
@@ -181,110 +199,37 @@ public class PatientPortalController extends Controller {
     }   
 
     @FXML public void handleMyInformationButtonAction(ActionEvent event) {
-        if (currentTab == myInformationPane) {
-            return;
-        }
-
         setCurrentTab(myInformationPane, myInformationButton);
     }
 
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
-        if (currentTab == scheduleVisitPane) {
-            return;
-        }
-
         setCurrentTab(scheduleVisitPane, scheduleVisitButton);
     }
 
     @FXML public void handleChatButtonAction(ActionEvent event) throws Exception {
-        if (currentTab == chatPane) {
+        setCurrentTab(chatPane, chatButton);
+
+        String doctorName = Database.getMyDoctorName();
+
+        if (doctorName == null) {
+            chatDoctorNameLabel.setText("No doctor assigned");
+            chatPane.setDisable(true);
             return;
         }
 
-        setCurrentTab(chatPane, chatButton);
+        chatDoctorNameLabel.setText(doctorName);
+        loadChatMessages();
+    }
 
-        ResultSet messages = Database.getMyChatMessages();
-        int myID = Database.getMyID();
-        String myDoctor = Database.getMyDoctor();
-        doctorNameLabel.setText(myDoctor);
-        
-        GridPane contentPane = new GridPane();
-        Utilities.addClass(contentPane, "chat-content-pane");
-
-        int counter = 0;
-
-        while (messages.next()) {
-            LocalDateTime creationTime = messages.getTimestamp("creationTime").toLocalDateTime();
-            String message = messages.getString("message");
-            boolean readStatus = messages.getBoolean("readStatus");
-            int senderID = messages.getInt("senderID");
-            int receiverID = messages.getInt("receiverID");
-
-            VBox messageVBox = new VBox();
-            Utilities.addClass(messageVBox, "chat-message-vbox");
-
-            HBox messageHBox = new HBox();
-            Utilities.addClass(messageHBox, "chat-message-hbox");
-
-            Label dateTimeLabel = new Label(Utilities.prettyDateTime(creationTime));
-            Label messageLabel = new Label(message);
-            messageLabel.setWrapText(true);
-
-            if (senderID == myID) {
-                // Image icon = new Image(getClass().getResourceAsStream("/icons/patient.png")); //! Not working. Use fontAwesome instead
-                // ImageView iconView = new ImageView(icon);
-                // HBox.setMargin(iconView, new Insets(0, 50, 0, 50));
-
-                Utilities.addClass(messageVBox, "chat-message-vbox-right");
-                Utilities.addClass(messageHBox, "chat-message-hbox-right");
-                GridPane.setMargin(messageVBox, new Insets(0, 0, 0, 500));
-                VBox.setMargin(dateTimeLabel, new Insets(0, 50, 0, 0));
-
-                messageHBox.getChildren().add(messageLabel);
-                // messageHBox.getChildren().add(iconView);
-            } else {
-                // Image icon = new Image(getClass().getResourceAsStream("/icons/doctor.png")); //! Not working. Use fontAwesome instead
-                // ImageView iconView = new ImageView(icon);
-                // HBox.setMargin(iconView, new Insets(0, 50, 0, 50));
-
-                Utilities.addClass(messageVBox, "chat-message-vbox-left");
-                Utilities.addClass(messageHBox, "chat-message-hbox-left");
-                GridPane.setMargin(messageVBox, new Insets(0, 500, 0, 0));
-                VBox.setMargin(dateTimeLabel, new Insets(0, 0, 0, 50));
-
-                // messageHBox.getChildren().add(iconView);
-                messageHBox.getChildren().add(messageLabel);
-            }
-
-            messageVBox.getChildren().add(dateTimeLabel);
-            messageVBox.getChildren().add(messageHBox);
-            contentPane.add(messageVBox, 0, counter++);
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    messageHBox.prefHeightProperty().bind(messageLabel.heightProperty());
-                }
-            });
-        }
-        messages.close();
-            
-        chatScrollPane.setContent(contentPane);
+    @FXML public void handleChatChangeDoctorButtonAction(ActionEvent event) {
+        myInformationButton.fire();
     }
 
     @FXML public void handleMyPillsButtonAction(ActionEvent event) {
-        if (currentTab == myPillsPane) {
-            return;
-        }
-
         setCurrentTab(myPillsPane, myPillsButton);
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
-        if (currentTab == usernamePane) {
-            return;
-        }
-
         setCurrentTab(usernamePane, usernameButton);
     }
 
@@ -302,7 +247,99 @@ public class PatientPortalController extends Controller {
         // NewMessageController.getInstance().load(); //! Implement this
     }
 
+    @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {
+        chatMessageTextArea.setText(chatMessageTextArea.getText().trim());
+        if (!Utilities.validate(chatMessageTextArea, Utilities.MESSAGE_REGEX)) {
+            return;
+        }
+
+        Database.sendMessageToMyDoctor(chatMessageTextArea.getText());
+        chatMessageTextArea.clear();
+        loadChatMessages();
+    }
+
+    public void loadChatMessages() throws SQLException {
+        ResultSet messages = Database.getMyChatMessages();
+        
+        GridPane content = new GridPane();
+        Utilities.addClass(content, "chat-content-pane");
+
+        int counter = 0;
+
+        while (messages.next()) {
+            LocalDateTime creationTime = Utilities.convertUTCtoLocal(messages.getTimestamp("creationTime"));
+            String message = messages.getString("message");
+            int senderID = messages.getInt("senderID");
+
+            VBox messageVBox = new VBox();
+            Utilities.addClass(messageVBox, "chat-message-vbox");
+
+            HBox messageHBox = new HBox();
+            Utilities.addClass(messageHBox, "chat-message-hbox");
+
+            Label dateTimeLabel = new Label(Utilities.prettyDateTime(creationTime));
+            Utilities.addClass(dateTimeLabel, "chat-date-time-label");
+
+            Label messageLabel = new Label(message);
+            Utilities.addClass(messageLabel, "chat-message-label");
+            messageLabel.setWrapText(true);
+
+            VBox iconVBox = new VBox();
+            Utilities.addClass(iconVBox, "chat-icon-vbox");
+
+            ImageView icon = new ImageView();
+            Utilities.addClass(icon, "chat-icon");
+            iconVBox.getChildren().add(icon);
+
+            if (senderID == myID) {
+                icon.setImage(new Image(App.class.getResourceAsStream("icons/patient.png")));
+                HBox.setMargin(icon, new Insets(0, 50, 0, 10));
+                
+                Utilities.addClass(messageVBox, "chat-message-vbox-right");
+                Utilities.addClass(messageHBox, "chat-message-hbox-right");
+                GridPane.setMargin(messageVBox, new Insets(0, 50, 0, 500));
+                VBox.setMargin(dateTimeLabel, new Insets(0, 100, 0, 0));
+                
+                messageHBox.getChildren().add(messageLabel);
+                messageHBox.getChildren().add(iconVBox);
+                
+            } else {
+                icon.setImage(new Image(App.class.getResourceAsStream("icons/doctor.png")));
+                HBox.setMargin(icon, new Insets(0, 10, 0, 50));
+
+                Utilities.addClass(messageVBox, "chat-message-vbox-left");
+                Utilities.addClass(messageHBox, "chat-message-hbox-left");
+                GridPane.setMargin(messageVBox, new Insets(0, 500, 0, 50));
+                VBox.setMargin(dateTimeLabel, new Insets(0, 0, 0, 100));
+
+                messageHBox.getChildren().add(iconVBox);
+                messageHBox.getChildren().add(messageLabel);
+            }
+
+            icon.setFitWidth(75); //! Do this in css
+            icon.setFitHeight(75); //! Do this in css
+
+            messageVBox.getChildren().add(dateTimeLabel);
+            messageVBox.getChildren().add(messageHBox);
+            content.add(messageVBox, 0, counter++);
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    messageHBox.prefHeightProperty().bind(messageLabel.heightProperty());
+                }
+            });
+        }
+        messages.close();
+            
+        chatScrollPane.setContent(content);
+    }
+
     public void setCurrentTab(AnchorPane pane, Button button) {
+        if (currentTab == pane) {
+            return;
+        }
+
         if (currentTab != null) {
             currentTab.setVisible(false);
             currentTab.setDisable(true);

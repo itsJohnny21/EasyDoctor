@@ -9,7 +9,7 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import tests.Bypass;
+import tests.Test;
 
 public class App extends Application {
 
@@ -42,10 +42,11 @@ public class App extends Application {
 
 
 		WelcomeController.getInstance().load();
-		Bypass.toPatientPortal("barb123", "barb123");
-
+		// Bypass.toPatientPortal("barb123", "barb123");
+		
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
+		Test.convertUTCtoLocal();
 		// Test.signUp();
 		// Test.signUp();
 		// Test.resetPassword();
@@ -74,3 +75,4 @@ public class App extends Application {
 //TODO: Delete branches: PrimaryStage, DialogController, Polish-MyVists, PatientPortal-Base
 //TODO: Fix this warning: WARNING: Loading FXML document with JavaFX API of version 21 by JavaFX runtime of version 18-ea
 //TODO: The visits table must not have a default for time and date, or should it?...
+//TODO: Read field from conversations table is not really needed. Maybe delete?

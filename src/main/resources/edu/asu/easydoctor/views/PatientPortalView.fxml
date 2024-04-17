@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.gluonhq.charm.glisten.control.Icon?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
@@ -335,95 +334,29 @@
       </AnchorPane>
       <AnchorPane fx:id="chatPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;">
          <children>
-            <HBox prefHeight="120.0" prefWidth="1512.0" AnchorPane.bottomAnchor="670.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <GridPane prefHeight="120.0" prefWidth="1512.0" AnchorPane.bottomAnchor="672.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
                <children>
-                  <Label fx:id="doctorNameLabel" alignment="CENTER" prefHeight="120.0" prefWidth="1512.0" text="Doctor Name" textAlignment="CENTER">
+                  <Label fx:id="chatDoctorNameLabel" alignment="CENTER" prefHeight="120.0" prefWidth="1512.0" text="Doctor Name" textAlignment="CENTER" GridPane.columnIndex="1">
                      <font>
                         <Font name="Arial" size="42.0" />
                      </font>
                   </Label>
+                  <Button fx:id="chatChangeDoctorButton" alignment="CENTER" minHeight="40.0" minWidth="100.0" mnemonicParsing="false" onAction="#handleChatChangeDoctorButtonAction" text="Change Doctor" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
+                     <GridPane.margin>
+                        <Insets right="50.0" />
+                     </GridPane.margin>
+                  </Button>
                </children>
-            </HBox>
-            <ScrollPane fx:id="chatScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="120.0" prefHeight="470.0" prefWidth="1512.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="120.0">
-               <content>
-                  <GridPane alignment="CENTER" prefHeight="511.0" prefWidth="1510.0" vgap="30.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <Label prefWidth="1010.0" text="Tuesday, Apr 16 @ 5:48 PM" textAlignment="CENTER">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                                 <VBox.margin>
-                                    <Insets left="50.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
-                                 <children>
-                                    <Button minWidth="100.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0" text="Button">
-                                       <HBox.margin>
-                                          <Insets left="50.0" right="50.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                    <Label contentDisplay="RIGHT" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." wrapText="true">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                       <font>
-                                          <Font name="Arial" size="18.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </HBox>
-                           </children>
-                           <GridPane.margin>
-                              <Insets right="500.0" />
-                           </GridPane.margin>
-                        </VBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
-                           <children>
-                              <Label alignment="CENTER_RIGHT" prefWidth="1010.0" text="Tuesday, Apr 16 @ 5:50 PM" textAlignment="CENTER">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                                 <VBox.margin>
-                                    <Insets right="50.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
-                                 <children>
-                                    <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Hello how are you" textOverrun="CENTER_ELLIPSIS" wrapText="true">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                       <font>
-                                          <Font name="Arial" size="18.0" />
-                                       </font>
-                                    </Label>
-                                    <Button minWidth="100.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0" text="Button">
-                                       <HBox.margin>
-                                          <Insets left="50.0" right="50.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                              </HBox>
-                           </children>
-                           <GridPane.margin>
-                              <Insets left="500.0" />
-                           </GridPane.margin>
-                        </VBox>
-                        <Icon content="HELP_OUTLINE" GridPane.rowIndex="2" />
-                     </children>
-                  </GridPane>
-               </content></ScrollPane>
+            </GridPane>
+            <ScrollPane fx:id="chatScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="120.0" prefHeight="470.0" prefWidth="1512.0" vbarPolicy="NEVER" AnchorPane.bottomAnchor="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="120.0" />
             <GridPane layoutY="690.0" prefHeight="102.0" prefWidth="1512.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -435,9 +368,9 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
             </GridPane>
-            <HBox layoutY="620.0" prefHeight="50.0" prefWidth="1512.0" AnchorPane.bottomAnchor="120.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="620.0">
+            <HBox layoutY="620.0" prefHeight="50.0" prefWidth="1512.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="620.0">
                <children>
-                  <TextArea prefHeight="100.0" prefWidth="1512.0" promptText="Type a message here..." wrapText="true">
+                  <TextArea fx:id="chatMessageTextArea" prefHeight="100.0" prefWidth="1512.0" promptText="Type a message here..." wrapText="true">
                      <HBox.margin>
                         <Insets left="200.0" />
                      </HBox.margin>
@@ -447,7 +380,7 @@
                   </TextArea>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <Button alignment="CENTER" contentDisplay="CENTER" minWidth="100.0" mnemonicParsing="false" prefHeight="40.0" text="Send" textAlignment="CENTER" />
+                        <Button fx:id="chatSendButton" alignment="CENTER" contentDisplay="CENTER" minWidth="100.0" mnemonicParsing="false" onAction="#handleChatSendButtonAction" prefHeight="40.0" text="Send" textAlignment="CENTER" />
                      </children>
                      <HBox.margin>
                         <Insets left="50.0" right="200.0" />

@@ -499,14 +499,30 @@ public abstract class Database {
         }
     }
 
-    public static String getMyDoctor() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
+    public static Integer getMyDoctorID() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
+        if (!resultSet.next()) {
+            return null;
+        }
 
-        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+        int preferredDoctorID = resultSet.getInt("preferredDoctorID");
+        if (resultSet.wasNull()) {
+            return null;
+        }
+        
+        return preferredDoctorID;
+    }
+
+    public static String getMyDoctorName() throws SQLException {
+        Integer doctorID = getMyDoctorID();
+        if (doctorID == null) {
+            return null;
+        }
+
+        return getEmployeeNameFor(doctorID);
     }
 
     public static String getEmployeeNameFor(int employeeID) throws SQLException {
@@ -514,7 +530,9 @@ public abstract class Database {
         statement.setInt(1, employeeID);
 
         ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
+        if (!resultSet.next()) {
+            throw new SQLException("Employee does not exist");
+        }
 
         String firstName = resultSet.getString("firstName");
         String lastName = resultSet.getString("lastName");
@@ -615,6 +633,23 @@ public abstract class Database {
 
     public static Integer getMyID() {
         return userID;
+    }
+
+    public static void sendMessageToMyDoctor(String message) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        int doctorID = resultSet.getInt("preferredDoctorID");
+
+        statement = connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setInt(2, doctorID);
+        statement.setString(3, message);
+
+        statement.executeUpdate();
     }
 
     public static int generateRandomToken() {

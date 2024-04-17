@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
@@ -89,15 +90,15 @@ public class Utilities {
     }
 
     public static LocalDate convertUTCtoLocal(Date date) {
-        return date.toLocalDate().minusDays(date.toLocalDate().getDayOfYear() - LocalDate.now().getDayOfYear());
+        return date.toLocalDate().minusDays(LocalDate.now(ZoneId.of("UTC")).getDayOfYear() - LocalDate.now().getDayOfYear());
     }
 
     public static LocalTime convertUTCtoLocal(Time time) {
-        return time.toLocalTime().minusHours(time.toLocalTime().getHour() - LocalTime.now().getHour());
+        return time.toLocalTime().minusHours(LocalTime.now(ZoneId.of("UTC")).getHour() - LocalTime.now().getHour());
     }
 
     public static LocalDateTime convertUTCtoLocal(Timestamp timestamp) {
-        return timestamp.toLocalDateTime().minusHours(timestamp.toLocalDateTime().getHour() - LocalDateTime.now().getHour());
+        return timestamp.toLocalDateTime().minusHours(LocalDateTime.now(ZoneId.of("UTC")).getHour() - LocalDateTime.now().getHour());
     }
 
     public static String prettyDate(LocalDate localDate) {
