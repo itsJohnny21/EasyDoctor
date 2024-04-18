@@ -42,8 +42,14 @@ public class App extends Application {
 
 
 		WelcomeController.getInstance().load();
-
-		Bypass.toPortal("john123", "john123");
+		Bypass.toPortal("barb123", "barb123");
+		
+		// Bypass.toResetPasswordDialog("newPassworD!1");
+		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
+		// Test.convertUTCtoLocal();
+		// Test.signUp();
+		// Test.signUp();
+		// Test.resetPassword();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
