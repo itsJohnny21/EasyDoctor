@@ -11,7 +11,7 @@ import edu.asu.easydoctor.controllers.WelcomeController;
 
 public class Bypass {
 
-    public static void toPatientPortal(String username, String password) throws Exception {
+    public static void toPortal(String username, String password) throws Exception {
         WelcomeController welcomeController = WelcomeController.getInstance();
         welcomeController.signInButton.fire();
         

@@ -9,6 +9,7 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import tests.Bypass;
 
 public class App extends Application {
 
@@ -41,6 +42,8 @@ public class App extends Application {
 
 
 		WelcomeController.getInstance().load();
+
+		Bypass.toPortal("john123", "john123");
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
