@@ -243,10 +243,6 @@ public class PatientPortalController extends Controller {
         // ScheduleVisitController.getInstance().load(); //! Implement this
     }
 
-    @FXML public void handleNewMessageButtonAction(ActionEvent event) throws IOException {
-        // NewMessageController.getInstance().load(); //! Implement this
-    }
-
     @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {
         chatMessageTextArea.setText(chatMessageTextArea.getText().trim());
         if (!Utilities.validate(chatMessageTextArea, Utilities.MESSAGE_REGEX)) {
