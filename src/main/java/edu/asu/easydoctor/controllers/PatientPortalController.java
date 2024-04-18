@@ -33,7 +33,7 @@ import javafx.scene.layout.VBox;
 
 public class PatientPortalController extends Controller {
 
-    @FXML public AnchorPane mainPane;
+    @FXML public AnchorPane rootPane;
     @FXML public GridPane tabsPane;
 
     public AnchorPane currentTab;
@@ -104,7 +104,7 @@ public class PatientPortalController extends Controller {
 
         usernameButton.setText(Database.getMy("username"));
 
-        mainPane.setOnKeyPressed(event -> {
+        rootPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.S && event.isAltDown()) {
                 signOutButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT1) {
@@ -117,6 +117,8 @@ public class PatientPortalController extends Controller {
                 chatButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT5) {
                 myPillsButton.fire();
+            } else if (event.getCode() == KeyCode.R && event.isMetaDown()) {
+                currentButton.fire();
             }
         });
 
@@ -255,7 +257,7 @@ public class PatientPortalController extends Controller {
     }
 
     public void loadChatMessages() throws SQLException {
-        ResultSet messages = Database.getMyChatMessages();
+        ResultSet messages = Database.getMyMessages();
         
         GridPane content = new GridPane();
         Utilities.addClass(content, "chat-content-pane");
@@ -269,6 +271,8 @@ public class PatientPortalController extends Controller {
 
             VBox messageVBox = new VBox();
             Utilities.addClass(messageVBox, "chat-message-vbox");
+            System.out.println("added message vbox to css");
+            System.out.println("css filename: " + rootPane);
 
             HBox messageHBox = new HBox();
             Utilities.addClass(messageHBox, "chat-message-hbox");
@@ -329,6 +333,9 @@ public class PatientPortalController extends Controller {
         messages.close();
             
         chatScrollPane.setContent(content);
+        chatScrollPane.setVvalue(1.0);
+
+        Database.readAllMessagesWithMyDoctor();
     }
 
     public void setCurrentTab(AnchorPane pane, Button button) {

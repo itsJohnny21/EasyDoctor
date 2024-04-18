@@ -60,3 +60,31 @@ select * from users;
 select * from conversations;
 use easydoctor;
 SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = 2 AND senderID = 3) OR (senderID = 2 AND receiverID = 3) ORDER BY creationTime ASC;
+
+INSERT INTO conversations (message, senderID, receiverID)
+VALUES ('Hello doctor, I am not feeling too well :(', 182, 3);
+SET @rowID = LAST_INSERT_ID();
+UPDATE conversations SET readStatus = TRUE WHERE ID = @rowID;
+
+INSERT INTO conversations (message, senderID, receiverID)
+VALUES ('I am sorry to hear that. What seems to be the problem?', 3, 182);
+SET @rowID = LAST_INSERT_ID();
+UPDATE conversations SET readStatus = TRUE WHERE ID = @rowID;
+
+INSERT INTO conversations (message, senderID, receiverID)
+VALUES ('I am having lots of stomach aches. I need some medication please.', 182, 3);
+SET @rowID = LAST_INSERT_ID();
+UPDATE conversations SET readStatus = TRUE WHERE ID = @rowID;
+
+INSERT INTO conversations (message, senderID, receiverID)
+VALUES ('I will prescribe you some antacids. Take them twice a day.', 3, 182);
+SET @rowID = LAST_INSERT_ID();
+UPDATE conversations SET readStatus = TRUE WHERE ID = @rowID;
+
+SELECT creationTime, message, ID, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = 182 AND senderID = 3) OR (senderID = 182 AND receiverID = 3) ORDER BY creationTime ASC;
+UPDATE conversations SET readStatus = TRUE WHERE receiverID = 2 AND senderID = 3;
+SELECT * FROM conversations;
+SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = 3 OR senderID = 3 ORDER BY creationTime DESC;
+
+sender = doctor1, receiver = patient1
+sender = patient2, receiver = patient1

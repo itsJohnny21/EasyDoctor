@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
@@ -16,6 +18,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -31,12 +34,13 @@ import javafx.scene.layout.VBox;
 
 public class WorkPortalController extends Controller {
 
-    @FXML public AnchorPane mainPane;
-    @FXML public GridPane tabsPane;
-
+    
     public AnchorPane currentTab;
     public Button currentButton;
     public DialogController currentDialog;
+
+    @FXML public AnchorPane rootPane;
+    @FXML public GridPane tabsPane;
     
     @FXML public Button signOutButton;
     
@@ -66,20 +70,26 @@ public class WorkPortalController extends Controller {
     @FXML public AnchorPane inboxPane;
     @FXML public ScrollPane inboxScrollPane;
     @FXML public Button inboxButton;
-    @FXML public Button inboxSendButton;
-    @FXML public TextArea inboxMessageTextArea;
+    @FXML public Button inboxNewMessageButton;
     
     @FXML public AnchorPane prescriptionToolPane;
     @FXML public ScrollPane prescriptionToolScrollPane;
     @FXML public Button prescriptionToolButton;
     
+    @FXML public Label chatPatientNameLabel;
+    @FXML public ScrollPane chatScrollPane;
+    @FXML public AnchorPane chatPane;
+    @FXML public Button chatSendButton;
+    @FXML public TextArea chatMessageTextArea;
+    @FXML public Button chatGoBackButton;
 
     public static WorkPortalController instance = null;
     public static final String TITLE = "Work Portal";
     public static final boolean RESIZABLE = true;
     public static final String VIEW_FILENAME = "WorkPortalView";
-    public static final String STYLE_FILENAME = "WorkPortalView";
+    public static final String STYLE_FILENAME = "PatientPortalView";
     public final Integer myID = Database.getMyID();
+    public static Integer chatPatientID;
 
     private WorkPortalController() {
         title = TITLE;
@@ -100,7 +110,7 @@ public class WorkPortalController extends Controller {
 
         usernameButton.setText(Database.getMy("username"));
 
-        mainPane.setOnKeyPressed(event -> {
+        rootPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.S && event.isAltDown()) {
                 signOutButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT1) {
@@ -113,26 +123,35 @@ public class WorkPortalController extends Controller {
                 inboxButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT5) {
                 prescriptionToolButton.fire();
+            } else if (event.getCode() == KeyCode.R && event.isMetaDown()) {
+                currentButton.fire();
             }
         });
 
-        inboxMessageTextArea.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+        chatMessageTextArea.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 event.consume();
             }
         });
 
-        inboxMessageTextArea.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+        chatMessageTextArea.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 if (event.isShiftDown()) {
-                    inboxMessageTextArea.appendText("\n");
+                    chatMessageTextArea.appendText("\n");
                 } else {
-                    inboxSendButton.fire();
+                    chatSendButton.fire();
                 }
             }
         });
 
+
         visitsButton.fire();
+        inboxButton.fire(); //! DELETE ME
+    }
+
+    @FXML public void handleKeyTyped(KeyEvent event) {
+        Node source = (Node) event.getSource();
+        Utilities.removeClass(source, "error");
     }
 
     @FXML public void handleVisitsButtonAction(ActionEvent event) throws Exception {
@@ -197,18 +216,14 @@ public class WorkPortalController extends Controller {
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
+        if (chatPatientID != null) {
+            setCurrentTab(chatPane, inboxButton);
+            loadChatFor(chatPatientID);
+            return;
+        }
+        
         setCurrentTab(inboxPane, inboxButton);
-
-        // String doctorName = Database.getMyDoctorName();
-
-        // if (doctorName == null) {
-        //     // inboxDoctorNameLabel.setText("No doctor assigned");
-        //     inboxPane.setDisable(true);
-        //     return;
-        // }
-
-        // // inboxDoctorNameLabel.setText(doctorName);
-        // loadinboxMessages();
+        loadInboxMessages();
     }
 
     @FXML public void handlePrescriptionToolButtonAction(ActionEvent event) {
@@ -233,7 +248,7 @@ public class WorkPortalController extends Controller {
 
         // Database.sendMessageToMyDoctor(inboxMessageTextArea.getText());
         // inboxMessageTextArea.clear();
-        // loadinboxMessages();
+        // loadInboxMessages();
     }
 
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
@@ -244,11 +259,73 @@ public class WorkPortalController extends Controller {
 
     }
 
-    public void loadinboxMessages() throws SQLException {
-        ResultSet messages = Database.getMyChatMessages();
+    @FXML public void handleChatGoBackButtonAction(ActionEvent event) {
+        setCurrentTab(inboxPane, inboxButton);
+        chatPatientID = null;
+    }
+
+    public void loadInboxMessages() throws SQLException {
+        ResultSet messages = Database.getMyMessages2(false);
         
         GridPane content = new GridPane();
-        Utilities.addClass(content, "inbox-content-pane");
+        Utilities.addClass(content, "chat-content-pane");
+        HashSet<Integer> visited = new LinkedHashSet<>();
+
+        ArrayList<Row> rows = new ArrayList<>();
+
+        while (messages.next()) {
+            int senderID = messages.getInt("senderID");
+            int receiverID = messages.getInt("receiverID");
+            int patientID = senderID == myID ? receiverID : senderID;
+
+            if (visited.contains(patientID)) {
+                continue;
+            }
+            visited.add(patientID);
+
+            String patient = Database.getPatientNameFor(patientID);
+            String message = messages.getString("message");
+            String dateTime = Utilities.prettyDateTime(messages.getTimestamp("creationTime"));
+            String type = senderID == myID ? "Sent" : "Received";
+
+            ValueLabel patientLabel = new ValueLabel(patient);
+            ValueLabel messageLabel = new ValueLabel(message);
+            ValueLabel dateTimeLabel = new ValueLabel(dateTime);
+            ValueLabel typeLabel = new ValueLabel(type);
+
+            Row row = new Row("conversations", patientID, patientLabel, messageLabel, dateTimeLabel, typeLabel);
+            rows.add(row);
+        }
+        messages.close();
+
+        SelectableTable myMessagesTable = new SelectableTable();
+        myMessagesTable
+            .withRowAction(row -> {
+                row.setOnMouseClicked(event -> {
+                    try {
+                        loadChatFor(row.rowID);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            })
+            .withRows(rows)
+            .build();
+
+        inboxScrollPane.setContent(myMessagesTable);
+    }
+
+    public void loadChatFor(int patientID) throws SQLException {
+        setCurrentTab(chatPane);
+        chatPatientID = patientID;
+
+        String patientName = Database.getPatientNameFor(patientID);
+        chatPatientNameLabel.setText(patientName);
+
+        ResultSet messages = Database.getMyMessagesWith(patientID);
+        
+        GridPane content = new GridPane();
+        Utilities.addClass(content, "chat-content-pane");
 
         int counter = 0;
 
@@ -258,31 +335,31 @@ public class WorkPortalController extends Controller {
             int senderID = messages.getInt("senderID");
 
             VBox messageVBox = new VBox();
-            Utilities.addClass(messageVBox, "inbox-message-vbox");
+            Utilities.addClass(messageVBox, "chat-message-vbox");
 
             HBox messageHBox = new HBox();
-            Utilities.addClass(messageHBox, "inbox-message-hbox");
+            Utilities.addClass(messageHBox, "chat-message-hbox");
 
             Label dateTimeLabel = new Label(Utilities.prettyDateTime(creationTime));
-            Utilities.addClass(dateTimeLabel, "inbox-date-time-label");
+            Utilities.addClass(dateTimeLabel, "chat-date-time-label");
 
             Label messageLabel = new Label(message);
-            Utilities.addClass(messageLabel, "inbox-message-label");
+            Utilities.addClass(messageLabel, "chat-message-label");
             messageLabel.setWrapText(true);
 
             VBox iconVBox = new VBox();
-            Utilities.addClass(iconVBox, "inbox-icon-vbox");
+            Utilities.addClass(iconVBox, "chat-icon-vbox");
 
             ImageView icon = new ImageView();
-            Utilities.addClass(icon, "inbox-icon");
+            Utilities.addClass(icon, "chat-icon");
             iconVBox.getChildren().add(icon);
 
             if (senderID == myID) {
-                icon.setImage(new Image(App.class.getResourceAsStream("icons/patient.png")));
+                icon.setImage(new Image(App.class.getResourceAsStream("icons/doctor.png")));
                 HBox.setMargin(icon, new Insets(0, 50, 0, 10));
                 
-                Utilities.addClass(messageVBox, "inbox-message-vbox-right");
-                Utilities.addClass(messageHBox, "inbox-message-hbox-right");
+                Utilities.addClass(messageVBox, "chat-message-vbox-right");
+                Utilities.addClass(messageHBox, "chat-message-hbox-right");
                 GridPane.setMargin(messageVBox, new Insets(0, 50, 0, 500));
                 VBox.setMargin(dateTimeLabel, new Insets(0, 100, 0, 0));
                 
@@ -290,11 +367,11 @@ public class WorkPortalController extends Controller {
                 messageHBox.getChildren().add(iconVBox);
                 
             } else {
-                icon.setImage(new Image(App.class.getResourceAsStream("icons/doctor.png")));
+                icon.setImage(new Image(App.class.getResourceAsStream("icons/patient.png")));
                 HBox.setMargin(icon, new Insets(0, 10, 0, 50));
 
-                Utilities.addClass(messageVBox, "inbox-message-vbox-left");
-                Utilities.addClass(messageHBox, "inbox-message-hbox-left");
+                Utilities.addClass(messageVBox, "chat-message-vbox-left");
+                Utilities.addClass(messageHBox, "chat-message-hbox-left");
                 GridPane.setMargin(messageVBox, new Insets(0, 500, 0, 50));
                 VBox.setMargin(dateTimeLabel, new Insets(0, 0, 0, 100));
 
@@ -317,8 +394,37 @@ public class WorkPortalController extends Controller {
             });
         }
         messages.close();
-            
-        inboxScrollPane.setContent(content);
+        
+        chatScrollPane.setContent(content);
+        chatScrollPane.setVvalue(1.0);
+
+        Database.readAllMessagesWith(patientID);
+    }
+
+    @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {
+        chatMessageTextArea.setText(chatMessageTextArea.getText().trim());
+        if (!Utilities.validate(chatMessageTextArea, Utilities.MESSAGE_REGEX)) {
+            return;
+        }
+
+        Database.sendMessageTo(chatPatientID, chatMessageTextArea.getText());
+        chatMessageTextArea.clear();
+        loadChatFor(chatPatientID);
+    }
+
+    public void setCurrentTab(AnchorPane pane) {
+        if (currentTab == pane) {
+            return;
+        }
+
+        if (currentTab != null) {
+            currentTab.setVisible(false);
+            currentTab.setDisable(true);
+        }
+
+        currentTab = pane;
+        currentTab.setVisible(true);
+        currentTab.setDisable(false);
     }
 
     public void setCurrentTab(AnchorPane pane, Button button) {

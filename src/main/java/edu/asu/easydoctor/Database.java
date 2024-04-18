@@ -540,6 +540,21 @@ public abstract class Database {
         return firstName + " " + lastName;
     }
 
+    public static String getPatientNameFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName from patients WHERE ID = ?;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        if (!resultSet.next()) {
+            throw new SQLException("Patient does not exist");
+        }
+
+        String firstName = resultSet.getString("firstName");
+        String lastName = resultSet.getString("lastName");
+
+        return firstName + " " + lastName;
+    }
+
     public static void insertVisitFor(int userID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
         ResultSet upcomingVisit = getUpcomingVisitFor(userID);
 
@@ -595,15 +610,15 @@ public abstract class Database {
         return getUpcomingVisitFor(userID);
     }
 
-    public static ResultSet getMyChatMessages() throws SQLException {
+    public static ResultSet getMyMessages() throws SQLException {
         if (role == Role.PATIENT) {
-            return getChatMessagesForPatient(userID);
+            return getMessagesForPatient(userID);
         } else {
-            return getChatMessagesForEmployee(userID);
+            return getMessagesForEmployee(userID);
         }
     }
 
-    public static ResultSet getChatMessagesForEmployee(int userID) throws SQLException {
+    public static ResultSet getMessagesForEmployee(int userID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
         statement.setInt(1, userID);
         statement.setInt(2, userID);
@@ -612,7 +627,7 @@ public abstract class Database {
         return resultSet;
     }
 
-    public static ResultSet getChatMessagesForPatient(int userID) throws SQLException {
+    public static ResultSet getMessagesForPatient(int userID) throws SQLException { //! This is a mess
         PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
@@ -631,8 +646,44 @@ public abstract class Database {
         return resultSet;
     }
 
+    public static ResultSet getMyMessagesWith(int receiverID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = ? AND senderID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY creationTime ASC;");
+        statement.setInt(1, receiverID);
+        statement.setInt(2, userID);
+        statement.setInt(3, receiverID);
+        statement.setInt(4, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMyMessages2(boolean ascending) throws SQLException {
+        PreparedStatement statement;
+        
+        if (ascending) {
+            statement = connection.prepareStatement("SELECT ID, creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
+        } else {
+            statement = connection.prepareStatement("SELECT ID, creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime DESC;");
+        }
+
+        statement.setInt(1, userID);
+        statement.setInt(2, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
     public static Integer getMyID() {
         return userID;
+    }
+
+    public static void sendMessageTo(int receiverID, String message) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setInt(2, receiverID);
+        statement.setString(3, message);
+
+        statement.executeUpdate();
     }
 
     public static void sendMessageToMyDoctor(String message) throws SQLException {
@@ -650,6 +701,18 @@ public abstract class Database {
         statement.setString(3, message);
 
         statement.executeUpdate();
+    }
+
+    public static void readAllMessagesWith(int senderID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE conversations SET readStatus = TRUE WHERE receiverID = ? AND senderID = ?;");
+        statement.setInt(1, getMyID());
+        statement.setInt(2, senderID);
+
+        statement.executeUpdate();
+    }
+
+    public static void readAllMessagesWithMyDoctor() throws SQLException {
+        readAllMessagesWith(getMyDoctorID());
     }
 
     public static int generateRandomToken() {

@@ -150,13 +150,11 @@
     -fx-pref-width: 100px;
 }
 
-.message-box {
-    -fx-pref-width: 1512px;;
-    -fx-pref-height: 200px;;
+.chat-message-vbox {
+    -fx-pref-width: 1512px;
 }
 
 .chat-content-pane {
-    -fx-min-width: 1512px;
     -fx-max-width: 1512px;
     -fx-vgap: 30;
 }
