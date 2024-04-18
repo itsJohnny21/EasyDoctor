@@ -1,6 +1,5 @@
 package edu.asu.easydoctor.controllers;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -24,6 +23,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -67,9 +67,7 @@ public class WorkPortalController extends Controller {
     @FXML public ScrollPane inboxScrollPane;
     @FXML public Button inboxButton;
     @FXML public Button inboxSendButton;
-    @FXML public Button inboxChangeDoctorButton;
     @FXML public TextArea inboxMessageTextArea;
-    @FXML public Label inboxDoctorNameLabel;
     
     @FXML public AnchorPane prescriptionToolPane;
     @FXML public ScrollPane prescriptionToolScrollPane;
@@ -100,7 +98,7 @@ public class WorkPortalController extends Controller {
     
     public void initialize() throws Exception {
 
-        // usernameButton.setText(Database.getMy("username"));
+        usernameButton.setText(Database.getMy("username"));
 
         mainPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.S && event.isAltDown()) {
@@ -118,21 +116,21 @@ public class WorkPortalController extends Controller {
             }
         });
 
-        // inboxMessageTextArea.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-        //     if (event.getCode() == KeyCode.ENTER) {
-        //         event.consume();
-        //     }
-        // });
+        inboxMessageTextArea.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                event.consume();
+            }
+        });
 
-        // inboxMessageTextArea.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-        //     if (event.getCode() == KeyCode.ENTER) {
-        //         if (event.isShiftDown()) {
-        //             inboxMessageTextArea.appendText("\n");
-        //         } else {
-        //             inboxSendButton.fire();
-        //         }
-        //     }
-        // });
+        inboxMessageTextArea.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                if (event.isShiftDown()) {
+                    inboxMessageTextArea.appendText("\n");
+                } else {
+                    inboxSendButton.fire();
+                }
+            }
+        });
 
         visitsButton.fire();
     }
@@ -201,16 +199,16 @@ public class WorkPortalController extends Controller {
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
         setCurrentTab(inboxPane, inboxButton);
 
-        String doctorName = Database.getMyDoctorName();
+        // String doctorName = Database.getMyDoctorName();
 
-        if (doctorName == null) {
-            inboxDoctorNameLabel.setText("No doctor assigned");
-            inboxPane.setDisable(true);
-            return;
-        }
+        // if (doctorName == null) {
+        //     // inboxDoctorNameLabel.setText("No doctor assigned");
+        //     inboxPane.setDisable(true);
+        //     return;
+        // }
 
-        inboxDoctorNameLabel.setText(doctorName);
-        loadinboxMessages();
+        // // inboxDoctorNameLabel.setText(doctorName);
+        // loadinboxMessages();
     }
 
     @FXML public void handlePrescriptionToolButtonAction(ActionEvent event) {
@@ -227,23 +225,15 @@ public class WorkPortalController extends Controller {
         SignInController.getInstance().load();
     }
 
-    @FXML public void handleactiveSessionsButton(ActionEvent event) throws IOException {
-        // activeSessionsController.getInstance().load(); //! Implement this
-    }
+    @FXML public void handleInboxSendButtonAction(ActionEvent event) throws SQLException {
+        // inboxMessageTextArea.setText(inboxMessageTextArea.getText().trim());
+        // if (!Utilities.validate(inboxMessageTextArea, Utilities.MESSAGE_REGEX)) {
+        //     return;
+        // }
 
-    @FXML public void handleNewMessageButtonAction(ActionEvent event) throws IOException {
-        // NewMessageController.getInstance().load(); //! Implement this
-    }
-
-    @FXML public void handleinboxSendButtonAction(ActionEvent event) throws SQLException {
-        inboxMessageTextArea.setText(inboxMessageTextArea.getText().trim());
-        if (!Utilities.validate(inboxMessageTextArea, Utilities.MESSAGE_REGEX)) {
-            return;
-        }
-
-        Database.sendMessageToMyDoctor(inboxMessageTextArea.getText());
-        inboxMessageTextArea.clear();
-        loadinboxMessages();
+        // Database.sendMessageToMyDoctor(inboxMessageTextArea.getText());
+        // inboxMessageTextArea.clear();
+        // loadinboxMessages();
     }
 
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
