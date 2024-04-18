@@ -422,7 +422,7 @@ public abstract class Database {
 
             return resultSet.getString(columnName);
         } else {
-            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = patients.ID WHERE employees.ID = ?;", columnName));
+            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = employees.ID WHERE employees.ID = ?;", columnName));
             statement.setInt(1, userID);
 
             ResultSet resultSet = statement.executeQuery();
