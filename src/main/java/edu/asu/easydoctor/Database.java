@@ -134,6 +134,7 @@ public abstract class Database {
 
     public static void disconnect() throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         if (connection != null) {
+            role = null;
             connection.close();
         }
     }
@@ -709,6 +710,49 @@ public abstract class Database {
         statement.setInt(2, senderID);
 
         statement.executeUpdate();
+    }
+
+    public static ResultSet getPatientByID(int patientID) throws SQLException {
+        // SELECT %s FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.ID = ? LIMIT 1;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getPatientByFirstNameLastNameBirthDate(String firstName, String lastName, String birthDate) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.firstName = ? AND patients.lastName = ? AND patients.birthDate = ? LIMIT 1;");
+        statement.setString(1, firstName);
+        statement.setString(2, lastName);
+        statement.setString(3, birthDate);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getPatientByUsername(String username) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE users.username = ? LIMIT 1;");
+        statement.setString(1, username);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getPatientByEmail(String email) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.email = ? LIMIT 1;");
+        statement.setString(1, email);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getPatientByPhoneNumber(String phoneNumber) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID  WHERE patients.phone = ? LIMIT 1;");
+        statement.setString(1, phoneNumber);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
 
     public static void readAllMessagesWithMyDoctor() throws SQLException {

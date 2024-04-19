@@ -1,5 +1,6 @@
 package edu.asu.easydoctor.controllers;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -399,6 +400,10 @@ public class WorkPortalController extends Controller {
         chatScrollPane.setVvalue(1.0);
 
         Database.readAllMessagesWith(patientID);
+    }
+
+    @FXML public void handleInboxNewMessageButton(ActionEvent event) throws IOException, SQLException {
+        NewMessageWorkPortal.getInstance().loadDialog();
     }
 
     @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {

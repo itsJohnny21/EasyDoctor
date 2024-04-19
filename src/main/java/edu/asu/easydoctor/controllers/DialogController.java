@@ -24,15 +24,24 @@ public abstract class DialogController extends BaseController {
             this.scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", styleFilename)).toExternalForm());
             initializeStage();
 
-            stage.setOnCloseRequest(event -> {
+            this.stage.setOnCloseRequest(event -> {
                 closeAndNullify();
             });
+
+            this.stage.setScene(this.scene);
+            this.stage.show();
         }
 
-        loadDialogHelper(data);
-        this.stage.setScene(this.scene);
+        if (data != null) {
+            loadDialogHelper(data);
+        }
+        
         this.stage.toFront();
-        this.stage.showAndWait();
+        return result;
+    }
+    
+    public HashMap<String, Object> loadDialog() throws IOException, SQLException {
+        loadDialog(null);
         return result;
     }
 

@@ -1,6 +1,8 @@
 package edu.asu.easydoctor;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -21,6 +23,11 @@ public class Utilities {
     public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
     public static final String MESSAGE_REGEX = "^[\\p{Print}]{1,255}$";
+    public static final String NAME_REGEX = "^[a-zA-Z'\\-\\u00c0-\\u01ff]{2,}$";
+    public static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+    public static final String PHONE_REGEX = "^[0-9]{10}$";
+    public static final String BIRTH_DATE_REGEX = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{4,}$";
 
     public static String prettyCapitalize(String s) {
         if (s == null || s.isEmpty()) {
@@ -54,6 +61,14 @@ public class Utilities {
         if (textArea.getText().isBlank() || !textArea.getText().matches(regex)) {
             textArea.requestFocus();
             textArea.getStyleClass().add("error");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean validate(String text, String regex) { //! maybe remove
+        if (text.isBlank() || !text.matches(regex)) {
             return false;
         }
 
@@ -127,4 +142,10 @@ public class Utilities {
         LocalDateTime localDateTime = convertUTCtoLocal(tiemstamp);
         return prettyDateTime(localDateTime);
     }
+
+    public static String prettyName(ResultSet resultSet) throws SQLException {
+        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+    }
 }
+
+

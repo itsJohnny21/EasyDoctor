@@ -8,8 +8,8 @@ CREATE TABLE patients (
     lastName VARCHAR(100) NOT NULL,
     sex ENUM('MALE', 'FEMALE', 'OTHER') NOT NULL,
     birthDate DATE NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    phone VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(100) NOT NULL UNIQUE,
     address VARCHAR(100) NOT NULL,
     preferredDoctorID INT,
     bloodType bloodType ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'UNKNOWN')
@@ -29,6 +29,8 @@ CREATE TABLE patients (
     FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
 
+show create table patients;
+
 INSERT INTO users (username, password, role)
 VALUES ('test', 'test', 'PATIENT');
 
@@ -42,7 +44,6 @@ SELECT * FROM patients;
 
 SELECT patients.firstName, patients.lastName, patients.sex, patients.birthDate, patients.phone, patients.email, patients.address, users.username, patients.race, patients.ethnicity, patients.emergencyContactName, patients.emergencyContactPhone, patients.motherFirstName, patients.motherLastName, patients.fatherFirstName, patients.fatherLastName FROM patients JOIN users ON users.ID = patients.userID WHERE userID = 2;
 use easydoctor;
-update patients set preferredDoctorID = 3 where ID = 2;
 SELECT * FROM patients;
 SELECT * FROM users;
 delete from users where ID = 106;

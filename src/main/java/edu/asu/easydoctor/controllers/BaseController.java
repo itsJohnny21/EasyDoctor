@@ -23,6 +23,7 @@ public abstract class BaseController {
         stage.setHeight(height);
         stage.toFront();
     }
+    
 
     public void close() {
         stage.close();

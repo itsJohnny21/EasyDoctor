@@ -8,6 +8,7 @@ import edu.asu.easydoctor.controllers.ForgotUsernamePasswordController;
 import edu.asu.easydoctor.controllers.SignInController;
 import edu.asu.easydoctor.controllers.SignUpController;
 import edu.asu.easydoctor.controllers.WelcomeController;
+import edu.asu.easydoctor.controllers.WorkPortalController;
 
 public class Bypass {
 
@@ -20,6 +21,22 @@ public class Bypass {
         signInController.passwordField.setText(password);
         signInController.signInButton.fire();
     }
+
+	public static void toWorkPortal() throws Exception {
+		Bypass.toPortal("john123", "john123");
+	}
+
+	public static void toWorkPortalInbox() throws Exception {
+		Bypass.toWorkPortal();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+		workPortalController.inboxButton.fire();
+	}
+
+	public static void toWorkPortalInboxNewMessage() throws Exception {
+		Bypass.toWorkPortalInbox();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+		workPortalController.inboxNewMessageButton.fire();
+	}
 
     public static void toResetPasswordDialog(String newPassword) throws Exception {
         WelcomeController welcomeController = WelcomeController.getInstance();
