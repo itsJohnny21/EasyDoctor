@@ -31,6 +31,7 @@ public abstract class DialogController extends BaseController {
 
         loadDialogHelper(data);
         this.stage.setScene(this.scene);
+        this.stage.toFront();
         this.stage.showAndWait();
         return result;
     }

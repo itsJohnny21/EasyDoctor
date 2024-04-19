@@ -223,4 +223,7 @@ GRANT SELECT (creationTime, creationType, date, userID, doctorID, completed, rea
 GRANT SELECT (ID, firstName, lastName, sex, birthDate, email, phone, address, managerID) ON employees TO 'patient'@'%';
 GRANT SELECT (ID) ON visits TO 'patient'@'%';
 GRANT DELETE ON visits TO 'patient'@'%';
-SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'patient'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'conversations' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'patient'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'conversations' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'patient'@'%'";
+GRANT SELECT (creationTime, message, readStatus, senderID, receiverID) ON conversations TO 'doctor'@'%';
+GRANT UPDATE (readStatus) ON conversations TO 'doctor'@'%';

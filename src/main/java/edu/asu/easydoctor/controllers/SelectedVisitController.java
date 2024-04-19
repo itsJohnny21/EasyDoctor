@@ -2,10 +2,10 @@ package edu.asu.easydoctor.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -78,20 +78,26 @@ public class SelectedVisitController extends DialogController {
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
         rowID = (Integer) data.get("rowID");
-        ResultSet visit = Database.getVisitFor(rowID);
+        ResultSet visit = Database.getVisit(rowID);
 
         if (visit.next()) {
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+            String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
+            String dayOfWeek = visit.getDate("date").toLocalDate().getDayOfWeek().toString();
+            String time = Utilities.prettyTime(visit.getTime("time"));
+            String date = Utilities.prettyDate(visit.getDate("date"));
+            String reason = visit.getString("reason");
+            String description = visit.getString("description");
+            boolean completed = visit.getBoolean("completed");
 
-            doctorLabel.setText(Database.getEmployeeNameFor(visit.getInt("doctorID")));
-            dateLabel.setText(visit.getDate("date").toLocalDate().format(dateFormatter));
-            dayLabel.setText(visit.getDate("date").toLocalDate().getDayOfWeek().toString());
-            timeLabel.setText(visit.getTime("time").toLocalTime().format(timeFormatter));
-            reasonLabel.setText(visit.getString("reason"));
-            statusLabel.setText(visit.getBoolean("completed") ? "Complete" : "Incomplete");
-            descriptionTextArea.setText(visit.getString("description"));
+            doctorLabel.setText(doctor);
+            dateLabel.setText(date);
+            dayLabel.setText(dayOfWeek);
+            timeLabel.setText(time);
+            reasonLabel.setText(reason);
+            statusLabel.setText(Utilities.getVisitStatus(visit.getDate("date"), visit.getTime("time"), completed));
+            descriptionTextArea.setText(description);
         }
+        visit.close();
     }
 
     public void closeAndNullify() {

@@ -63,6 +63,34 @@ public abstract class Database {
         }
     }
 
+    public enum CreationType {
+        ONLINE, IN_PERSON;
+    }
+
+    public enum DrugType {
+        FOOD, DRUG , ENVIRONMENTAL , INSECT , ANIMAL , PLANT , OTHER;
+    }
+
+    public enum PrescriptionForm {
+         TABLET , CAPSULE , LIQUID , INJECTION , CREAM , OINTMENT , INHALER , SUPPOSITORY , SOLUTION , SUSPENSION , SYRUP , SPRAY , LOZENGE , POWDER , GEL;
+    }
+
+    public enum VaccineGroup {
+        COVID_19 , Influenza , Hepatitis_A , Hepatitis_B , Varicella , Polio , Pneumococcal , MMR , HPV , Shingles;
+    }
+
+    public enum DayOfWeek {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
+    }
+
+    public enum HealthConditionType {
+        PHYSICAL, MENTAL;
+    }
+
+    public enum Units {
+        ML , MG , G , IU , UNITS;
+    }
+
     public static Connection connection;
     public static Integer userID;
     public static Role role;
@@ -394,7 +422,7 @@ public abstract class Database {
 
             return resultSet.getString(columnName);
         } else {
-            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = patients.ID WHERE employees.ID = ?;", columnName));
+            statement = connection.prepareStatement(String.format("SELECT %s FROM employees JOIN users ON users.ID = employees.ID WHERE employees.ID = ?;", columnName));
             statement.setInt(1, userID);
 
             ResultSet resultSet = statement.executeQuery();
@@ -471,14 +499,30 @@ public abstract class Database {
         }
     }
 
-    public static String getMyDoctor() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT employees.firstName, employees.lastName FROM employees JOIN patients ON employees.ID = patients.preferredDoctorID WHERE patients.ID = ?;");
+    public static Integer getMyDoctorID() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
+        if (!resultSet.next()) {
+            return null;
+        }
 
-        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
+        int preferredDoctorID = resultSet.getInt("preferredDoctorID");
+        if (resultSet.wasNull()) {
+            return null;
+        }
+        
+        return preferredDoctorID;
+    }
+
+    public static String getMyDoctorName() throws SQLException {
+        Integer doctorID = getMyDoctorID();
+        if (doctorID == null) {
+            return null;
+        }
+
+        return getEmployeeNameFor(doctorID);
     }
 
     public static String getEmployeeNameFor(int employeeID) throws SQLException {
@@ -486,7 +530,9 @@ public abstract class Database {
         statement.setInt(1, employeeID);
 
         ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
+        if (!resultSet.next()) {
+            throw new SQLException("Employee does not exist");
+        }
 
         String firstName = resultSet.getString("firstName");
         String lastName = resultSet.getString("lastName");
@@ -494,20 +540,179 @@ public abstract class Database {
         return firstName + " " + lastName;
     }
 
-    public static ResultSet getMyVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ?;");
+    public static String getPatientNameFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName from patients WHERE ID = ?;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        if (!resultSet.next()) {
+            throw new SQLException("Patient does not exist");
+        }
+
+        String firstName = resultSet.getString("firstName");
+        String lastName = resultSet.getString("lastName");
+
+        return firstName + " " + lastName;
+    }
+
+    public static void insertVisitFor(int userID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        ResultSet upcomingVisit = getUpcomingVisitFor(userID);
+
+        if (upcomingVisit.next()) {
+            throw new SQLException("Upcoming visit already exists");
+        }
+
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO visits (userID, creationType, doctorID, reason, description, date, time) VALUES (?, ?, ?, ?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setString(2, creationType.toString());
+        statement.setInt(3, doctorID);
+        statement.setString(4, reason);
+        statement.setString(5, description);
+        statement.setString(6, date);
+        statement.setString(7, time);
+
+        statement.executeUpdate();
+    }
+
+    public static void insertMyVisit(CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        insertVisitFor(userID, creationType, doctorID, reason, description, date, time);
+    }
+
+    public static ResultSet getVisitsFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? ORDER BY date DESC;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }
 
-    public static ResultSet getVisitFor(int rowID) throws SQLException {
+    public static ResultSet getMyVisits() throws SQLException {
+        return getVisitsFor(userID);
+    }
+
+    public static ResultSet getVisit(int rowID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
         statement.setInt(1, rowID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
+    }
+
+    public static ResultSet getUpcomingVisitFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? AND completed = FALSE AND date >= CURRENT_DATE LIMIT 1;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMyUpcomingVisit() throws SQLException {
+        return getUpcomingVisitFor(userID);
+    }
+
+    public static ResultSet getMyMessages() throws SQLException {
+        if (role == Role.PATIENT) {
+            return getMessagesForPatient(userID);
+        } else {
+            return getMessagesForEmployee(userID);
+        }
+    }
+
+    public static ResultSet getMessagesForEmployee(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
+        statement.setInt(1, userID);
+        statement.setInt(2, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMessagesForPatient(int userID) throws SQLException { //! This is a mess
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        int doctorID = resultSet.getInt("preferredDoctorID");
+
+        statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = ? AND senderID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY creationTime ASC;");
+        statement.setInt(1, doctorID);
+        statement.setInt(2, userID);
+        statement.setInt(3, doctorID);
+        statement.setInt(4, userID);
+
+        resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMyMessagesWith(int receiverID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = ? AND senderID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY creationTime ASC;");
+        statement.setInt(1, receiverID);
+        statement.setInt(2, userID);
+        statement.setInt(3, receiverID);
+        statement.setInt(4, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getMyMessages2(boolean ascending) throws SQLException {
+        PreparedStatement statement;
+        
+        if (ascending) {
+            statement = connection.prepareStatement("SELECT ID, creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
+        } else {
+            statement = connection.prepareStatement("SELECT ID, creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime DESC;");
+        }
+
+        statement.setInt(1, userID);
+        statement.setInt(2, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static Integer getMyID() {
+        return userID;
+    }
+
+    public static void sendMessageTo(int receiverID, String message) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setInt(2, receiverID);
+        statement.setString(3, message);
+
+        statement.executeUpdate();
+    }
+
+    public static void sendMessageToMyDoctor(String message) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        int doctorID = resultSet.getInt("preferredDoctorID");
+
+        statement = connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, ?);");
+        statement.setInt(1, userID);
+        statement.setInt(2, doctorID);
+        statement.setString(3, message);
+
+        statement.executeUpdate();
+    }
+
+    public static void readAllMessagesWith(int senderID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE conversations SET readStatus = TRUE WHERE receiverID = ? AND senderID = ?;");
+        statement.setInt(1, getMyID());
+        statement.setInt(2, senderID);
+
+        statement.executeUpdate();
+    }
+
+    public static void readAllMessagesWithMyDoctor() throws SQLException {
+        readAllMessagesWith(getMyDoctorID());
     }
 
     public static int generateRandomToken() {

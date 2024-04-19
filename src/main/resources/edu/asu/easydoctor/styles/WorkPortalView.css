@@ -1,4 +1,6 @@
 
+/* DELETE ME */
+
 .root {
     -fx-font-family: "Arial";
     -fx-font-size: 12pt;
@@ -150,11 +152,13 @@
     -fx-pref-width: 100px;
 }
 
-.chat-message-vbox {
-    -fx-pref-width: 1512px;
+.message-box {
+    -fx-pref-width: 1512px;;
+    -fx-pref-height: 200px;;
 }
 
 .chat-content-pane {
+    -fx-min-width: 1512px;
     -fx-max-width: 1512px;
     -fx-vgap: 30;
 }
