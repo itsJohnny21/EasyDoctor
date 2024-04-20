@@ -241,17 +241,6 @@ public class WorkPortalController extends Controller {
         SignInController.getInstance().load();
     }
 
-    @FXML public void handleInboxSendButtonAction(ActionEvent event) throws SQLException {
-        // inboxMessageTextArea.setText(inboxMessageTextArea.getText().trim());
-        // if (!Utilities.validate(inboxMessageTextArea, Utilities.MESSAGE_REGEX)) {
-        //     return;
-        // }
-
-        // Database.sendMessageToMyDoctor(inboxMessageTextArea.getText());
-        // inboxMessageTextArea.clear();
-        // loadInboxMessages();
-    }
-
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
 
     }
@@ -404,7 +393,7 @@ public class WorkPortalController extends Controller {
     }
 
     @FXML public void handleInboxNewMessageButton(ActionEvent event) throws IOException, SQLException {
-        HashMap<String, Object> result = NewMessageWorkPortal.getInstance().loadDialog();
+        HashMap<String, Object> result = FindPatientController.getInstance().loadDialog();
 
         if (result != null && result.containsKey("patientID")) {
             int patientID = (int) result.get("patientID");
