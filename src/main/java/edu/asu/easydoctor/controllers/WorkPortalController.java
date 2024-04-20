@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Database.VisitStatus;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
 import edu.asu.easydoctor.Utilities;
@@ -147,7 +148,6 @@ public class WorkPortalController extends Controller {
 
 
         visitsButton.fire();
-        inboxButton.fire(); //! DELETE ME
     }
 
     @FXML public void handleKeyTyped(KeyEvent event) {
@@ -158,29 +158,36 @@ public class WorkPortalController extends Controller {
     @FXML public void handleVisitsButtonAction(ActionEvent event) throws Exception {
         setCurrentTab(visitsPane, visitsButton);
 
-        ResultSet visits = Database.getMyVisits();
+        ResultSet visits = Database.getTodaysVisits();
         ArrayList<Row> rows = new ArrayList<>();
 
         while (visits.next()) {
             int rowID = visits.getInt("ID");
 
+            String patient = Database.getPatientNameFor(visits.getInt("userID"));
             String doctor = Database.getEmployeeNameFor(visits.getInt("doctorID"));
-            String dayOfWeek = visits.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String date = Utilities.prettyDate(visits.getDate("date"));
-            String time = Utilities.prettyTime(visits.getTime("time"));
+            String date = Utilities.prettyDate(visits.getDate("date").toLocalDate());
+            String time = Utilities.prettyTime(visits.getTime("time").toLocalTime());
             String reason = visits.getString("reason");
             boolean completed = visits.getBoolean("completed");
+            VisitStatus status = VisitStatus.valueOf(visits.getString("status"));
 
+            ValueLabel patientLabel = new ValueLabel(patient);
             ValueLabel doctorLabel = new ValueLabel(doctor);
             ValueLabel dateLabel = new ValueLabel(date);
-            ValueLabel dayLabel = new ValueLabel(dayOfWeek);
             ValueLabel timeLabel = new ValueLabel(time);
             ValueLabel reasonLabel = new ValueLabel(reason);
-            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatus(visits.getDate("date"), visits.getTime("time"), completed));
+            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatusWorkPortal(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime(), completed));
 
+            Row row = new Row( "visits", rowID, patientLabel, doctorLabel, dateLabel, timeLabel, reasonLabel, statusLabel);
+            rows.add(row);
+            
+            LocalDateTime dateTime = LocalDateTime.of(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime());
 
-            Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, statusLabel);
-            rows.add(row);  
+            if (LocalDateTime.now().isAfter(dateTime.plusMinutes(15)) && status != VisitStatus.COMPLETED) {
+                Database.changeVisitStatus(rowID, VisitStatus.MISSED);
+                // Database.markVisitAsMissed(rowID); //! needs some if statements to check if the visit is already in progress or completed
+            }
         }
         visits.close();
 
@@ -191,10 +198,22 @@ public class WorkPortalController extends Controller {
                     try {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put("rowID", row.rowID);
-                        HashMap<String, Object> result = loadDialog(SelectedVisitController.getInstance(), data);
+                        HashMap<String, Object> result = loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
 
-                        if (result != null && (boolean) result.containsKey("deleted")) {
-                            myVisitsTables.getChildren().remove(row);
+                        if ((boolean) result.containsKey("start")) {
+                            System.out.println("Starting visit!");
+                            Database.changeVisitStatus(row.rowID, VisitStatus.IN_PROGRESS); //! needs some if statements to check if the visit is already in progress or completed
+                            // Database.startVisit(row.rowID); //TODO: Implement this
+                            
+                        } else if (result.containsKey("patientUsername")) {
+                            System.out.println("Contacting patient!");
+                            String patientUsername = (String) result.get("patientUsername");
+                            inboxButton.fire();
+
+                            FindPatientController.getInstance().initialize();
+                            FindPatientController.getInstance().usernameButton.fire();
+                            FindPatientController.getInstance().usernameTextField.setText(patientUsername);
+                            inboxNewMessageButton.fire();
                         }
                         
                     } catch (Exception e) {

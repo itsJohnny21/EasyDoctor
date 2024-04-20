@@ -102,15 +102,28 @@ public class Utilities {
         }
     }
 
-    public static LocalDate convertUTCtoLocal(Date date) {
+    public static String getVisitStatusWorkPortal(LocalDate date, LocalTime time, boolean completed) { //!! remove me use database instead
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
+        if (completed) {
+            return "Completed";
+        } else if (LocalDateTime.now().isAfter(dateTime.plusMinutes(15))) {
+            return "Missed";
+        } else if (LocalDateTime.now().isAfter(dateTime.minusMinutes(15))) {
+            return "Pending";
+        } else {
+            return "Upcoming";
+        }
+    }
+
+    public static LocalDate convertUTCtoLocal(Date date) { //! remove
         return date.toLocalDate().minusDays(LocalDate.now(ZoneId.of("UTC")).getDayOfYear() - LocalDate.now().getDayOfYear());
     }
 
-    public static LocalTime convertUTCtoLocal(Time time) {
+    public static LocalTime convertUTCtoLocal(Time time) { //! remove
         return time.toLocalTime().minusHours(LocalTime.now(ZoneId.of("UTC")).getHour() - LocalTime.now().getHour());
     }
 
-    public static LocalDateTime convertUTCtoLocal(Timestamp timestamp) {
+    public static LocalDateTime convertUTCtoLocal(Timestamp timestamp) { //! remove
         return timestamp.toLocalDateTime().minusHours(LocalDateTime.now(ZoneId.of("UTC")).getHour() - LocalDateTime.now().getHour());
     }
 
@@ -118,7 +131,7 @@ public class Utilities {
         return localDate.format(dateFormatter);
     }
 
-    public static String prettyDate(Date date) {
+    public static String prettyDate(Date date) { //! remove
         LocalDate localDate = convertUTCtoLocal(date);
         return prettyDate(localDate);
     }
@@ -127,7 +140,7 @@ public class Utilities {
         return localTime.format(timeFormatter);
     }
 
-    public static String prettyTime(Time time) {
+    public static String prettyTime(Time time) { //! remove
         LocalTime localTime = convertUTCtoLocal(time);
         return prettyTime(localTime);
     }
@@ -136,7 +149,7 @@ public class Utilities {
         return localDateTime.format(dateTimeFormatter);
     }
 
-    public static String prettyDateTime(Timestamp tiemstamp) {
+    public static String prettyDateTime(Timestamp tiemstamp) { //! remove
         LocalDateTime localDateTime = convertUTCtoLocal(tiemstamp);
         return prettyDateTime(localDateTime);
     }

@@ -22,6 +22,7 @@ public abstract class BaseController {
         stage.setWidth(width);
         stage.setHeight(height);
         stage.toFront();
+        stage.setScene(scene);
     }
     
 

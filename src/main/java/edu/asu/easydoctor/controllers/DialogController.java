@@ -27,13 +27,14 @@ public abstract class DialogController extends BaseController {
             this.stage.setOnCloseRequest(event -> {
                 closeAndNullify();
             });
-
-            this.stage.setScene(this.scene);
-            this.stage.showAndWait();
         }
 
         if (data != null) {
             loadDialogHelper(data);
+        }
+
+        if (!this.stage.isShowing()) {
+            this.stage.showAndWait();
         }
         
         this.stage.toFront();

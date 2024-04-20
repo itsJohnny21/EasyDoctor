@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -89,6 +90,10 @@ public abstract class Database {
 
     public enum Units {
         ML , MG , G , IU , UNITS;
+    }
+
+    public enum VisitStatus {
+        PENDING, IN_PROGRESS, COMPLETED, MISSED, CANCELLED;
     }
 
     public static Connection connection;
@@ -556,6 +561,15 @@ public abstract class Database {
         return firstName + " " + lastName;
     }
 
+
+    public static void changeVisitStatus(int visitID, VisitStatus visitStatus) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET status = ? WHERE ID = ?;");
+        statement.setString(1, visitStatus.toString());
+        statement.setInt(2, visitID);
+
+        statement.executeUpdate();
+    }
+
     public static void insertVisitFor(int userID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
         ResultSet upcomingVisit = getUpcomingVisitFor(userID);
 
@@ -580,7 +594,7 @@ public abstract class Database {
     }
 
     public static ResultSet getVisitsFor(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? ORDER BY date DESC;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE userID = ? ORDER BY date DESC;");
         statement.setInt(1, userID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -592,7 +606,7 @@ public abstract class Database {
     }
 
     public static ResultSet getVisit(int rowID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE ID = ?;");
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, userID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE ID = ?;");
         statement.setInt(1, rowID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -600,6 +614,14 @@ public abstract class Database {
     }
 
     public static ResultSet getUpcomingVisitFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE userID = ? AND STATUS = 'PENDING' LIMIT 1;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getUpcomingVisitForOLD(int userID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? AND completed = FALSE AND date >= CURRENT_DATE LIMIT 1;");
         statement.setInt(1, userID);
 
@@ -609,6 +631,16 @@ public abstract class Database {
 
     public static ResultSet getMyUpcomingVisit() throws SQLException {
         return getUpcomingVisitFor(userID);
+    }
+
+    public static ResultSet getTodaysVisits() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, userID, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'date', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'time', reason, completed, creationTime, creationType, description, status FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?)) ORDER BY date DESC;");
+        statement.setString(1, ZoneId.systemDefault().getId());
+        statement.setString(2, ZoneId.systemDefault().getId());
+        statement.setString(3, ZoneId.systemDefault().getId());
+        statement.setString(4, ZoneId.systemDefault().getId());
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
 
     public static ResultSet getMyMessages() throws SQLException {
@@ -778,6 +810,16 @@ public abstract class Database {
         readAllMessagesWith(getMyDoctorID());
     }
 
+    public static String getUsernameFor(int userID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT username FROM users WHERE ID = ?;");
+        statement.setInt(1, userID);
+
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        return resultSet.getString("username");
+    }
+    
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
     }

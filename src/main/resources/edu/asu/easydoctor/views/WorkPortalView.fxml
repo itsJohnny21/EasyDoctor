@@ -90,7 +90,7 @@
             </Button>
          </children>
       </GridPane>
-      <AnchorPane fx:id="visitsPane" disable="true" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <AnchorPane fx:id="visitsPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
             <GridPane prefHeight="120.0" prefWidth="1512.0" AnchorPane.bottomAnchor="642.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
               <columnConstraints>
@@ -121,12 +121,12 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Doctor" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Patient" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font size="25.0" />
                      </font>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Date" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Doctor" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font size="25.0" />
                      </font>
@@ -146,7 +146,7 @@
                         <Font size="25.0" />
                      </font>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Day" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Date" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font size="25.0" />
                      </font>

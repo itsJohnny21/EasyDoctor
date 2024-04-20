@@ -42,7 +42,7 @@ public class App extends Application {
 
 
 		WelcomeController.getInstance().load();
-		Bypass.toWorkPortalInboxNewMessage();
+		Bypass.toWorkPortal();
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
 		// Test.convertUTCtoLocal();
@@ -80,3 +80,5 @@ public class App extends Application {
 //TODO: Combine common functionality between PatientPortal and WorkPortal into a single class called Portal. For example, loading the inbox, sending messages, loading the visits, signing out, and much more!
 //TODO: Clean up the database class
 //TODO: Implement the send new message button in the inbox tab
+//TODO: Use the DATE() CONVERT_TX() NOW() CONCAT() functions for querying the database (PatientPortal MyVisits tab)
+//TODO: Testing getVisitStatusWorkPortal from Utilities class (edge cases)
