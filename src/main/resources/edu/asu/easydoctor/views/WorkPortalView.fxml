@@ -100,7 +100,7 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label alignment="CENTER" text="Visits" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Label alignment="CENTER" text="Today's Visits" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Arial" size="42.0" />
                      </font>
