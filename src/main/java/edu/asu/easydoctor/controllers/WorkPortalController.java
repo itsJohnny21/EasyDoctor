@@ -1,5 +1,6 @@
 package edu.asu.easydoctor.controllers;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -262,6 +263,7 @@ public class WorkPortalController extends Controller {
     @FXML public void handleChatGoBackButtonAction(ActionEvent event) {
         setCurrentTab(inboxPane, inboxButton);
         chatPatientID = null;
+        inboxButton.fire();
     }
 
     public void loadInboxMessages() throws SQLException {
@@ -399,6 +401,16 @@ public class WorkPortalController extends Controller {
         chatScrollPane.setVvalue(1.0);
 
         Database.readAllMessagesWith(patientID);
+    }
+
+    @FXML public void handleInboxNewMessageButton(ActionEvent event) throws IOException, SQLException {
+        HashMap<String, Object> result = NewMessageWorkPortal.getInstance().loadDialog();
+
+        if (result != null && result.containsKey("patientID")) {
+            int patientID = (int) result.get("patientID");
+            System.out.println("Found Patient ID: " + patientID);
+            loadChatFor(patientID);
+        }
     }
 
     @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {

@@ -11,13 +11,15 @@ CREATE TABLE employees (
     sex ENUM('MALE', 'FEMALE', 'OTHER') NOT NULL,
     birthDate DATE NOT NULL,
     hireDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    email VARCHAR(100) NOT NULL,
-    phone VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(100) NOT NULL UNIQUE,
     address VARCHAR(100) NOT NULL,
     managerID INT,
     FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
     FOREIGN KEY (managerID) REFERENCES users(ID) ON CASCADE DELETE
 );
+
+show create table employees;
 
 INSERT INTO users (username, password, userType)
 VALUES ('test', 'test', 'EMPLOYEE');
