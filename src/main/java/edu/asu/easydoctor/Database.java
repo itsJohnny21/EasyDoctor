@@ -93,7 +93,7 @@ public abstract class Database {
     }
 
     public enum VisitStatus {
-        PENDING, IN_PROGRESS, COMPLETED, MISSED, CANCELLED;
+        PENDING, IN_PROGRESS, COMPLETED, MISSED, CANCELLED, UPCOMING;
     }
 
     public static Connection connection;
@@ -562,83 +562,172 @@ public abstract class Database {
     }
 
 
-    public static void changeVisitStatus(int visitID, VisitStatus visitStatus) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET status = ? WHERE ID = ?;");
-        statement.setString(1, visitStatus.toString());
-        statement.setInt(2, visitID);
+    public static void insertVisitFor(int patientID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(
+            "INSERT INTO visits (patientID, creationType, localdate, date, time, doctorID, reason, description) " +
+            "VALUES(? ?, ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?);");
 
-        statement.executeUpdate();
-    }
-
-    public static void insertVisitFor(int userID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
-        ResultSet upcomingVisit = getUpcomingVisitFor(userID);
-
-        if (upcomingVisit.next()) {
-            throw new SQLException("Upcoming visit already exists");
-        }
-
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO visits (userID, creationType, doctorID, reason, description, date, time) VALUES (?, ?, ?, ?, ?, ?);");
-        statement.setInt(1, userID);
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setInt(1, patientID);
         statement.setString(2, creationType.toString());
-        statement.setInt(3, doctorID);
-        statement.setString(4, reason);
-        statement.setString(5, description);
-        statement.setString(6, date);
-        statement.setString(7, time);
+        statement.setString(3, date);
+        statement.setString(4, date);
+        statement.setString(5, time);
+        statement.setString(6, systemZoneId);
+        statement.setString(7, date);
+        statement.setString(8, time);
+        statement.setString(9, systemZoneId);
+        statement.setInt(10, doctorID);
+        statement.setString(11, reason);
+        statement.setString(12, description);
 
         statement.executeUpdate();
     }
 
     public static void insertMyVisit(CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
-        insertVisitFor(userID, creationType, doctorID, reason, description, date, time);
+        insertVisitFor(getMyID(), creationType, doctorID, reason, description, date, time);
     }
 
-    public static ResultSet getVisitsFor(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE userID = ? ORDER BY date DESC;");
-        statement.setInt(1, userID);
+    public static ResultSet getVisitsFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description, " +
+            "CASE  " +
+                "WHEN completed = TRUE THEN ? " +
+                "WHEN in_progress = TRUE THEN ? " +
+                "WHEN cancelled = TRUE THEN ? " +
+                "WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN ? " +
+                "WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN ? " +
+                "ELSE ? " +
+            "END AS 'status' " +
+            "FROM visits WHERE patientID = ? ORDER BY date DESC, time DESC;");
+        
+        statement.setString(1, ZoneId.systemDefault().getId());
+        statement.setString(2, ZoneId.systemDefault().getId());
+        statement.setString(3, VisitStatus.COMPLETED.toString());
+        statement.setString(4, VisitStatus.IN_PROGRESS.toString());
+        statement.setString(5, VisitStatus.CANCELLED.toString());
+        statement.setString(6, VisitStatus.MISSED.toString());
+        statement.setString(7, VisitStatus.PENDING.toString());
+        statement.setString(8, VisitStatus.UPCOMING.toString());
+        statement.setInt(9, patientID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }
 
     public static ResultSet getMyVisits() throws SQLException {
-        return getVisitsFor(userID);
+        return getVisitsFor(getMyID());
     }
 
     public static ResultSet getVisit(int rowID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, userID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE ID = ?;");
-        statement.setInt(1, rowID);
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description, " +
+            "CASE  " +
+                "WHEN completed = TRUE THEN ? " +
+                "WHEN in_progress = TRUE THEN ? " +
+                "WHEN cancelled = TRUE THEN ? " +
+                "WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN ? " +
+                "WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN ? " +
+                "ELSE ? " +
+            "END AS 'status' " +
+            "FROM visits WHERE ID = ?;");
+
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setString(1, systemZoneId);
+        statement.setString(2, systemZoneId);
+        statement.setString(3, VisitStatus.COMPLETED.toString());
+        statement.setString(4, VisitStatus.IN_PROGRESS.toString());
+        statement.setString(5, VisitStatus.CANCELLED.toString());
+        statement.setString(6, VisitStatus.MISSED.toString());
+        statement.setString(7, VisitStatus.PENDING.toString());
+        statement.setString(8, VisitStatus.UPCOMING.toString());
+        statement.setInt(9, rowID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }
 
-    public static ResultSet getUpcomingVisitFor(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description, status FROM visits WHERE userID = ? AND STATUS = 'PENDING' LIMIT 1;");
-        statement.setInt(1, userID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
-    public static ResultSet getUpcomingVisitForOLD(int userID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = ? AND completed = FALSE AND date >= CURRENT_DATE LIMIT 1;");
-        statement.setInt(1, userID);
+    public static ResultSet getUpcomingVisitFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1;");
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setString(1, systemZoneId);
+        statement.setString(2, systemZoneId);
+        statement.setInt(3, patientID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }
 
     public static ResultSet getMyUpcomingVisit() throws SQLException {
-        return getUpcomingVisitFor(userID);
+        return getUpcomingVisitFor(getMyID());
     }
 
     public static ResultSet getTodaysVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, doctorID, userID, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'date', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'time', reason, completed, creationTime, creationType, description, status FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?)) ORDER BY date DESC;");
-        statement.setString(1, ZoneId.systemDefault().getId());
-        statement.setString(2, ZoneId.systemDefault().getId());
-        statement.setString(3, ZoneId.systemDefault().getId());
-        statement.setString(4, ZoneId.systemDefault().getId());
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description, " +
+            "CASE  " +
+                "WHEN completed = TRUE THEN ? " +
+                "WHEN in_progress = TRUE THEN ? " +
+                "WHEN cancelled = TRUE THEN ? " +
+                "WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN ? " +
+                "WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN ? " +
+                "ELSE ? " +
+            "END AS 'status' " +
+            "FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?)) ORDER BY date DESC;");
+            
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setString(1, systemZoneId);
+        statement.setString(2, systemZoneId);
+        statement.setString(3, VisitStatus.COMPLETED.toString());
+        statement.setString(4, VisitStatus.IN_PROGRESS.toString());
+        statement.setString(5, VisitStatus.CANCELLED.toString());
+        statement.setString(6, VisitStatus.MISSED.toString());
+        statement.setString(7, VisitStatus.PENDING.toString());
+        statement.setString(8, VisitStatus.UPCOMING.toString());
+        statement.setString(9, systemZoneId);
+        statement.setString(10, systemZoneId);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static void startVisit(int visitID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET in_progress = TRUE WHERE ID = ? AND CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW());");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
+
+        if (statement.getUpdateCount() == 0) {
+            throw new SQLException("Visit cannot be started");
+        }
+    }
+
+    public static void completeVisit(int visitID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, in_progress = FALSE WHERE ID = ?;");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
+
+        if (statement.getUpdateCount() == 0) {
+            throw new SQLException("Visit cannot be completed");
+        }
+    }
+
+    public static void cancelVisit(int visitID) throws SQLException {
+
+        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET cancelled = TRUE, in_progress = FALSE WHERE ID = ?;");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
+
+        if (statement.getUpdateCount() == 0) {
+            throw new SQLException("Visit cannot be cancelled");
+        }
+    }
+
+    public static ResultSet getStartedVisits() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE in_progress = TRUE;");
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setString(1, systemZoneId);
+        statement.setString(2, systemZoneId);
+
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
     }

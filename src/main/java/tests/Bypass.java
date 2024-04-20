@@ -26,6 +26,10 @@ public class Bypass {
 		Bypass.toPortal("john123", "john123");
 	}
 
+	public static void toPatientPortal() throws Exception {
+		Bypass.toPortal("john123", "john123");
+	}
+
 	public static void toWorkPortalInbox() throws Exception {
 		Bypass.toWorkPortal();
 		WorkPortalController workPortalController = WorkPortalController.getInstance();

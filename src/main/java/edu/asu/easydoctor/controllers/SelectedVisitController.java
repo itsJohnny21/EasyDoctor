@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Database.VisitStatus;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -70,7 +71,7 @@ public class SelectedVisitController extends DialogController {
         alert.showAndWait();
 
         if (alert.getResult().getText().equals("OK")) {
-            Database.deleteRow("visits", rowID);
+            Database.cancelVisit(rowID);
             result.put("deleted", true);
             closeAndNullify();
         }
@@ -82,20 +83,26 @@ public class SelectedVisitController extends DialogController {
 
         if (visit.next()) {
             String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
-            String dayOfWeek = visit.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String time = Utilities.prettyTime(visit.getTime("time"));
-            String date = Utilities.prettyDate(visit.getDate("date"));
+            String dayOfWeek = visit.getDate("localdate").toLocalDate().getDayOfWeek().toString();
+            String time = Utilities.prettyTime(visit.getTime("localtime"));
+            String date = Utilities.prettyDate(visit.getDate("localdate"));
             String reason = visit.getString("reason");
             String description = visit.getString("description");
-            boolean completed = visit.getBoolean("completed");
+            String status = VisitStatus.valueOf(visit.getString("status")).toString();
 
             doctorLabel.setText(doctor);
             dateLabel.setText(date);
             dayLabel.setText(dayOfWeek);
             timeLabel.setText(time);
             reasonLabel.setText(reason);
-            statusLabel.setText(Utilities.getVisitStatus(visit.getDate("date"), visit.getTime("time"), completed));
+            statusLabel.setText(status);
             descriptionTextArea.setText(description);
+
+            if (VisitStatus.valueOf(status).equals(VisitStatus.PENDING) || VisitStatus.valueOf(status).equals(VisitStatus.UPCOMING)) {
+                cancelVisitButton.setDisable(false);
+            } else {
+                cancelVisitButton.setDisable(true);
+            }
         }
         visit.close();
     }

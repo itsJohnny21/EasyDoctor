@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Database.VisitStatus;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
 import edu.asu.easydoctor.Utilities;
@@ -156,23 +157,22 @@ public class PatientPortalController extends Controller {
         while (visits.next()) {
             int rowID = visits.getInt("ID");
 
+            String patient = Database.getPatientNameFor(visits.getInt("patientID"));
             String doctor = Database.getEmployeeNameFor(visits.getInt("doctorID"));
-            String dayOfWeek = visits.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String date = Utilities.prettyDate(visits.getDate("date"));
-            String time = Utilities.prettyTime(visits.getTime("time"));
+            String localdate = Utilities.prettyDate(visits.getDate("localdate").toLocalDate());
+            String localtime = Utilities.prettyTime(visits.getTime("localtime").toLocalTime());
             String reason = visits.getString("reason");
-            boolean completed = visits.getBoolean("completed");
+            String status = VisitStatus.valueOf(visits.getString("status")).toString();
 
+            ValueLabel patientLabel = new ValueLabel(patient);
             ValueLabel doctorLabel = new ValueLabel(doctor);
-            ValueLabel dateLabel = new ValueLabel(date);
-            ValueLabel dayLabel = new ValueLabel(dayOfWeek);
-            ValueLabel timeLabel = new ValueLabel(time);
+            ValueLabel dateLabel = new ValueLabel(localdate);
+            ValueLabel timeLabel = new ValueLabel(localtime);
             ValueLabel reasonLabel = new ValueLabel(reason);
-            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatus(visits.getDate("date"), visits.getTime("time"), completed));
+            ValueLabel statusLabel = new ValueLabel(status);
 
-
-            Row row = new Row( "visits", rowID, doctorLabel, dateLabel, dayLabel, timeLabel, reasonLabel, statusLabel);
-            rows.add(row);  
+            Row row = new Row( "visits", rowID, patientLabel, doctorLabel, dateLabel, timeLabel, reasonLabel, statusLabel);
+            rows.add(row);
         }
         visits.close();
 

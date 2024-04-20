@@ -4,78 +4,184 @@ CREATE TABLE visits (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     creationType ENUM('IN_PERSON', 'ONLINE') NOT NULL,
+    localdate DATE NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
-    timezone VARCHAR(255) NOT NULL,
-    userID INT NOT NULL,
+    patientID INT NOT NULL,
     doctorID INT NOT NULL,
     completed BOOLEAN DEFAULT FALSE NOT NULL,
-    status ENUM('PENDING', 'IN_PROGRESS', 'COMPLETE', 'MISSED' DEFAULT 'PENDING' NOT NULL
+    in_progress BOOLEAN DEFAULT FALSE NOT NULL,
+    cancelled BOOLEAN DEFAULT FALSE NOT NULL,
     reason TEXT,
     description TEXT,
-    FOREIGN KEY (userID) REFERENCES users(ID),
+    FOREIGN KEY (patientID) REFERENCES users(ID),
     FOREIGN KEY (doctorID) REFERENCES users(ID),
-    ALTER TABLE visits,
-    UNIQUE (userID, date, timzezone)
+    UNIQUE KEY (patientID, localdate),
+    UNIQUE KEY (date, time),
+    CONSTRAINT check_only_one_status CHECK (
+        (completed = TRUE AND in_progress = FALSE AND cancelled = FALSE) OR
+        (completed = FALSE AND in_progress = TRUE AND cancelled = FALSE) OR
+        (completed = FALSE AND in_progress = FALSE AND cancelled = TRUE) OR
+        (completed = FALSE AND in_progress = FALSE AND cancelled = FALSE)
+    )
 );
 
-show create table visits;
-alter table visits change column status status ENUM('PENDING', 'IN_PROGRESS', 'COMPLETED', 'MISSED', 'CANCELLED') DEFAULT 'PENDING' NOT NULL;
+ALTER TABLE visits
+ADD CONSTRAINT check_only_one_status
+CHECK (
+    (completed = TRUE AND in_progress = FALSE AND cancelled = FALSE) OR
+    (completed = FALSE AND in_progress = TRUE AND cancelled = FALSE) OR
+    (completed = FALSE AND in_progress = FALSE AND cancelled = TRUE) OR
+    (completed = FALSE AND in_progress = FALSE AND cancelled = FALSE)
+);
+-- Schedule a new visit
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?, ?); -- Statement for Java
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 01:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-20 01:30:00', 'America/Phoenix', '+00:00')), 182, 3, 'Checkup', 'Mental health checkup'); -- Visit for 2024-04-20 01:30 am in Arizona time with ID = 1
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-19', DATE(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), 182, 3, 'Checkup', 'Mental health checkup'); -- Visit for 2024-04-19 10:30 pm in Arizona time with ID = 3
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-19', DATE(CONVERT_TZ('2024-04-19 22:45:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-19 22:45:00', 'America/Phoenix', '+00:00')), 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-19', DATE(CONVERT_TZ('2024-04-19 23:45:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-19 23:45:00', 'America/Phoenix', '+00:00')), 207, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-21', DATE(CONVERT_TZ('2024-04-21 23:45:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-21 23:45:00', 'America/Phoenix', '+00:00')), 207, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 23:45:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-20 23:45:00', 'America/Phoenix', '+00:00')), 207, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 01:45:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-20 01:45:00', 'America/Phoenix', '+00:00')), 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-19', DATE(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), 2, 3, 'Checkup', 'Mental health checkup'); -- Duplicate key error for date and time
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-20 22:30:00', 'America/Phoenix', '+00:00')), 182, 3, 'Checkup', 'Mental health checkup'); -- Duplicate key error for patientID and localdate
 
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('IN-PERSON', '2021-01-01 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2021-01-02 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('IN-PERSON', '2021-01-03 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2021-01-04 12:00:00', 2, 3, 'Checkup', 'Routine checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', CURRENT_DATE(), 2, 3, 'Checkup', 'Ghonareah checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2024-03-10', 2, 3, 'Checkup', 'Chlamydia checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2024-04-01', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-02:09:00:00', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-02:09:12:49', 2, 3, 'Checkup', 'Mental health checkup');
-VALUES ('ONLINE', '2025-04-02:09:00:00', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-02:09:13:49', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-12-03:09:14:53', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description, time)
-VALUES ('ONLINE', '2025-06-03:09:14:21', 2, 3, 'Checkup', 'Mental health checkup', '12:52:00');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description)
-VALUES ('ONLINE', '2025-04-03:09:14:54', 2, 3, 'Checkup', 'Mental health checkup');
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description, time)
-VALUES ('ONLINE', '2025-04-03:09:14:55', 2, 3, 'Checkup', 'Mental health checkup', '12:57:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 2, 3, 'Checkup', 'Mental health checkup', '1999-02-22', '12:56:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 2, 3, 'Checkup', 'Mental health checkup', '1999-02-23', '12:55:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 2, 3, 'Checkup', 'Mental health checkup', CURRENT_DATE, '02:55:00');
+-- Retrieve all visits
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description, 
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits; -- Statement for Java
 
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 182, 3, 'Checkup', 'Mental health checkup', CURRENT_DATE, '02:45:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 197, 3, 'Checkup', 'Mental health checkup', CURRENT_DATE, '02:45:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 206, 3, 'Checkup', 'Mental health checkup', CURRENT_DATE, '02:45:00');
-INSERT INTO visits (creationType, userID, doctorID, reason, description, date, time)
-VALUES ('ONLINE', 207, 3, 'Checkup', 'Mental health checkup', '2024-04-20', '12:59:00');
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description, 
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits; -- Retrieve all visits for Phoneix time
 
-select * from patients;
-UPDATE visits SET completed = TRUE WHERE userID =2;
-SELECT * FROM visits;
+-- Retrieve a visit
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE ID = ?; -- Statement for Java
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE ID = 2; -- Visit with ID = 2
+
+-- Retrieve todays visits
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?)) ORDER BY date DESC; -- Statement for Java
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) = DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')) ORDER BY date DESC; -- Todays visits for Phoneix time
+
+-- Add visit for current time (testing purposes only)
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 182, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 207, 3, 'Checkup', 'Mental health checkup');
+delete from visits where localdate = '2024-04-20';
+
+
+-- Get upcoming visit for a patient
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1; -- Statement for Java
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = 207 AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE AND completed = FALSE AND in_progress = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1; -- Upcoming visits for patient with ID = 207
+
+-- Get a patient's visits
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE patientID = ? ORDER BY date DESC, time DESC; -- Statement for Java
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description,
+CASE 
+    WHEN completed = TRUE THEN 'COMPLETE'
+    WHEN in_progress = TRUE THEN 'IN_PROGRESS'
+    WHEN cancelled = TRUE THEN 'CANCELLED'
+    WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+    WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+    ELSE 'UPCOMING'
+END AS 'status'
+FROM visits WHERE patientID = 2 ORDER BY date DESC, time DESC; -- Visits for patient with ID = 2
+
+-- Cancel a visit
+UPDATE visits SET cancelled = TRUE, in_progress = FALSE WHERE ID = ?;
+UPDATE visits SET cancelled = TRUE, in_progress = FALSE WHERE ID = 20; -- Cancel visit with ID = 207
+UPDATE visits SET cancelled = FALSE WHERE ID = 20; -- Uncancel visit with ID = 207
+
+-- Complete a visit
+UPDATE visits SET completed = TRUE, in_progress = FALSE WHERE ID = ? AND in_progress = TRUE;
+UPDATE visits SET completed = TRUE, in_progress = FALSE WHERE ID = 20; -- Complete visit with ID = 207
+UPDATE visits SET completed = FALSE, in_progress = TRUE WHERE ID = 20; -- Uncomplete visit with ID = 207
+
+-- Start a visit
+UPDATE visits SET in_progress = TRUE WHERE ID = ? AND CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW());
+UPDATE visits SET in_progress = TRUE WHERE ID = 20;
+UPDATE visits SET in_progress = FALSE WHERE ID = 20; -- Unstart visit with ID = 207
+
+-- Get visits in progress
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE in_progress = TRUE; -- Statement for Java
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE in_progress = TRUE; -- Visits in progress for Phoneix time
+
+-- Select a visit raw
+SELECT * FROM visits WHERE ID = 2;
+
 use easydoctor;
-SELECT * FROM visits;
-SELECT * FROM visits WHERE userID = 2;
-
-SELECT ID, doctorID, date, time, reason, completed, creationTime, creationType, description FROM visits WHERE userID = 2 ORDER BY date DESC;
-SELECT ID, doctorID, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'date', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'time', reason, completed, creationTime, creationType, description, status FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) = DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')) ORDER BY date DESC;
-INSERT INTO visits (creationType, date, userID, doctorID, reason, description, time, timezone)
-VALUES ('ONLINE', CURRENT_DATE, 182, 3, 'Checkup', 'Mental health checkup', CURRENT_TIME, 'America/Phoenix');
-select DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix'));
+select * from patients;
+select * from employees;
+select * from visits;

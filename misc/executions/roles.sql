@@ -227,7 +227,10 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'conversations' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'patient'@'%'";
 GRANT SELECT (creationTime, message, readStatus, senderID, receiverID) ON conversations TO 'doctor'@'%';
 GRANT UPDATE (readStatus) ON conversations TO 'doctor'@'%';
-GRANT SELECT (status) ON visits TO 'patient'@'%';
-GRANT UPDATE ON patients TO 'patient'@'%';
-SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'users' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
+REVOKE SELECT (status) ON visits FROM 'patient'@'%';
+REVOKE SELECT (status) ON visits FROM 'doctor'@'%';
+GRANT UPDATE ON visits TO 'doctor'@'%';
+GRANT SELECT (creationType, localdate, date, time, patientID, doctorID, reason, description) ON visits TO 'doctor'@'%';
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
+SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
 use easydoctor;

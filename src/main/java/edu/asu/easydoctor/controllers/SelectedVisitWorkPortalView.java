@@ -2,7 +2,6 @@ package edu.asu.easydoctor.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
@@ -77,30 +76,28 @@ public class SelectedVisitWorkPortalView extends DialogController {
         ResultSet visit = Database.getVisit(rowID);
 
         if (visit.next()) {
-            patientID = visit.getInt("userID");
+            patientID = visit.getInt("patientID");
+            VisitStatus visitStatus = VisitStatus.valueOf(visit.getString("status"));
+
             String patient = Database.getPatientNameFor(patientID);
             String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
-            String date = Utilities.prettyDate(visit.getDate("date").toLocalDate());
-            String time = Utilities.prettyTime(visit.getTime("time").toLocalTime());
+            String localdate = Utilities.prettyDate(visit.getDate("localdate").toLocalDate());
+            String localtime = Utilities.prettyTime(visit.getTime("localtime").toLocalTime());
             String reason = visit.getString("reason");
-            boolean completed = visit.getBoolean("completed");
-            VisitStatus status = VisitStatus.valueOf(visit.getString("status"));
+            String status = visitStatus.toString();
 
             patientLabel.setText(patient);
             doctorLabel.setText(doctor);
-            dateLabel.setText(date);
-            timeLabel.setText(time);
+            dateLabel.setText(localdate);
+            timeLabel.setText(localtime);
             reasonLabel.setText(reason);
-            statusLabel.setText(Utilities.getVisitStatusWorkPortal(visit.getDate("date").toLocalDate(), visit.getTime("time").toLocalTime(), completed));
+            statusLabel.setText(status);
 
-            LocalDateTime dateTime = LocalDateTime.of(visit.getDate("date").toLocalDate(), visit.getTime("time").toLocalTime());
-
-            if (LocalDateTime.now().isAfter(dateTime.plusMinutes(15)) && status != VisitStatus.COMPLETED) {
-                Database.changeVisitStatus(rowID, VisitStatus.MISSED);
+            if (visitStatus == VisitStatus.PENDING) {
+                startButton.setDisable(false);
+            } else {
+                startButton.setDisable(true);
             }
-        } else {
-            visit.close();
-            closeAndNullify();
         }
         visit.close();
     }

@@ -164,30 +164,22 @@ public class WorkPortalController extends Controller {
         while (visits.next()) {
             int rowID = visits.getInt("ID");
 
-            String patient = Database.getPatientNameFor(visits.getInt("userID"));
+            String patient = Database.getPatientNameFor(visits.getInt("patientID"));
             String doctor = Database.getEmployeeNameFor(visits.getInt("doctorID"));
-            String date = Utilities.prettyDate(visits.getDate("date").toLocalDate());
-            String time = Utilities.prettyTime(visits.getTime("time").toLocalTime());
+            String localdate = Utilities.prettyDate(visits.getDate("localdate").toLocalDate());
+            String localtime = Utilities.prettyTime(visits.getTime("localtime").toLocalTime());
             String reason = visits.getString("reason");
-            boolean completed = visits.getBoolean("completed");
-            VisitStatus status = VisitStatus.valueOf(visits.getString("status"));
+            String status = VisitStatus.valueOf(visits.getString("status")).toString();
 
             ValueLabel patientLabel = new ValueLabel(patient);
             ValueLabel doctorLabel = new ValueLabel(doctor);
-            ValueLabel dateLabel = new ValueLabel(date);
-            ValueLabel timeLabel = new ValueLabel(time);
+            ValueLabel dateLabel = new ValueLabel(localdate);
+            ValueLabel timeLabel = new ValueLabel(localtime);
             ValueLabel reasonLabel = new ValueLabel(reason);
-            ValueLabel statusLabel = new ValueLabel(Utilities.getVisitStatusWorkPortal(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime(), completed));
+            ValueLabel statusLabel = new ValueLabel(status);
 
             Row row = new Row( "visits", rowID, patientLabel, doctorLabel, dateLabel, timeLabel, reasonLabel, statusLabel);
             rows.add(row);
-            
-            LocalDateTime dateTime = LocalDateTime.of(visits.getDate("date").toLocalDate(), visits.getTime("time").toLocalTime());
-
-            if (LocalDateTime.now().isAfter(dateTime.plusMinutes(15)) && status != VisitStatus.COMPLETED) {
-                Database.changeVisitStatus(rowID, VisitStatus.MISSED);
-                // Database.markVisitAsMissed(rowID); //! needs some if statements to check if the visit is already in progress or completed
-            }
         }
         visits.close();
 
@@ -201,19 +193,19 @@ public class WorkPortalController extends Controller {
                         HashMap<String, Object> result = loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
 
                         if ((boolean) result.containsKey("start")) {
-                            System.out.println("Starting visit!");
-                            Database.changeVisitStatus(row.rowID, VisitStatus.IN_PROGRESS); //! needs some if statements to check if the visit is already in progress or completed
-                            // Database.startVisit(row.rowID); //TODO: Implement this
+                            System.out.println("Starting visit");
+                            Database.startVisit(row.rowID);
+                            visitsButton.fire();
                             
                         } else if (result.containsKey("patientUsername")) {
-                            System.out.println("Contacting patient!");
                             String patientUsername = (String) result.get("patientUsername");
-                            inboxButton.fire();
+                            refreshPane(currentTab);
 
-                            FindPatientController.getInstance().initialize();
-                            FindPatientController.getInstance().usernameButton.fire();
-                            FindPatientController.getInstance().usernameTextField.setText(patientUsername);
-                            inboxNewMessageButton.fire();
+                            FindPatientController findPatientController = FindPatientController.getInstance();
+                            findPatientController.loadDialog(); //! because of the dialog's showAndWait(), I can't edit the fields until it is closed. I neeed to create a new thread and look for the dialog to edit it
+                            // findPatientController.usernameButton.fire();
+                            // findPatientController.usernameTextField.setText(patientUsername);
+                            // inboxNewMessageButton.fire();
                         }
                         
                     } catch (Exception e) {
@@ -467,6 +459,24 @@ public class WorkPortalController extends Controller {
     public HashMap<String, Object> loadDialog(DialogController dialogController, HashMap<String, Object> data) throws Exception {
         currentDialog = dialogController;
         return dialogController.loadDialog(data);
+    }
+
+    public void refreshPane(AnchorPane pane) {
+        if (pane == inboxPane) {
+            inboxButton.fire();
+        } else if (pane == visitsPane) {
+            visitsButton.fire();
+        } else if (pane == patientRecordsPane) {
+            patientRecordsButton.fire();
+        } else if (pane == activeSessionsPane) {
+            activeSessionsButton.fire();
+        } else if (pane == prescriptionToolPane) {
+            prescriptionToolButton.fire();
+        } else if (pane == usernamePane) {
+            usernameButton.fire();
+        } else if (pane == chatPane) {
+            chatGoBackButton.fire();
+        }
     }
 
     public void closeAndNullify() {
