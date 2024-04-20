@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -15,6 +14,11 @@
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
+      <Label alignment="CENTER" prefHeight="75.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Find Patient" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <font>
+            <Font size="42.0" />
+         </font>
+      </Label>
       <GridPane layoutY="500.0" minHeight="100.0" minWidth="1000.0" prefHeight="100.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="500.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -26,60 +30,73 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="sendButton" disable="true" mnemonicParsing="false" onAction="#handleSendButton" prefHeight="30.0" prefWidth="100.0" text="Send" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="doneButton" disable="true" mnemonicParsing="false" onAction="#handleDoneButtonAction" prefHeight="30.0" prefWidth="100.0" text="Done" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" prefHeight="30.0" prefWidth="100.0" text="Cancel" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>
       </GridPane>
-      <HBox layoutY="450.0" prefHeight="50.0" prefWidth="1000.0" AnchorPane.bottomAnchor="98.5" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="450.0">
-         <children>
-            <TextArea fx:id="messageTextArea" disable="true" onKeyTyped="#handleKeyTyped" prefHeight="100.0" prefWidth="1512.0" promptText="Type a message here..." wrapText="true">
-               <HBox.margin>
-                  <Insets left="200.0" />
-               </HBox.margin>
-               <font>
-                  <Font name="Arial" size="18.0" />
-               </font>
-            </TextArea>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-               <HBox.margin>
-                  <Insets left="50.0" right="200.0" />
-               </HBox.margin>
-            </VBox>
-         </children>
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
+      <HBox layoutY="330.0" prefHeight="100.0" prefWidth="1000.0" AnchorPane.bottomAnchor="170.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="330.0">
+         <padding>
+            <Insets top="50.0" />
+         </padding>
       </HBox>
-      <GridPane hgap="30.0" layoutY="80.0" prefHeight="300.0" prefWidth="1000.0" AnchorPane.bottomAnchor="220.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
+      <GridPane layoutX="100.0" layoutY="75.0" prefHeight="75.0" prefWidth="800.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
         <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-         <padding>
-            <Insets left="150.0" right="150.0" top="20.0" />
-         </padding>
+         <children>
+            <Button fx:id="usernameButton" mnemonicParsing="false" onAction="#handleUsernameButtonAction" prefWidth="200.0" text="Username" GridPane.columnIndex="1" />
+            <Button fx:id="emailButton" mnemonicParsing="false" onAction="#handleEmailButtonAction" prefWidth="200.0" text="Email" GridPane.columnIndex="2" />
+            <Button fx:id="nameAndBirthButton" mnemonicParsing="false" onAction="#handleNameAndBirthButtonAction" prefWidth="200.0" text="Name and Birth" />
+            <Button fx:id="phoneNumberButton" mnemonicParsing="false" onAction="#handlePhoneNumberButtonAction" prefWidth="200.0" text="Phone Number" GridPane.columnIndex="3" />
+         </children>
+      </GridPane>
+      <GridPane layoutX="100.0" layoutY="300.0" prefWidth="800.0" vgap="30.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="494.60760498046875" minWidth="10.0" prefWidth="400.3200988769531" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="402.8760681152344" minWidth="10.0" prefWidth="399.6799011230469" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button fx:id="findPatientButton" mnemonicParsing="false" onAction="#handleFindPatientButtonAction" prefHeight="30.0" prefWidth="100.0" text="Find Patient" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Label fx:id="patientLabel" alignment="CENTER" prefHeight="100.0" prefWidth="800.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
+      <GridPane fx:id="nameAndBirthPane" disable="true" hgap="20.0" layoutX="100.0" layoutY="150.0" prefHeight="50.0" prefWidth="800.0" visible="false" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="150.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
          <children>
             <VBox prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="First Name" textAlignment="CENTER">
+                  <Label alignment="CENTER" onKeyTyped="#handleKeyTyped" prefWidth="266.0" text="First Name" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="firstNameTextField" onKeyTyped="#handleKeyTyped" />
+                  <TextField fx:id="firstNameTextField" />
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="Last Name" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefWidth="266.0" text="Last Name" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
@@ -89,7 +106,7 @@
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="Date of Birth" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefWidth="266.0" text="Date of Birth" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
@@ -97,9 +114,21 @@
                   <TextField fx:id="birthDateTextField" onKeyTyped="#handleKeyTyped" />
                </children>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         </children>
+      </GridPane>
+      <GridPane fx:id="usernamePane" disable="true" hgap="20.0" layoutX="100.0" layoutY="150.0" prefHeight="50.0" prefWidth="800.0" visible="false" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="150.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="Username" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefWidth="266.0" text="Username" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
@@ -107,9 +136,21 @@
                   <TextField fx:id="usernameTextField" onKeyTyped="#handleKeyTyped" />
                </children>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+         </children>
+      </GridPane>
+      <GridPane fx:id="emailPane" disable="true" hgap="20.0" layoutX="100.0" layoutY="150.0" prefHeight="50.0" prefWidth="800.0" visible="false" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="150.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="Email" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefWidth="266.0" text="Email" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
@@ -117,9 +158,21 @@
                   <TextField fx:id="emailTextField" onKeyTyped="#handleKeyTyped" />
                </children>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         </children>
+      </GridPane>
+      <GridPane fx:id="phoneNumberPane" disable="true" hgap="20.0" layoutX="100.0" layoutY="150.0" prefHeight="50.0" prefWidth="800.0" visible="false" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="150.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
                <children>
-                  <Label alignment="CENTER" prefWidth="233.0" text="Phone Number" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefWidth="266.0" text="Phone Number" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="18.0" />
                      </font>
@@ -127,29 +180,7 @@
                   <TextField fx:id="phoneNumberTextField" onKeyTyped="#handleKeyTyped" />
                </children>
             </VBox>
-            <Button fx:id="findPatientButton" mnemonicParsing="false" onAction="#handleFindPatientButtonAction" prefHeight="30.0" prefWidth="100.0" text="Find Patient" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
          </children>
       </GridPane>
-      <HBox prefHeight="100.0" prefWidth="1000.0" AnchorPane.bottomAnchor="500.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Find Patient">
-               <font>
-                  <Font size="28.0" />
-               </font>
-            </Label>
-         </children>
-      </HBox>
-      <HBox layoutY="330.0" prefHeight="100.0" prefWidth="1000.0" AnchorPane.bottomAnchor="170.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="330.0">
-         <children>
-            <Label fx:id="patientLabel" alignment="CENTER" prefHeight="100.0" prefWidth="1000.0">
-               <font>
-                  <Font size="25.0" />
-               </font>
-            </Label>
-         </children>
-         <padding>
-            <Insets top="50.0" />
-         </padding>
-      </HBox>
    </children>
 </AnchorPane>

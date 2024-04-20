@@ -228,4 +228,5 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 
 GRANT SELECT (creationTime, message, readStatus, senderID, receiverID) ON conversations TO 'doctor'@'%';
 GRANT UPDATE (readStatus) ON conversations TO 'doctor'@'%';
 GRANT SELECT (username) ON users TO 'doctor'@'%';
+GRANT UPDATE ON patients TO 'patient'@'%';
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'users' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";

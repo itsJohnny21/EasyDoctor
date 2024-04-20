@@ -85,7 +85,6 @@ SELECT creationTime, message, ID, readStatus, senderID, receiverID FROM conversa
 UPDATE conversations SET readStatus = TRUE WHERE receiverID = 2 AND senderID = 3;
 SELECT * FROM conversations;
 select * from patients;
+use easydoctor;
 SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = 3 OR senderID = 3 ORDER BY creationTime DESC;
-
-sender = doctor1, receiver = patient1
-sender = patient2, receiver = patient1
+DELETE FROM conversations WHERE receiverID = 207 OR senderID = 207;

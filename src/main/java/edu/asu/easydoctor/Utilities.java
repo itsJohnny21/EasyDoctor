@@ -1,8 +1,6 @@
 package edu.asu.easydoctor;
 
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -141,10 +139,6 @@ public class Utilities {
     public static String prettyDateTime(Timestamp tiemstamp) {
         LocalDateTime localDateTime = convertUTCtoLocal(tiemstamp);
         return prettyDateTime(localDateTime);
-    }
-
-    public static String prettyName(ResultSet resultSet) throws SQLException {
-        return resultSet.getString("firstName") + " " + resultSet.getString("lastName");
     }
 }
 

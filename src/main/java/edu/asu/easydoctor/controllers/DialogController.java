@@ -29,7 +29,7 @@ public abstract class DialogController extends BaseController {
             });
 
             this.stage.setScene(this.scene);
-            this.stage.show();
+            this.stage.showAndWait();
         }
 
         if (data != null) {

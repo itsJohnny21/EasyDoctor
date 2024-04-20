@@ -263,6 +263,7 @@ public class WorkPortalController extends Controller {
     @FXML public void handleChatGoBackButtonAction(ActionEvent event) {
         setCurrentTab(inboxPane, inboxButton);
         chatPatientID = null;
+        inboxButton.fire();
     }
 
     public void loadInboxMessages() throws SQLException {
@@ -403,7 +404,13 @@ public class WorkPortalController extends Controller {
     }
 
     @FXML public void handleInboxNewMessageButton(ActionEvent event) throws IOException, SQLException {
-        NewMessageWorkPortal.getInstance().loadDialog();
+        HashMap<String, Object> result = NewMessageWorkPortal.getInstance().loadDialog();
+
+        if (result != null && result.containsKey("patientID")) {
+            int patientID = (int) result.get("patientID");
+            System.out.println("Found Patient ID: " + patientID);
+            loadChatFor(patientID);
+        }
     }
 
     @FXML public void handleChatSendButtonAction(ActionEvent event) throws SQLException {

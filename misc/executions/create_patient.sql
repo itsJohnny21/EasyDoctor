@@ -28,14 +28,17 @@ select * from users;
 select * from patients;
 
 
-INSERT INTO users (ID, username, password, role)
-VALUES (68, 'john1234', '12345', 'PATIENT');
+INSERT INTO users (username, password, role)
+VALUES ('fakepatient1', SHA2('12345', 256), 'PATIENT');
+SET @userID = LAST_INSERT_ID();
+INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (@userID, 'fakeuser1', 'fakeuser1',  'FEMALE', '2000-01-01', 'fakeuser1@test.com', '0000000001', '123 Test St', 'WHITE', 'NON-HISPANIC');
+UPDATE patients set preferredDoctorID = 3 where ID = @userID;
 
+INSERT INTO users (username, password, role)
+VALUES ('updatePatientInfoTest', SHA2('updatePatientInfoTest', 256), 'PATIENT');
+SET @userID = LAST_INSERT_ID();
 INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
-VALUES (68, 'John', 'Doe', '2021-01-01', 'idk', '123', '123', 'MALE', 'WHITE', 'HISPANIC');
-INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
-VALUES (69, 'John', 'Doe', '2021-01-01', 'idk', '123', '123', 'MALE', 'WHITE', 'HISPANIC');
-delete from users where username = 'user1';
-delete from users where ID = 81;
+VALUES (@userID, 'updatePatientInfoTest', 'updatePatientInfoTest', '2021-01-01', 'updatePatientInfoTest@test.com', '123', '123', 'MALE', 'WHITE', 'HISPANIC');
 select * from users;
 select * from patients;

@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import edu.asu.easydoctor.controllers.NewMessageWorkPortal;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -44,11 +43,6 @@ public class App extends Application {
 
 		WelcomeController.getInstance().load();
 		Bypass.toWorkPortalInboxNewMessage();
-		NewMessageWorkPortal newMessageWorkPortal = NewMessageWorkPortal.getInstance();
-		newMessageWorkPortal.firstNameTextField.setText("Barbara");
-		newMessageWorkPortal.lastNameTextField.setText("Williams");
-		newMessageWorkPortal.birthDateTextField.setText("2000-01-01");
-		
 		// Bypass.toResetPasswordDialog("newPassworD!1");
 		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
 		// Test.convertUTCtoLocal();

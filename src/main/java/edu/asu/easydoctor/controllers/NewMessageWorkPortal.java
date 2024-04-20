@@ -1,28 +1,37 @@
 package edu.asu.easydoctor.controllers;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Utilities;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 
 public class NewMessageWorkPortal extends DialogController {
     
     @FXML public AnchorPane rootPane;
     @FXML public Button cancelButton;
-    @FXML public Button sendButton;
+    @FXML public Button doneButton;
     @FXML public Button findPatientButton;
+
+    @FXML public Button nameAndBirthButton;
+    @FXML public GridPane nameAndBirthPane;
+
+    @FXML public Button usernameButton;
+    @FXML public GridPane usernamePane;
+
+    @FXML public Button emailButton;
+    @FXML public GridPane emailPane;
+
+    @FXML public Button phoneNumberButton;
+    @FXML public GridPane phoneNumberPane;
 
     @FXML public TextField firstNameTextField;
     @FXML public TextField lastNameTextField;
@@ -32,7 +41,6 @@ public class NewMessageWorkPortal extends DialogController {
     @FXML public TextField phoneNumberTextField;
 
     @FXML public Label patientLabel;
-    @FXML public TextArea messageTextArea;
 
     public static NewMessageWorkPortal instance = null;
     public final static String TITLE = "Send Message";
@@ -40,6 +48,8 @@ public class NewMessageWorkPortal extends DialogController {
     public final static String VIEW_FILENAME = "NewMessageWorkPortalView";
     public final static String STYLE_FILENAME = "PatientPortalView";
     public Integer patientID;
+    public Button currentButton;
+    public GridPane currentPane;
 
     private NewMessageWorkPortal() {
         title = TITLE;
@@ -57,85 +67,104 @@ public class NewMessageWorkPortal extends DialogController {
     }
 
     public void initialize() throws Exception {
-        ObjectProperty<Integer> patientIDProperty = new SimpleObjectProperty<>(patientID);
-        BooleanBinding patientIDBinding = patientIDProperty.isNull();
-        sendButton.disableProperty().bind(patientIDBinding);
+        nameAndBirthButton.fire();
     }
 
-    @FXML public void handleKeyTyped(ActionEvent event) throws Exception { //! Move this function to the base controlelr since every controller uses this
+    @FXML public void handleNameAndBirthButtonAction(ActionEvent event) {
+        setCurrentPane(nameAndBirthPane, nameAndBirthButton);
+    }
+
+    @FXML public void handleUsernameButtonAction(ActionEvent event) {
+        setCurrentPane(usernamePane, usernameButton);
+    }
+
+    @FXML public void handleEmailButtonAction(ActionEvent event) {
+        setCurrentPane(emailPane, emailButton);
+    }
+
+    @FXML public void handlePhoneNumberButtonAction(ActionEvent event) {
+        setCurrentPane(phoneNumberPane, phoneNumberButton);
+    }
+
+    @FXML public void handleKeyTyped(KeyEvent event) {
         TextField textField = (TextField) event.getSource();
         Utilities.removeClass(textField, "error");
     }
 
-    @FXML public void handleCancelButtonAction (ActionEvent event) throws Exception {
+    @FXML public void handleCancelButtonAction (ActionEvent event) {
+        result.remove("patientID");
+        patientID = null;
         closeAndNullify();
     }
 
-    @FXML public void handleSendButton(ActionEvent event) throws Exception {
-        if (Utilities.validate(messageTextArea, styleFilename)) {
-            System.out.println("messages sent: " + messageTextArea.getText());
-            Database.sendMessageTo(patientID, messageTextArea.getText());
-        }
+    @FXML public void handleDoneButtonAction(ActionEvent event) {
+        closeAndNullify();
     }
 
     @FXML public void handleFindPatientButtonAction(ActionEvent event) throws Exception {
-        boolean patientFound = false;
-        ResultSet patient = null;
+        Integer patientIDToFind = null;
 
-        if (!firstNameTextField.getText().isBlank() && !lastNameTextField.getText().isBlank() && !birthDateTextField.getText().isBlank() && usernameTextField.getText().isBlank() && emailTextField.getText().isBlank() && phoneNumberTextField.getText().isBlank()) {
+        if (currentPane == nameAndBirthPane) {
             if (Utilities.validate(firstNameTextField, Utilities.NAME_REGEX) && Utilities.validate(lastNameTextField, Utilities.NAME_REGEX) && Utilities.validate(birthDateTextField, Utilities.BIRTH_DATE_REGEX)) {
-                patient = Database.getPatientByFirstNameLastNameBirthDate(firstNameTextField.getText(), lastNameTextField.getText(), birthDateTextField.getText());
-                patientFound = patient.next();
-                if (!patientFound) {
-                    Utilities.addClass(firstNameTextField, "error");
-                    Utilities.addClass(lastNameTextField, "error");
-                    Utilities.addClass(birthDateTextField, "error");
-                }
+                patientIDToFind = Database.getPatientIDByFirstNameLastNameBirthDate(firstNameTextField.getText(), lastNameTextField.getText(), birthDateTextField.getText());
             }
-        }
-        
-        if (!usernameTextField.getText().isBlank()) {
+        } else if (currentPane == usernamePane) {
             if (Utilities.validate(usernameTextField, Utilities.USERNAME_REGEX)) {
-                patient = Database.getPatientByUsername(usernameTextField.getText());
-                patientFound = patient.next();
-
-                if (!patientFound) {
-                    Utilities.addClass(usernameTextField, "error");
-                }
+                patientIDToFind = Database.getPatientIDByUsername(usernameTextField.getText());
             }
-        }
-        
-        if (!emailTextField.getText().isBlank()) {
+        } else if (currentPane == emailPane) {
             if (Utilities.validate(emailTextField, Utilities.EMAIL_REGEX)) {
-                patient = Database.getPatientByEmail(emailTextField.getText());
-                patientFound = patient.next();
-
-                if (!patientFound) {
-                    Utilities.addClass(emailTextField, "error");
-                }
+                patientIDToFind = Database.getPatientIDByEmail(emailTextField.getText());
             }
-        }
-        
-        if (!phoneNumberTextField.getText().isBlank()) {
+        } else if (currentPane == phoneNumberPane) {
             if (Utilities.validate(phoneNumberTextField, Utilities.PHONE_REGEX)) {
-                patient = Database.getPatientByPhoneNumber(phoneNumberTextField.getText());
-                patientFound = patient.next();
-
-                if (!patientFound) {
-                    Utilities.addClass(phoneNumberTextField, "error");
-                }
+                patientIDToFind = Database.getPatientIDByPhoneNumber(phoneNumberTextField.getText());
             }
         }
 
-        if (!patientFound) return;
+        if (patientIDToFind == null) {
+            addErrorsToFields();
+            return;
+        }
 
-        patientID = patient.getInt("ID");
-        patientLabel.setText(Utilities.prettyName(patient));
-        patient.close();
-        System.out.println("Patient ID: " + patientID); //! remove me
+        patientID = patientIDToFind;
+        doneButton.setDisable(false);
+        patientLabel.setText(Database.getPatientNameFor(patientID));
+        result.put("patientID", patientID);
+    }
+
+    public void addErrorsToFields() {
+        if (currentPane == nameAndBirthPane) {
+            Utilities.addClass(firstNameTextField, "error");
+            Utilities.addClass(lastNameTextField, "error");
+            Utilities.addClass(birthDateTextField, "error");
+        } else if (currentPane == usernamePane) {
+            Utilities.addClass(usernameTextField, "error");
+        } else if (currentPane == emailPane) {
+            Utilities.addClass(emailTextField, "error");
+        } else if (currentPane == phoneNumberPane) {
+            Utilities.addClass(phoneNumberTextField, "error");
+        }
     }
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+    }
+
+    public void setCurrentPane(GridPane pane, Button button) {
+        if (currentPane == pane) {
+            return;
+        }
+
+        if (currentPane != null) {
+            currentPane.setVisible(false);
+            currentPane.setDisable(true);
+        }
+
+        currentPane = pane;
+        currentPane.setVisible(true);
+        currentPane.setDisable(false);
+
+        currentButton = button;
     }
 
     public void closeAndNullify() {
