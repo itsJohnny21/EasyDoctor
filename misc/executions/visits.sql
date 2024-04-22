@@ -34,9 +34,9 @@ CREATE TABLE visits (
         (completed = FALSE AND in_progress = FALSE AND cancelled = FALSE)
     )
 );
+
 show create table visits;
-alter table visits add FOREIGN KEY (patientID) REFERENCES users(ID) ON DELETE CASCADE;
-alter table visits add FOREIGN KEY (doctorID) REFERENCES users(ID) ON DELETE CASCADE;
+
 
 -- Schedule a new visit
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)

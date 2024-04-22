@@ -1,4 +1,4 @@
-package tests;
+package edu.asu.easydoctor;
 
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;

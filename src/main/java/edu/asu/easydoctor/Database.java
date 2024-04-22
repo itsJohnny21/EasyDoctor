@@ -11,11 +11,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -121,6 +118,10 @@ public abstract class Database {
         disconnect();
         Database.role = role;
         connect();
+    }
+
+    public static void connectAsAdmin() throws SQLException, IOException {
+        connection = DriverManager.getConnection(App.properties.getProperty("db_admin_url"));
     }
 
     public static void connect() throws SQLException, IOException {
@@ -446,7 +447,7 @@ public abstract class Database {
         }
     }
 
-    public static void insertResetPasswordToken(String usernameOrEmail, Role role) throws SQLException, UnknownHostException, MessagingException {
+    public static Integer insertResetPasswordToken(String usernameOrEmail, Role role) throws SQLException, UnknownHostException, MessagingException {
         int token = generateRandomToken();
         String IP = InetAddress.getLocalHost().getHostAddress();
 
@@ -462,8 +463,6 @@ public abstract class Database {
 
         if (resultSet.next()) {
             int userID = resultSet.getInt("ID");
-            String username = resultSet.getString("username");
-            String email = resultSet.getString("email");
 
             statement = connection.prepareStatement("INSERT INTO resetPasswordTokens (token, userID, sourceIP) VALUES (?, ?, ?);");
             statement.setInt(1, token);
@@ -471,8 +470,7 @@ public abstract class Database {
             statement.setString(3, IP);
             statement.executeUpdate();
 
-            long expiration = ZonedDateTime.now(ZoneOffset.systemDefault()).toInstant().toEpochMilli() + Duration.ofMinutes(5).toMillis();
-            EmailManager.sendResetPasswordEmail(email, username, token, expiration);
+            return token;
 
         } else {
             throw new IllegalArgumentException("Invalid username or email");
@@ -481,20 +479,21 @@ public abstract class Database {
     }
 
     public static void resetPassword(int token, String password) throws SQLException, ExpiredResetPasswordTokenException, InvalidResetPasswordTokenException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        PreparedStatement statement = connection.prepareStatement("SELECT userID, creationTime, used FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
+        PreparedStatement statement = connection.prepareStatement("SELECT userID, UNIX_TIMESTAMP(creationTime) * 1000 AS 'creationTimeMillis', used, UNIX_TIMESTAMP() * 1000 AS 'nowTimeMillis' FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
         statement.setInt(1, token);
         ResultSet resultSet = statement.executeQuery();
 
         if (resultSet.next()) {
             int userID = resultSet.getInt("userID");
-            Timestamp creationTime = resultSet.getTimestamp("creationTime");
+            long creationTimeMillis = resultSet.getLong("creationTimeMillis");
+            long nowTimeMillis = resultSet.getLong("nowTimeMillis");
             boolean used = resultSet.getBoolean("used");
 
             if (used) {
                 throw new InvalidResetPasswordTokenException();
             }
-            
-            if (Utilities.getCurrentTimeEpochMillis() - Utilities.timestampToEpochMillis(creationTime) > Duration.ofMinutes(5).toMillis()) {
+
+            if (nowTimeMillis - creationTimeMillis > TOKEN_LIFESPAN) {
                 throw new ExpiredResetPasswordTokenException();
             }
 
@@ -623,14 +622,6 @@ public abstract class Database {
         return resultSet;
     }
 
-    public static ResultSet getActiveVisit(int visitID) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT currentPage, v.patientID, av.weight, av.height, av.systolicBloodPressure, av.diastolicBloodPressure, av.heartRate, av.bodyTemperature, av.notes FROM visits v JOIN activeVisits av ON v.ID = av.ID JOIN patients p ON v.patientID = p.ID WHERE av.ID = ?;");
-        statement.setInt(1, visitID);
-
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet;
-    }
-
     public static ResultSet getMyVisits() throws SQLException {
         return getVisitsFor(getMyID());
     }
@@ -707,7 +698,15 @@ public abstract class Database {
         return resultSet;
     }
 
-    public static void startVisit(int visitID) throws SQLException {
+    public static ResultSet getActiveVisit(int visitID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT currentPage, patientID, weight, height, systolicBloodPressure, diastolicBloodPressure, heartRate, bodyTemperature, notes FROM visits ID = ?;");
+        statement.setInt(1, visitID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static void startVisit2(int visitID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET in_progress = TRUE WHERE ID = ? AND CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW());");
         statement.setInt(1, visitID);
         statement.executeUpdate();
@@ -717,9 +716,9 @@ public abstract class Database {
         }
     }
 
-    public static void startVisit2(int visitID) throws SQLException {
-        startVisit(visitID);
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO activeVisits (ID) VALUES (?);");
+    public static void startVisit3(int visitID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE visits SET in_progress = TRUE WHERE ID = ? AND CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW());");
+        // PreparedStatement statement = connection.prepareStatement("INSERT INTO activeVisits (ID) VALUES (?);"); //! NO MORE ACTIVEVISITS
         statement.setInt(1, visitID);
         statement.executeUpdate();
     }
@@ -990,5 +989,19 @@ public abstract class Database {
     
     public static int generateRandomToken() {
         return (int) (Math.random() * 900000 + 100000);
+    }
+
+    public static long getExpirationTimeForResetPasswordToken(int token) throws InvalidResetPasswordTokenException, SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT UNIX_TIMESTAMP(creationTime) * 1000 AS 'creationTimeMillis' FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
+        statement.setInt(1, token);
+
+        ResultSet resultSet = statement.executeQuery();
+
+        if (!resultSet.next()) {
+            throw new InvalidResetPasswordTokenException();
+        }
+
+        long creationTimeMillis = resultSet.getLong("creationTimeMillis");
+        return creationTimeMillis + TOKEN_LIFESPAN;
     }
 }

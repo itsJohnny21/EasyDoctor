@@ -25,7 +25,7 @@ public class Utilities {
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     public static final String PHONE_REGEX = "^[0-9]{10}$";
     public static final String BIRTH_DATE_REGEX = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
-    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{0,}$"; //! Changed
+    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{3,}$";
     public static final String DIGITS_ONLY_REGEX = "^[0-9]+$";
 
     public static String prettyCapitalize(String s) {
@@ -54,6 +54,23 @@ public class Utilities {
         }
 
         return true;
+    }
+
+    public static boolean validate(TextField textField, String... regexes) { //! maybe remove
+        if (textField.getText() == null) {
+            textField.requestFocus();
+            textField.getStyleClass().add("error");
+            return false;
+        }
+
+        for (String regex : regexes) {
+            if (textField.getText().matches(regex)) {
+                textField.getStyleClass().remove("error");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean validate(TextField textField, String regex, int min, int max) { //! maybe remove

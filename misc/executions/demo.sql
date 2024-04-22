@@ -342,3 +342,5 @@ delete from users where ID = @itsJohnny21ID;
 delete from users where ID = @firstpatient123ID;
 delete from visits where localdate = '2024-04-21';
 delete from activeVisits;
+
+select * from users JOIN employees on users.ID = employees.ID where users.ID = 225;

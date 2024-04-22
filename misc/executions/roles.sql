@@ -237,5 +237,5 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 
 GRANT UPDATE (weight, height, systolicBloodPressure, diastolicBloodPressure, heartRate, respiratoryRate, bodyTemperature, notes, currentPage) ON activeVisits TO 'nurse'@'%';
 GRANT SELECT (creationTime, userID, vaccineGroup, date, provider, notes) ON vaccines TO 'nurse'@'%';
 GRANT UPDATE (completed) ON activeVisits TO 'doctor'@'%';
-GRANT INSERT ON activeVisits TO 'nurse'@'%';
+GRANT INSERT ON resetPasswordTokens TO 'doctor'@'%';
 use easydoctor;
