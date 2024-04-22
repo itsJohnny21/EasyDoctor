@@ -91,9 +91,10 @@ public class SignInController extends Controller {
             closeAndNullify();
             if (Database.role == Role.DOCTOR || Database.role == Role.NURSE) {
                 WorkPortalController.getInstance().load();
-            } else if (Database.role == Role.PATIENT) {
+            } else {
                 PatientPortalController.getInstance().load();
             }
+            return;
 
         } else {
             usernameTextField.requestFocus();

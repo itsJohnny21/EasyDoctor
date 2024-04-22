@@ -7,9 +7,15 @@ CREATE TABLE allergies (
     severity ENUM('MILD', 'MODERATE', 'SEVERE') NOT NULL,
     type ENUM('FOOD', 'DRUG', 'ENVIRONMENTAL', 'INSECT', 'ANIMAL', 'PLANT', 'OTHER') NOT NULL,
     notes TEXT,
-    FOREIGN KEY (userID) REFERENCES users(ID),
+    FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE,
     UNIQUE (userID, allergen)
 );
+
+show create table allergies;
+
+alter table allergies drop foreign key allergies_ibfk_1;
+alter table allergies add FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE;
+
 INSERT INTO allergies (userID, allergen, commonSource, severity, type, notes)
 VALUES (2, 'Peanuts', 'Peanut Butter', 'MILD', 'FOOD', 'Patient has nightmares about peanut butter.');
 

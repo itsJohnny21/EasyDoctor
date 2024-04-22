@@ -15,6 +15,8 @@ import edu.asu.easydoctor.ShowPasswordGroup;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.PasswordField;
@@ -131,6 +133,7 @@ public class SignUpController extends Controller {
     }
 
     @FXML public void handleSignUpButtonAction() {
+        boolean successful = false;
         boolean valid = validateFirstName() & validateMiddleName() & validateLastName() & validateEmail() & validatePhone() & validateBirthDate() & validateAddress() & validate(sexChoiceBox) & validate(raceChoiceBox) & validate(ethnicityChoiceBox);
         if (!valid) return;
 
@@ -150,14 +153,27 @@ public class SignUpController extends Controller {
                     Ethnicity.valueOf(ethnicityChoiceBox.getValue())
                 );
 
+            successful = true;
+
             } else {
                 HashMap<String, Object> data = new HashMap<>();
                 HashMap<String, Object> result = ManagerCredentialsController.getInstance().loadDialog(data);
 
-                if (result.get("successful") == "true") {
-                    closeAndNullify();
-                    SignInController.getInstance().load();
+                if (result.containsKey("successful")) {
+                    successful = true;
                 }
+            }
+
+            if (successful) {
+
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Sign Up Successful");
+                alert.setHeaderText("Sign Up Successful");
+                alert.setContentText(String.format("You have successfully signed up as a %s. Please sign in to continue.", roleChoiceBox.getValue()));
+                alert.showAndWait();
+
+                closeAndNullify();
+                SignInController.getInstance().load();
             }
 
         } catch (Exception e) {

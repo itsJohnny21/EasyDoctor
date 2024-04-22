@@ -229,8 +229,13 @@ GRANT SELECT (creationTime, message, readStatus, senderID, receiverID) ON conver
 GRANT UPDATE (readStatus) ON conversations TO 'doctor'@'%';
 REVOKE SELECT (status) ON visits FROM 'patient'@'%';
 REVOKE SELECT (status) ON visits FROM 'doctor'@'%';
+GRANT SELECT (ID, weight, height, systolicBloodPressure, diastolicBloodPressure, heartRate, respiratoryRate, bodyTemperature, notes) ON activeVisits TO 'doctor'@'%';
 GRANT UPDATE ON visits TO 'doctor'@'%';
 GRANT SELECT (creationType, localdate, date, time, patientID, doctorID, reason, description) ON visits TO 'doctor'@'%';
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'SELECT' AND GRANTEE = "'doctor'@'%'";
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
+GRANT UPDATE (weight, height, systolicBloodPressure, diastolicBloodPressure, heartRate, respiratoryRate, bodyTemperature, notes, currentPage) ON activeVisits TO 'nurse'@'%';
+GRANT SELECT (creationTime, userID, vaccineGroup, date, provider, notes) ON vaccines TO 'nurse'@'%';
+GRANT UPDATE (completed) ON activeVisits TO 'doctor'@'%';
+GRANT INSERT ON activeVisits TO 'nurse'@'%';
 use easydoctor;

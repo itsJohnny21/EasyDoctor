@@ -9,7 +9,6 @@ import java.util.Properties;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import tests.Bypass;
 
 public class App extends Application {
 
@@ -40,17 +39,7 @@ public class App extends Application {
 			}
         });
 
-
 		WelcomeController.getInstance().load();
-		// Bypass.toWorkPortal();
-		Bypass.toPatientPortal();
-		
-		// Bypass.toResetPasswordDialog("newPassworD!1");
-		// Bypass.toMangerCredentialsDialog("auser2", "passworD!1");
-		// Test.convertUTCtoLocal();
-		// Test.signUp();
-		// Test.signUp();
-		// Test.resetPassword();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
@@ -84,3 +73,4 @@ public class App extends Application {
 //TODO: Implement the send new message button in the inbox tab
 //TODO: Use the DATE() CONVERT_TX() NOW() CONCAT() functions for querying the database (PatientPortal MyVisits tab)
 //TODO: Testing getVisitStatusWorkPortal from Utilities class (edge cases)
+//TODO: FIX THE VISITS TABLE ITS A MESS

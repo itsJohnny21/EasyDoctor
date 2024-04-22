@@ -30,5 +30,5 @@ public abstract class BaseController {
         stage.close();
         scene = null;
     }
-    public abstract void closeAndNullify();
+    public abstract void closeAndNullify() throws Exception;
 }

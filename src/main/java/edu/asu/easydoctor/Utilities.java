@@ -25,7 +25,8 @@ public class Utilities {
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     public static final String PHONE_REGEX = "^[0-9]{10}$";
     public static final String BIRTH_DATE_REGEX = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
-    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{4,}$";
+    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{0,}$"; //! Changed
+    public static final String DIGITS_ONLY_REGEX = "^[0-9]+$";
 
     public static String prettyCapitalize(String s) {
         if (s == null || s.isEmpty()) {
@@ -46,7 +47,7 @@ public class Utilities {
     }
 
     public static boolean validate(TextField textField, String regex) { //! maybe remove
-        if (textField.getText().isBlank() || !textField.getText().matches(regex)) {
+        if (textField.getText() == null || textField.getText().isBlank() || !textField.getText().matches(regex)) {
             textField.requestFocus();
             textField.getStyleClass().add("error");
             return false;
@@ -55,8 +56,19 @@ public class Utilities {
         return true;
     }
 
+    public static boolean validate(TextField textField, String regex, int min, int max) { //! maybe remove
+        if (textField.getText() == null || textField.getText().isBlank() || textField.getText().length() < min || textField.getText().length() > max || !textField.getText().matches(regex)) {
+            textField.requestFocus();
+            textField.getStyleClass().add("error");
+            return false;
+        }
+
+        textField.getStyleClass().remove("error");
+        return true;
+    }
+
     public static boolean validate(TextArea textArea, String regex) { //! maybe remove
-        if (textArea.getText().isBlank() || !textArea.getText().matches(regex)) {
+        if (textArea.getText() == null || textArea.getText().isBlank() || !textArea.getText().matches(regex)) {
             textArea.requestFocus();
             textArea.getStyleClass().add("error");
             return false;
@@ -66,7 +78,15 @@ public class Utilities {
     }
 
     public static boolean validate(String text, String regex) { //! maybe remove
-        if (text.isBlank() || !text.matches(regex)) {
+        if (text == null || text.isBlank() || !text.matches(regex)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean validate(String text, String regex, int min, int max) {
+        if (text == null || text.isBlank() || text.length() < min || text.length() > max || !text.matches(regex)) {
             return false;
         }
 

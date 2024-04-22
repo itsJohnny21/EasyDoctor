@@ -50,6 +50,10 @@ public abstract class Database {
         MILD, MODERATE, SEVERE;
     }
 
+    public enum HealthConditionSeverity {
+        ACUTE, CHRONIC
+    }
+
     public enum BloodType {
         A_POSITIVE("A+"), A_NEGATIVE("A-"), B_POSITIVE("B+"), B_NEGATIVE("B-"), AB_POSITIVE("AB+"), AB_NEGATIVE("AB-"), O_POSITIVE("O+"), O_NEGATIVE("O-"), UNKNOWN("THROW ERROR");
 
@@ -76,10 +80,6 @@ public abstract class Database {
          TABLET , CAPSULE , LIQUID , INJECTION , CREAM , OINTMENT , INHALER , SUPPOSITORY , SOLUTION , SUSPENSION , SYRUP , SPRAY , LOZENGE , POWDER , GEL;
     }
 
-    public enum VaccineGroup {
-        COVID_19 , Influenza , Hepatitis_A , Hepatitis_B , Varicella , Polio , Pneumococcal , MMR , HPV , Shingles;
-    }
-
     public enum DayOfWeek {
         MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
     }
@@ -94,6 +94,14 @@ public abstract class Database {
 
     public enum VisitStatus {
         PENDING, IN_PROGRESS, COMPLETED, MISSED, CANCELLED, UPCOMING;
+    }
+
+    public enum AllergyType {
+        FOOD, DRUG, ENVIRONMENTAL, INSECT, ANIMAL, PLANT, OTHER
+    }
+
+    public enum VaccineGroup {
+        COVID_19, Influenza, Hepatitis_A, Hepatitis_B, Varicella, Polio, Pneumococcal, MMR, HPV, Shingles
     }
 
     public static Connection connection;
@@ -615,6 +623,14 @@ public abstract class Database {
         return resultSet;
     }
 
+    public static ResultSet getActiveVisit(int visitID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT currentPage, v.patientID, av.weight, av.height, av.systolicBloodPressure, av.diastolicBloodPressure, av.heartRate, av.bodyTemperature, av.notes FROM visits v JOIN activeVisits av ON v.ID = av.ID JOIN patients p ON v.patientID = p.ID WHERE av.ID = ?;");
+        statement.setInt(1, visitID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
     public static ResultSet getMyVisits() throws SQLException {
         return getVisitsFor(getMyID());
     }
@@ -701,6 +717,13 @@ public abstract class Database {
         }
     }
 
+    public static void startVisit2(int visitID) throws SQLException {
+        startVisit(visitID);
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO activeVisits (ID) VALUES (?);");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
+    }
+
     public static void completeVisit(int visitID) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, in_progress = FALSE WHERE ID = ?;");
         statement.setInt(1, visitID);
@@ -723,13 +746,45 @@ public abstract class Database {
     }
 
     public static ResultSet getStartedVisits() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE in_progress = TRUE;");
+        PreparedStatement statement = connection.prepareStatement("SELECT visits.ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits JOIN activeVisits ON visits.ID = activeVisits.ID WHERE activeVisits.completed = FALSE;");
         String systemZoneId = ZoneId.systemDefault().getId();
         statement.setString(1, systemZoneId);
         statement.setString(2, systemZoneId);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
+    }
+
+    public static void updateCurrentPageStartedVisit(int startedVisitID, int currentPage) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE activeVisits SET currentPage = ? WHERE ID = ?;");
+        statement.setInt(1, currentPage);
+        statement.setInt(2, startedVisitID);
+        statement.executeUpdate();
+    }
+
+    public static void updateStartedVisit(int startedVisitID, int currentPage, int weight, int height, int systolicBloodPressure, int diastolicBloodPressure, int heartRate, int bodyTemperature, String notes) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE activeVisits SET currentPage = ?, weight = ?, height = ?, systolicBloodPressure = ?, diastolicBloodPressure = ?, heartRate = ?, bodyTemperature = ?, notes = ? WHERE ID = ?;");
+        statement.setInt(1, currentPage);
+        statement.setInt(2, weight);
+        statement.setInt(3, height);
+        statement.setInt(4, systolicBloodPressure);
+        statement.setInt(5, diastolicBloodPressure);
+        statement.setInt(6, heartRate);
+        statement.setInt(7, bodyTemperature);
+        statement.setString(8, notes);
+        statement.setInt(9, startedVisitID);
+        statement.executeUpdate();
+    }
+
+    public static void finishVisit(int visitID) throws SQLException {
+        PreparedStatement statement;
+        statement = connection.prepareStatement("UPDATE activeVisits SET completed = TRUE WHERE ID = ?;");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
+
+        statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, in_progress = FALSE WHERE ID = ? AND in_progress = TRUE;");
+        statement.setInt(1, visitID);
+        statement.executeUpdate();
     }
 
     public static ResultSet getMyMessages() throws SQLException {
@@ -907,6 +962,30 @@ public abstract class Database {
         resultSet.next();
 
         return resultSet.getString("username");
+    }
+
+    public static ResultSet getHealthConditionsFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM healthConditions WHERE userID = ?;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getAllergiesFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM allergies WHERE userID = ?;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getVaccinesFor(int patientID) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM vaccines WHERE userID = ? ORDER BY date ASC;");
+        statement.setInt(1, patientID);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
     
     public static int generateRandomToken() {

@@ -79,14 +79,8 @@ public class ManagerCredentialsController extends DialogController {
                 Ethnicity.valueOf(SignUpController.getInstance().ethnicityChoiceBox.getValue())
             );
 
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText("Sign up successful");
-            alert.setContentText(String.format("You have successfully signed up as a %s!", SignUpController.getInstance().roleChoiceBox.getValue().toLowerCase()));
-            alert.showAndWait();
-
-            result.put("successful", "true");
-            close();
+            result.put("successful", true);
+            closeAndNullify();
 
         } catch (SQLException e) {
             Alert alert = new Alert(AlertType.ERROR);

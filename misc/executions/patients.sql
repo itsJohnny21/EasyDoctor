@@ -2,7 +2,6 @@ DROP TABLE IF EXISTS patients;
 
 CREATE TABLE patients (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    userID INT NOT NULL,
     firstName VARCHAR(100) NOT NULL,
     middleName VARCHAR(100) DEFAULT NULL,
     lastName VARCHAR(100) NOT NULL,
@@ -25,10 +24,10 @@ CREATE TABLE patients (
     motherLastName VARCHAR(255),
     fatherFirstName VARCHAR(255),
     fatherLastName VARCHAR(255),
-    FOREIGN KEY (userID) REFERENCES users(ID) ON CASCADE DELETE,
+    FOREIGN KEY (ID) REFERENCES users(ID) ON CASCADE DELETE,
     FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
 );
-
+use easydoctor;
 show create table patients;
 
 INSERT INTO users (username, password, role)
@@ -46,4 +45,3 @@ SELECT patients.firstName, patients.lastName, patients.sex, patients.birthDate, 
 use easydoctor;
 SELECT * FROM patients;
 SELECT * FROM users;
-delete from users where ID = 106;

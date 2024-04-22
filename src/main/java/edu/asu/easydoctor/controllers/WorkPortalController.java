@@ -110,7 +110,7 @@ public class WorkPortalController extends Controller {
     
     public void initialize() throws Exception {
 
-        usernameButton.setText(Database.getMy("username"));
+        // usernameButton.setText(Database.getMy("username"));
 
         rootPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.S && event.isAltDown()) {
@@ -148,6 +148,14 @@ public class WorkPortalController extends Controller {
 
 
         visitsButton.fire();
+
+        //! DELETE ME
+        for (AnchorPane tab : new AnchorPane[] {visitsPane, patientRecordsPane, activeSessionsPane, inboxPane, prescriptionToolPane, usernamePane}) {
+            tab.setVisible(false);
+            tab.setDisable(true);
+        }
+        activeSessionsButton.fire();
+        //! DELETE ME
     }
 
     @FXML public void handleKeyTyped(KeyEvent event) {
@@ -183,8 +191,8 @@ public class WorkPortalController extends Controller {
         }
         visits.close();
 
-        SelectableTable myVisitsTables = new SelectableTable();
-        myVisitsTables
+        SelectableTable visitsTable = new SelectableTable();
+        visitsTable
             .withRowAction(row -> {
                 row.setOnMouseClicked(event2 -> {
                     try {
@@ -193,8 +201,7 @@ public class WorkPortalController extends Controller {
                         HashMap<String, Object> result = loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
 
                         if ((boolean) result.containsKey("start")) {
-                            System.out.println("Starting visit");
-                            Database.startVisit(row.rowID);
+                            Database.startVisit2(row.rowID);
                             visitsButton.fire();
                             
                         } else if (result.containsKey("patientUsername")) {
@@ -216,15 +223,58 @@ public class WorkPortalController extends Controller {
             .withRows(rows)
             .build();
 
-        visitsScrollPane.setContent(myVisitsTables);
+        visitsScrollPane.setContent(visitsTable);
     }   
 
     @FXML public void handlePatientRecordsButtonAction(ActionEvent event) {
         setCurrentTab(patientRecordsPane, patientRecordsButton);
     }
 
-    @FXML public void handleActiveSessionsButton(ActionEvent event) {
+    @FXML public void handleActiveSessionsButton(ActionEvent event) throws SQLException {
         setCurrentTab(activeSessionsPane, activeSessionsButton);
+        
+        ResultSet activeSessions = Database.getStartedVisits();
+        ArrayList<Row> rows = new ArrayList<>();
+
+        while (activeSessions.next()) {
+            int rowID = activeSessions.getInt("ID");
+
+            String patient = Database.getPatientNameFor(activeSessions.getInt("patientID"));
+            String doctor = Database.getEmployeeNameFor(activeSessions.getInt("doctorID"));
+            String localdate = Utilities.prettyDate(activeSessions.getDate("localdate").toLocalDate());
+            String localtime = Utilities.prettyTime(activeSessions.getTime("localtime").toLocalTime());
+            String reason = activeSessions.getString("reason");
+
+            ValueLabel patientLabel = new ValueLabel(patient);
+            ValueLabel doctorLabel = new ValueLabel(doctor);
+            ValueLabel dateLabel = new ValueLabel(localdate);
+            ValueLabel timeLabel = new ValueLabel(localtime);
+            ValueLabel reasonLabel = new ValueLabel(reason);
+
+            Row row = new Row( "Active Sessions", rowID, patientLabel, doctorLabel, dateLabel, timeLabel, reasonLabel);
+            rows.add(row);
+        }
+        activeSessions.close();
+
+        SelectableTable activeSessionsTable = new SelectableTable();
+        activeSessionsTable
+            .withRowAction(row -> {
+                row.setOnMouseClicked(event2 -> {
+                    try {
+                        HashMap<String, Object> data = new HashMap<>();
+                        data.put("rowID", row.rowID);
+                        loadDialog(ActiveSessionController.getInstance(), data);
+                        refreshPane(activeSessionsPane);
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            })
+            .withRows(rows)
+            .build();
+
+        activeSessionsScrollPane.setContent(activeSessionsTable);
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
@@ -479,7 +529,7 @@ public class WorkPortalController extends Controller {
         }
     }
 
-    public void closeAndNullify() {
+    public void closeAndNullify() throws Exception {
         instance = null;
         close();
         

@@ -25,7 +25,12 @@ public abstract class DialogController extends BaseController {
             initializeStage();
 
             this.stage.setOnCloseRequest(event -> {
-                closeAndNullify();
+                try {
+                    closeAndNullify();
+                } catch (Exception e) {
+                    System.out.println("Error closing dialog");
+                    e.printStackTrace();
+                }
             });
         }
 

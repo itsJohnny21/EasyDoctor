@@ -42,6 +42,8 @@ public class SelectableTable extends UI.Table {
             if (rowAction != null) {
                 rowAction.accept(row);
                 row.getStyleClass().add("table-selectable-row");
+            } else {
+                row.getStyleClass().add("table-row");
             }
         }
     }

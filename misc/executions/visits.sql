@@ -14,6 +14,15 @@ CREATE TABLE visits (
     cancelled BOOLEAN DEFAULT FALSE NOT NULL,
     reason TEXT,
     description TEXT,
+    weight INT DEFAULT NULL,
+    height INT DEFAULT NULL,
+    systolicBloodPressure INT DEFAULT NULL,
+    diastolicBloodPressure INT DEFAULT NULL,
+    heartRate INT DEFAULT NULL,
+    respiratoryRate INT DEFAULT NULL,
+    bodyTemperature INT DEFAULT NULL,
+    notes TEXT,
+    currentPage INT DEFAULT 0,
     FOREIGN KEY (patientID) REFERENCES users(ID),
     FOREIGN KEY (doctorID) REFERENCES users(ID),
     UNIQUE KEY (patientID, localdate),
@@ -25,15 +34,10 @@ CREATE TABLE visits (
         (completed = FALSE AND in_progress = FALSE AND cancelled = FALSE)
     )
 );
+show create table visits;
+alter table visits add FOREIGN KEY (patientID) REFERENCES users(ID) ON DELETE CASCADE;
+alter table visits add FOREIGN KEY (doctorID) REFERENCES users(ID) ON DELETE CASCADE;
 
-ALTER TABLE visits
-ADD CONSTRAINT check_only_one_status
-CHECK (
-    (completed = TRUE AND in_progress = FALSE AND cancelled = FALSE) OR
-    (completed = FALSE AND in_progress = TRUE AND cancelled = FALSE) OR
-    (completed = FALSE AND in_progress = FALSE AND cancelled = TRUE) OR
-    (completed = FALSE AND in_progress = FALSE AND cancelled = FALSE)
-);
 -- Schedule a new visit
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?, ?); -- Statement for Java
@@ -130,7 +134,8 @@ INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, re
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 182, 3, 'Checkup', 'Mental health checkup');
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 207, 3, 'Checkup', 'Mental health checkup');
-delete from visits where localdate = '2024-04-20';
+delete from visits where localdate = '2024-04-21';
+delete from activeVisits;
 
 
 -- Get upcoming visit for a patient
@@ -182,6 +187,7 @@ SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'Ame
 SELECT * FROM visits WHERE ID = 2;
 
 use easydoctor;
+select * from users;
 select * from patients;
 select * from employees;
 select * from visits;

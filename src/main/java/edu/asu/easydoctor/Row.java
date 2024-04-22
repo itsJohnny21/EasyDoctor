@@ -11,6 +11,10 @@ public class Row extends HBox implements Connectable {
     public int rowID;
     public Button deleteButton;
 
+    public Row(String tableName) {
+        this.tableName = tableName;
+    }
+
     public Row(String tableName, int rowID, Connectable... values) {
         this.tableName = tableName;
         this.rowID = rowID;

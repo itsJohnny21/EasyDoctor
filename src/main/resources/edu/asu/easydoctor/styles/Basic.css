@@ -1,3 +1,10 @@
 .button {
     -fx-background-color: #32a852;
 }
+
+.table-selectable-row {
+    -fx-background-color:   #fff6eb;
+    -fx-alignment: center;
+    -fx-max-height: 50px;
+    -fx-min-height: 50px;
+}
