@@ -207,7 +207,6 @@ VALUES (@itsJohnny21ID, 'Jonathan', 'Salazar', 'MALE', '1999-02-21', 'itsJohnny2
 
 -- Set variables for IDs
 SET @itsJohnny21ID = (SELECT ID FROM users WHERE username = 'itsJohnny21');
-SET @barbara123ID = (SELECT ID FROM users WHERE username = 'barbara123');
 SET @firstpatient123ID = (SELECT ID FROM users WHERE username = 'firstpatient123');
 SET @secondpatient123ID = (SELECT ID FROM users WHERE username = 'secondpatient123');
 SET @thirdpatient123ID = (SELECT ID FROM users WHERE username = 'thirdpatient123');
@@ -224,8 +223,6 @@ INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, re
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), @secondpatient123ID, @itsJohnny21ID, 'Checkup', 'Mental health checkup'); -- Patient2 schedules a visit with Jonathan
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('IN_PERSON', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), @thirdpatient123ID, @itsJohnny21ID, 'Checkup', 'Mental health checkup'); -- Patient3 schedules a visit with Jonathan
-delete from visits where localdate = '2024-04-21';
-delete from activeVisits;
 
 -- Set preferred doctor
 UPDATE patients SET preferredDoctorID = @itsJohnny21ID WHERE ID = @firstpatient123ID;
@@ -252,4 +249,93 @@ delete from users where ID = @secondpatient123ID;
 delete from users where ID = @thirdpatient123ID;
 delete from users where ID = @fourthpatient123ID;
 delete from users where ID = @itsJohnny21ID;
-```
+
+use easydoctor;
+-- Demo start:
+-- 1. Sign up as a patient:
+-- Patient: Patient1
+-- Username: firstpatient123
+-- Password: Patient2123!
+
+INSERT INTO users (username, password, role)
+VALUES ('firstpatient123', SHA2('firstpatient123', 256), 'PATIENT');
+SET @firstpatient123ID = (SELECT ID FROM users WHERE username = 'firstpatient123');
+INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (@firstpatient123ID, 'FirstPatient', 'FirstPatient',  'FEMALE', '2000-01-01', 'firstpatient123@gmail.com', '4807383910', '123 Test St', 'WHITE', 'NON-HISPANIC');
+
+-- Health Conditions for Patient1
+INSERT INTO healthConditions (userID, healthCondition, severity, type, notes)
+VALUES (@firstpatient123ID, 'Diabetes', 'CHRONIC', 'PHYSICAL', 'Patient needs to reduce sugar intake and consume more vegetables');
+INSERT INTO healthConditions (userID, healthCondition, severity, type, notes)
+VALUES (@firstpatient123ID, 'High Cholesterol', 'ACUTE', 'PHYSICAL', 'Patient needs to reduce fat intake');
+INSERT INTO healthConditions (userID, healthCondition, severity, type, notes)
+VALUES (@firstpatient123ID, 'High Blood Pressure', 'ACUTE', 'PHYSICAL', 'Patient needs to reduce salt intake');
+
+-- Allergies for Patient1
+INSERT INTO allergies (userID, allergen, commonSource, severity, type, notes)
+VALUES (@firstpatient123ID, 'Peanuts', 'Peanut Butter', 'SEVERE', 'FOOD', 'Patient must avoid peanuts at all costs');
+INSERT INTO allergies (userID, allergen, commonSource, severity, type, notes)
+VALUES (@firstpatient123ID, 'Pollen', 'Flowers', 'MODERATE', 'ENVIRONMENTAL', 'Patient sneezes a lot');
+
+-- Vaccines for Patient1
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "COVID_19", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "COVID_19", "2024-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "COVID_19", "2022-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "COVID_19", "2023-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Influenza", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Hepatitis_A", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Hepatitis_A", "2019-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Hepatitis_A", "2012-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Hepatitis_A", "2010-02-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (@firstpatient123ID, "Hepatitis_A", "1990-01-01", "Pfizer-BioNTech", "No adverse reactions");
+
+select * from allergies where userID = @firstpatient123ID;
+select * from vaccines where userID = @firstpatient123ID;
+select * from healthConditions where userID = @firstpatient123ID;
+
+-- 2. Sign up as a doctor:
+-- Doctor: Johnny Salazar
+-- Username: itsJohnny21
+-- Password: itsJohnny21!
+
+INSERT INTO users (username, password, role)
+VALUES ('itsJohnny21', SHA2('itsJohnny21!', 256), 'DOCTOR');
+SET @itsJohnny21ID = (SELECT ID FROM users WHERE username = 'itsJohnny21');
+INSERT INTO employees (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
+VALUES (@itsJohnny21ID, 'Jonathan', 'Salazar', 'MALE', '1999-02-21', 'itsJohnny21@gmail.com', '1234564321', '123 Test St', 'WHITE', 'NON-HISPANIC');
+
+-- 3. Set preferred doctor
+UPDATE patients SET preferredDoctorID = @itsJohnny21ID WHERE ID = @firstpatient123ID;
+
+-- 4. Schedule a visit with the doctor:
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), @firstpatient123ID, @itsJohnny21ID, 'Checkup', 'Mental health checkup');
+
+-- 5. Load two separate windows and log in as the patient and the doctor
+-- 6. Doctor: Start the patient's visit
+-- 7. Patient: Visit status should say: "IN_PROGRESS"
+-- 8. Doctor: Finish the patient's visit
+-- 9. Patient: Visit status should say: "COMPLETED"
+-- 10. Doctor: Send a message to the patient
+-- 11. Patient: Read the message and reply
+-- 12. Doctor: Read the patient's reply
+-- 13. BOTH: Sign out
+-- 14. Patient: Reset password
+-- 15. Patient: Sign in with new password
+-- Demo end
+
+-- Delete
+delete from users where ID = @itsJohnny21ID;
+delete from users where ID = @firstpatient123ID;
+delete from visits where localdate = '2024-04-21';
+delete from activeVisits;

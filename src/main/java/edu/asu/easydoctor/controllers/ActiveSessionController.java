@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -28,6 +29,7 @@ import javafx.scene.layout.AnchorPane;
 
 public class ActiveSessionController extends DialogController {
     @FXML public AnchorPane rootPane;
+    @FXML public Label patientNameLabel;
     @FXML public Button closeButton;
     @FXML public Button goBackButton;
     @FXML public Button nextButton;
@@ -300,6 +302,7 @@ public class ActiveSessionController extends DialogController {
             String notes = activeSession.getString("notes");
             currentPaneIndex = activeSession.getInt("currentPage");
             
+            patientNameLabel.setText(Database.getPatientNameFor(patientID));
             heightTextField.setText(height);
             weightTextField.setText(weight);
             systolicBloodPressureTextField.setText(systolicBloodPressure);

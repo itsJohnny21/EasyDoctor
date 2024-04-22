@@ -15,6 +15,11 @@
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
+      <Label fx:id="patientNameLabel" alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Patient Name" textAlignment="CENTER" AnchorPane.bottomAnchor="520.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <font>
+            <Font name="Arial" size="36.0" />
+         </font>
+      </Label>
       <GridPane layoutY="500.0" minHeight="100.0" minWidth="1000.0" prefHeight="100.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -32,17 +37,9 @@
             <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleCloseButtonAction" prefWidth="100.0" text="Close" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>
       </GridPane>
-      <AnchorPane fx:id="vitalsPane" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="vitalsPane" disable="true" layoutY="80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
-            <HBox prefHeight="80.0" prefWidth="1000.0">
-               <children>
-                  <Label fx:id="Vitals" alignment="CENTER" prefHeight="100.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Vitals" textAlignment="CENTER">
-                     <font>
-                        <Font name="Arial" size="36.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
+            <HBox prefHeight="80.0" prefWidth="1000.0" />
             <GridPane hgap="30.0" prefHeight="350.0" prefWidth="700.0" vgap="30.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="150.0" AnchorPane.topAnchor="150.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -117,13 +114,18 @@
                   </VBox>
                </children>
             </GridPane>
+            <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" text="Vitals" textAlignment="CENTER">
+               <font>
+                  <Font name="Arial" size="36.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="healthConditionsPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="healthConditionsPane" disable="true" layoutY="80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
             <HBox prefHeight="80.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Health Conditions" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" text="Health Conditions" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="36.0" />
                      </font>
@@ -166,11 +168,11 @@
             <ScrollPane fx:id="healthConditionsScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="130.0" maxWidth="1000.0" prefHeight="370.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="130.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="allergiesPane" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="allergiesPane" disable="true" layoutY="80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
             <HBox prefHeight="80.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Allergies" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" text="Allergies" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="36.0" />
                      </font>
@@ -213,11 +215,11 @@
             <ScrollPane fx:id="allergiesScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="130.0" maxWidth="1000.0" prefHeight="370.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="130.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="vaccinesPane" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="vaccinesPane" disable="true" layoutY="80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
             <HBox prefHeight="80.0" prefWidth="1000.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Vaccines" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" text="Vaccines" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="36.0" />
                      </font>
@@ -272,11 +274,11 @@
             <ScrollPane fx:id="vaccinesScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="130.0" maxWidth="1000.0" prefHeight="370.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="130.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="notesPane" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="notesPane" disable="true" layoutY="80.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: fff6eb;" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
          <children>
             <HBox prefHeight="80.0" prefWidth="1000.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="100.0" prefWidth="1000.0" style="-fx-background-color: #cc7878;" text="Physical Test Notes" textAlignment="CENTER">
+                  <Label alignment="CENTER" prefHeight="100.0" prefWidth="1000.0" text="Physical Test Notes" textAlignment="CENTER">
                      <font>
                         <Font name="Arial" size="36.0" />
                      </font>
