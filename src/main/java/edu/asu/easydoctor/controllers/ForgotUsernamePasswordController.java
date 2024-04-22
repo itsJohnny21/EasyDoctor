@@ -70,7 +70,6 @@ public class ForgotUsernamePasswordController extends Controller {
             }
 
         } catch (MessagingException e) {
-            e.printStackTrace();
         } catch (SQLException e) {
             System.out.println("Error connecting to database");
         } catch (UnknownHostException e) {

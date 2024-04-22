@@ -1,7 +1,7 @@
 use easydoctor;
 -- Patient: Patient1
 -- Username: firstpatient123
--- Password: Patient2123!
+-- Password: Patient123!
 
 INSERT INTO users (username, password, role)
 VALUES ('firstpatient123', SHA2('firstpatient123', 256), 'PATIENT');
@@ -333,6 +333,9 @@ VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW(
 -- 14. Patient: Reset password
 -- 15. Patient: Sign in with new password
 -- Demo end
+
+update users set password = SHA2('Patient123!', 256) where username = 'firstpatient123';
+SELECT * from employees;
 
 -- Delete
 delete from users where ID = @itsJohnny21ID;

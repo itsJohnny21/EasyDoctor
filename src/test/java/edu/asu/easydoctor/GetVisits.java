@@ -19,7 +19,7 @@ public class GetVisits {
     @Test
     @DisplayName("getVisitByID")
     public void getVisitByID() throws Exception {
-        int visitID = 20;
+        int visitID = 1;
 
         ResultSet visit = Database.getVisit(visitID);
         assertTrue(visit.next());
