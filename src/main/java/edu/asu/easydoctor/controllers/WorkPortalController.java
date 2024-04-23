@@ -254,6 +254,7 @@ public class WorkPortalController extends Controller {
         
         SelectableTable activeVisitsTable = new SelectableTable();
         activeVisitsTable
+            .withRowAction(null)
             .isToggable(true)
             .withRows(rows)
             .build();
@@ -266,26 +267,12 @@ public class WorkPortalController extends Controller {
         if (activeVisitsScrollPane.getContent() == null || !(activeVisitsScrollPane.getContent() instanceof SelectableTable)) return;
 
         SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
-        Row selectedRow = activeVisitsTable.getSelectedRow();
+        HashSet<Row> selectedRows = activeVisitsTable.getSelectedRows();
 
-        if (selectedRow == null) return;
-
-        Database.updateVisitPutBack(activeVisitsTable.getSelectedRow().rowID);
+        for (Row row : selectedRows) {
+            Database.updateVisitPutBack(row.rowID);
+        }
         refreshPane(currentTab);
-    }
-
-    @FXML public void handleActiveVisitsStartButton(ActionEvent event) throws SQLException, Exception {
-        if (activeVisitsScrollPane.getContent() == null || !(activeVisitsScrollPane.getContent() instanceof SelectableTable)) return;
-
-        SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
-        Row selectedRow = activeVisitsTable.getSelectedRow();
-
-        if (selectedRow == null) return;
-
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("rowID", selectedRow.rowID);
-        loadDialog(ActiveVisitController.getInstance(), data);
-        refreshPane(activeVisitsPane);
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {

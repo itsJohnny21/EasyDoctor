@@ -1,17 +1,17 @@
 package edu.asu.easydoctor;
 
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 import edu.asu.easydoctor.UI.Table;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 
 public class SelectableTable extends UI.Table {
     public Consumer<Row> rowAction;
-    public ToggleGroup toggleGroup;
-    public Row selectedRow;
+    public boolean isToggable;
+    public HashSet<Row> selectedRows = new HashSet<>();
 
     public SelectableTable() {
         super();
@@ -23,15 +23,12 @@ public class SelectableTable extends UI.Table {
     }
 
     public SelectableTable isToggable(boolean isToggable) {
-        if (isToggable) {
-            this.toggleGroup = new ToggleGroup();
-        }
-
+        this.isToggable = isToggable;
         return this;
     }
 
-    public Row getSelectedRow() {
-        return selectedRow;
+    public HashSet<Row> getSelectedRows() {
+        return selectedRows;
     }
 
     public void buildHeader() {
@@ -55,13 +52,16 @@ public class SelectableTable extends UI.Table {
         for (Row row : this.rows) {
             this.add(row, 0, this.rowCounter++);
 
-            if (toggleGroup != null) {
+            if (isToggable) {
                 RadioButton radioButton = new RadioButton();
-                radioButton.setToggleGroup(toggleGroup);
                 radioButton.getStyleClass().add("table-radio-button");
 
                 radioButton.setOnAction(event -> {
-                    selectedRow = row;
+                    if (radioButton.isSelected()) {
+                        selectedRows.add(row);
+                    } else {
+                        selectedRows.remove(row);
+                    }
                 });
 
                 row.getChildren().add(radioButton);

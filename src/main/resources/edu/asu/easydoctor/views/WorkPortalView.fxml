@@ -293,12 +293,7 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="activeVisitsPutBackButton" mnemonicParsing="false" onAction="#handleActiveVisitsPutBackButtonAction" prefHeight="40.0" prefWidth="200.0" text="Put Back" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                     <font>
-                        <Font name="Arial" size="21.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="activeVisitsStartButton" mnemonicParsing="false" onAction="#handleActiveVisitsStartButton" prefHeight="40.0" prefWidth="200.0" text="Start" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="activeVisitsPutBackButton" mnemonicParsing="false" onAction="#handleActiveVisitsPutBackButtonAction" prefHeight="40.0" prefWidth="200.0" text="Put Back" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Arial" size="21.0" />
                      </font>
