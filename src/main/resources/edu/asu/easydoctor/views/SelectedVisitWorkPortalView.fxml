@@ -102,7 +102,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButtonAction" prefWidth="100.0" text="Start" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButtonAction" prefWidth="100.0" text="Make Active" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleCloseButtonAction" prefWidth="100.0" text="Close" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="contactButton" mnemonicParsing="false" onAction="#handleContactButtonAction" prefWidth="100.0" text="Contact" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>

@@ -69,6 +69,10 @@
     -fx-pref-width: 9999px;
 }
 
+.table-row:hover {
+    -fx-background-color: #f7d9c4;
+}
+
 .table-selectable-row:hover {
     -fx-background-color: #f7d9c4;
 }
@@ -196,6 +200,10 @@
 
 .chat-icon {
 
+}
+
+.table-toggle-button {
+    -fx-alignment: center;
 }
 
 .error {

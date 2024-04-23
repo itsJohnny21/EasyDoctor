@@ -148,6 +148,12 @@ public class FindPatientController extends DialogController {
     }
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        if (data.containsKey("patientID")) {
+            System.out.println("Patient ID: " + data.get("patientID"));
+            patientID = (Integer) data.get("patientID");
+            result.put("patientID", patientID);
+            closeAndNullify();
+        }
     }
 
     public void setCurrentPane(GridPane pane, Button button) {

@@ -38,11 +38,11 @@ public abstract class DialogController extends BaseController {
             loadDialogHelper(data);
         }
 
-        if (!this.stage.isShowing()) {
+        if (this.scene != null && !this.stage.isShowing()) {
             this.stage.showAndWait();
+            this.stage.toFront();
         }
         
-        this.stage.toFront();
         return result;
     }
     

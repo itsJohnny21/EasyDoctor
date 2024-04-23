@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS activeVisits;
+
 CREATE TABLE activeVisits (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     weight INT DEFAULT NULL,

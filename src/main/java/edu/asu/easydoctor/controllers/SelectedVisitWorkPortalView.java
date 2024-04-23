@@ -62,7 +62,7 @@ public class SelectedVisitWorkPortalView extends DialogController {
     }
 
     @FXML public void handleContactButtonAction(ActionEvent event) throws Exception {
-        result.put("patientUsername", Database.getUsernameFor(patientID));
+        result.put("patientID", patientID);
         closeAndNullify();
     }
 

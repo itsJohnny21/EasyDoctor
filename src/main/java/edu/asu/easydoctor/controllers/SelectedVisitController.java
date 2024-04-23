@@ -71,7 +71,7 @@ public class SelectedVisitController extends DialogController {
         alert.showAndWait();
 
         if (alert.getResult().getText().equals("OK")) {
-            Database.cancelVisit(rowID);
+            Database.updateVisitCancel(rowID);
             result.put("deleted", true);
             closeAndNullify();
         }

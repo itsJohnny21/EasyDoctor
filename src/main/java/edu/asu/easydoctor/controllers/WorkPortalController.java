@@ -62,12 +62,12 @@ public class WorkPortalController extends Controller {
     @FXML public Button patientRecordsSaveButton;
     @FXML public Button patientRecordsCancelButton;
     
-    @FXML public AnchorPane activeSessionsPane;
-    @FXML public ScrollPane activeSessionsScrollPane;
-    @FXML public Button activeSessionsButton;
-    @FXML public Button activeSessionsPutBackButton;
-    @FXML public Button activeSessionsStartButton;
-    @FXML public Button activeSessionsFinishButton;
+    @FXML public AnchorPane activeVisitsPane;
+    @FXML public ScrollPane activeVisitsScrollPane;
+    @FXML public Button activeVisitsButton;
+    @FXML public Button activeVisitsPutBackButton;
+    @FXML public Button activeVisitsStartButton;
+    @FXML public Button activeVisitsFinishButton;
 
     @FXML public AnchorPane inboxPane;
     @FXML public ScrollPane inboxScrollPane;
@@ -110,7 +110,7 @@ public class WorkPortalController extends Controller {
     
     public void initialize() throws Exception {
 
-        // usernameButton.setText(Database.getMy("username"));
+        usernameButton.setText(Database.getMy("username"));
 
         rootPane.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.S && event.isAltDown()) {
@@ -120,7 +120,7 @@ public class WorkPortalController extends Controller {
             } else if (event.getCode() == KeyCode.DIGIT2) {
                 patientRecordsButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT3) {
-                activeSessionsButton.fire();
+                activeVisitsButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT4) {
                 inboxButton.fire();
             } else if (event.getCode() == KeyCode.DIGIT5) {
@@ -150,11 +150,11 @@ public class WorkPortalController extends Controller {
         visitsButton.fire();
 
         //! DELETE ME
-        for (AnchorPane tab : new AnchorPane[] {visitsPane, patientRecordsPane, activeSessionsPane, inboxPane, prescriptionToolPane, usernamePane}) {
+        for (AnchorPane tab : new AnchorPane[] {visitsPane, patientRecordsPane, activeVisitsPane, inboxPane, prescriptionToolPane, usernamePane}) {
             tab.setVisible(false);
             tab.setDisable(true);
         }
-        activeSessionsButton.fire();
+        activeVisitsButton.fire();
         //! DELETE ME
     }
 
@@ -198,21 +198,17 @@ public class WorkPortalController extends Controller {
                     try {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put("rowID", row.rowID);
+
                         HashMap<String, Object> result = loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
 
                         if ((boolean) result.containsKey("start")) {
-                            Database.startVisit2(row.rowID);
-                            visitsButton.fire();
-                            
-                        } else if (result.containsKey("patientUsername")) {
-                            String patientUsername = (String) result.get("patientUsername");
+                            Database.updateVisitActivate(row.rowID);
                             refreshPane(currentTab);
-
-                            FindPatientController findPatientController = FindPatientController.getInstance();
-                            findPatientController.loadDialog(); //! because of the dialog's showAndWait(), I can't edit the fields until it is closed. I neeed to create a new thread and look for the dialog to edit it
-                            // findPatientController.usernameButton.fire();
-                            // findPatientController.usernameTextField.setText(patientUsername);
-                            // inboxNewMessageButton.fire();
+                            
+                        } else if (result.containsKey("patientID")) {
+                            int patientID = (int) result.get("patientID");
+                            inboxButton.fire();
+                            loadChatFor(patientID);
                         }
                         
                     } catch (Exception e) {
@@ -230,20 +226,20 @@ public class WorkPortalController extends Controller {
         setCurrentTab(patientRecordsPane, patientRecordsButton);
     }
 
-    @FXML public void handleActiveSessionsButton(ActionEvent event) throws SQLException {
-        setCurrentTab(activeSessionsPane, activeSessionsButton);
+    @FXML public void handleActiveVisitsButton(ActionEvent event) throws SQLException {
+        setCurrentTab(activeVisitsPane, activeVisitsButton);
         
-        ResultSet activeSessions = Database.getStartedVisits();
+        ResultSet activeVisits = Database.getActiveViits();
         ArrayList<Row> rows = new ArrayList<>();
 
-        while (activeSessions.next()) {
-            int rowID = activeSessions.getInt("ID");
+        while (activeVisits.next()) {
+            int rowID = activeVisits.getInt("ID");
 
-            String patient = Database.getPatientNameFor(activeSessions.getInt("patientID"));
-            String doctor = Database.getEmployeeNameFor(activeSessions.getInt("doctorID"));
-            String localdate = Utilities.prettyDate(activeSessions.getDate("localdate").toLocalDate());
-            String localtime = Utilities.prettyTime(activeSessions.getTime("localtime").toLocalTime());
-            String reason = activeSessions.getString("reason");
+            String patient = Database.getPatientNameFor(activeVisits.getInt("patientID"));
+            String doctor = Database.getEmployeeNameFor(activeVisits.getInt("doctorID"));
+            String localdate = Utilities.prettyDate(activeVisits.getDate("localdate").toLocalDate());
+            String localtime = Utilities.prettyTime(activeVisits.getTime("localtime").toLocalTime());
+            String reason = activeVisits.getString("reason");
 
             ValueLabel patientLabel = new ValueLabel(patient);
             ValueLabel doctorLabel = new ValueLabel(doctor);
@@ -254,27 +250,42 @@ public class WorkPortalController extends Controller {
             Row row = new Row( "Active Sessions", rowID, patientLabel, doctorLabel, dateLabel, timeLabel, reasonLabel);
             rows.add(row);
         }
-        activeSessions.close();
-
-        SelectableTable activeSessionsTable = new SelectableTable();
-        activeSessionsTable
-            .withRowAction(row -> {
-                row.setOnMouseClicked(event2 -> {
-                    try {
-                        HashMap<String, Object> data = new HashMap<>();
-                        data.put("rowID", row.rowID);
-                        loadDialog(ActiveSessionController.getInstance(), data);
-                        refreshPane(activeSessionsPane);
-                        
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            })
+        activeVisits.close();
+        
+        SelectableTable activeVisitsTable = new SelectableTable();
+        activeVisitsTable
+            .isToggable(true)
             .withRows(rows)
             .build();
 
-        activeSessionsScrollPane.setContent(activeSessionsTable);
+        activeVisitsScrollPane.setContent(activeVisitsTable);
+
+    }
+
+    @FXML public void handleActiveVisitsPutBackButtonAction(ActionEvent event) throws SQLException {
+        if (activeVisitsScrollPane.getContent() == null || !(activeVisitsScrollPane.getContent() instanceof SelectableTable)) return;
+
+        SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
+        Row selectedRow = activeVisitsTable.getSelectedRow();
+
+        if (selectedRow == null) return;
+
+        Database.updateVisitPutBack(activeVisitsTable.getSelectedRow().rowID);
+        refreshPane(currentTab);
+    }
+
+    @FXML public void handleActiveVisitsStartButton(ActionEvent event) throws SQLException, Exception {
+        if (activeVisitsScrollPane.getContent() == null || !(activeVisitsScrollPane.getContent() instanceof SelectableTable)) return;
+
+        SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
+        Row selectedRow = activeVisitsTable.getSelectedRow();
+
+        if (selectedRow == null) return;
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("rowID", selectedRow.rowID);
+        loadDialog(ActiveVisitController.getInstance(), data);
+        refreshPane(activeVisitsPane);
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
@@ -455,10 +466,8 @@ public class WorkPortalController extends Controller {
 
     @FXML public void handleInboxNewMessageButton(ActionEvent event) throws IOException, SQLException {
         HashMap<String, Object> result = FindPatientController.getInstance().loadDialog();
-
         if (result != null && result.containsKey("patientID")) {
             int patientID = (int) result.get("patientID");
-            System.out.println("Found Patient ID: " + patientID);
             loadChatFor(patientID);
         }
     }
@@ -518,8 +527,8 @@ public class WorkPortalController extends Controller {
             visitsButton.fire();
         } else if (pane == patientRecordsPane) {
             patientRecordsButton.fire();
-        } else if (pane == activeSessionsPane) {
-            activeSessionsButton.fire();
+        } else if (pane == activeVisitsPane) {
+            activeVisitsButton.fire();
         } else if (pane == prescriptionToolPane) {
             prescriptionToolButton.fire();
         } else if (pane == usernamePane) {

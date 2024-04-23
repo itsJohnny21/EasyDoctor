@@ -27,7 +27,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
-public class ActiveSessionController extends DialogController {
+public class ActiveVisitController extends DialogController {
     @FXML public AnchorPane rootPane;
     @FXML public Label patientNameLabel;
     @FXML public Button closeButton;
@@ -53,11 +53,11 @@ public class ActiveSessionController extends DialogController {
 
     @FXML public TextArea notesTextArea;
 
-    public static ActiveSessionController instance = null;
+    public static ActiveVisitController instance = null;
     public final static String TITLE = "Visit";
     public final static boolean RESIZABLE = false;
-    public final static String VIEW_FILENAME = "ActiveSessionView";
-    public final static String STYLE_FILENAME = "ActiveSessionView";
+    public final static String VIEW_FILENAME = "ActiveVisitView";
+    public final static String STYLE_FILENAME = "ActiveVisitView";
     public AnchorPane[] panes;
     public int currentPaneIndex;
 
@@ -65,16 +65,16 @@ public class ActiveSessionController extends DialogController {
     public Integer patientID;
 
 
-    private ActiveSessionController() {
+    private ActiveVisitController() {
         title = TITLE;
         resizable = RESIZABLE;
         viewFilename = VIEW_FILENAME;
         styleFilename = STYLE_FILENAME;
     }
 
-    public static ActiveSessionController getInstance() {
+    public static ActiveVisitController getInstance() {
         if (instance == null) {
-            instance = new ActiveSessionController();
+            instance = new ActiveVisitController();
         }
 
         return instance;
@@ -91,7 +91,7 @@ public class ActiveSessionController extends DialogController {
         }
 
         switchPane(currentPaneIndex--);
-        Database.updateCurrentPageStartedVisit(rowID, currentPaneIndex);
+        Database.updateActiveVisitCurrentPage(rowID, currentPaneIndex);
     }
 
     @FXML public void handleNextButtonAction(ActionEvent event) throws Exception {
@@ -116,10 +116,8 @@ public class ActiveSessionController extends DialogController {
             return;
         }
 
-        System.out.println(currentPaneIndex);
-
         switchPane(currentPaneIndex++);
-        Database.updateStartedVisit(rowID, currentPaneIndex, Integer.parseInt(weightTextField.getText()), Integer.parseInt(heightTextField.getText()), Integer.parseInt(systolicBloodPressureTextField.getText()), Integer.parseInt(diastolicBloodPressureTextField.getText()), Integer.parseInt(heartRateTextField.getText()), Integer.parseInt(bodyTemperatureTextField.getText()), notesTextArea.getText());
+        Database.updateActiveVisit(rowID, currentPaneIndex, Integer.parseInt(weightTextField.getText()), Integer.parseInt(heightTextField.getText()), Integer.parseInt(systolicBloodPressureTextField.getText()), Integer.parseInt(diastolicBloodPressureTextField.getText()), Integer.parseInt(heartRateTextField.getText()), Integer.parseInt(bodyTemperatureTextField.getText()), notesTextArea.getText());
     }
 
     public void switchPane(int oldPaneIndex) throws SQLException {
@@ -289,18 +287,18 @@ public class ActiveSessionController extends DialogController {
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
         rowID = (Integer) data.get("rowID");
-        ResultSet activeSession = Database.getActiveVisit(rowID);
+        ResultSet activeVisit = Database.getVisit(rowID);
         
-        if (activeSession.next()) {
-            patientID = activeSession.getInt("patientID");
-            String height = activeSession.getString("height");
-            String weight = activeSession.getString("weight");
-            String systolicBloodPressure = activeSession.getString("systolicBloodPressure");
-            String diastolicBloodPressure = activeSession.getString("diastolicBloodPressure");
-            String heartRate = activeSession.getString("heartRate");
-            String bodyTemperature = activeSession.getString("bodyTemperature");
-            String notes = activeSession.getString("notes");
-            currentPaneIndex = activeSession.getInt("currentPage");
+        if (activeVisit.next()) {
+            patientID = activeVisit.getInt("patientID");
+            String height = activeVisit.getString("height");
+            String weight = activeVisit.getString("weight");
+            String systolicBloodPressure = activeVisit.getString("systolicBloodPressure");
+            String diastolicBloodPressure = activeVisit.getString("diastolicBloodPressure");
+            String heartRate = activeVisit.getString("heartRate");
+            String bodyTemperature = activeVisit.getString("bodyTemperature");
+            String notes = activeVisit.getString("notes");
+            currentPaneIndex = activeVisit.getInt("currentPage");
             
             patientNameLabel.setText(Database.getPatientNameFor(patientID));
             heightTextField.setText(height);
@@ -310,8 +308,13 @@ public class ActiveSessionController extends DialogController {
             heartRateTextField.setText(heartRate);
             bodyTemperatureTextField.setText(bodyTemperature);
             notesTextArea.setText(notes);
+
+            int nurseID = activeVisit.getInt("nurseID");
+            if (activeVisit.wasNull()) {
+                Database.updateActiveVisitNurse(rowID, Database.getMyID());
+            }
         }
-        activeSession.close();
+        activeVisit.close();
 
         panes = new AnchorPane[]{vitalsPane, healthConditionsPane, allergiesPane, vaccinesPane, notesPane};
 
@@ -328,6 +331,6 @@ public class ActiveSessionController extends DialogController {
         instance = null;
         close();
 
-        Database.updateCurrentPageStartedVisit(rowID, currentPaneIndex);
+        Database.updateActiveVisitCurrentPage(rowID, currentPaneIndex);
     }
 }

@@ -40,7 +40,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button fx:id="activeSessionsButton" alignment="CENTER" minHeight="30.0" minWidth="150.0" mnemonicParsing="false" onAction="#handleActiveSessionsButton" opacity="0.5" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #cc7878; -fx-background-radius: 5;" text="Active Sessions" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <Button fx:id="activeVisitsButton" alignment="CENTER" minHeight="30.0" minWidth="150.0" mnemonicParsing="false" onAction="#handleActiveVisitsButton" opacity="0.5" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #cc7878; -fx-background-radius: 5;" text="Active Visits" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Arial" size="21.0" />
                </font>
@@ -225,7 +225,7 @@
             </GridPane>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="activeSessionsPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;">
+      <AnchorPane fx:id="activeVisitsPane" layoutY="80.0" prefHeight="792.0" prefWidth="1512.0" style="-fx-background-color: fff6eb;">
          <children>
             <GridPane prefHeight="90.0" prefWidth="1512.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
                <columnConstraints>
@@ -235,14 +235,14 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Label alignment="CENTER" text="Active Sessions" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Label alignment="CENTER" text="Active Visits" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Arial" size="42.0" />
                      </font>
                   </Label>
                </children>
             </GridPane>
-            <ScrollPane fx:id="activeSessionsScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="170.0" prefHeight="470.0" prefWidth="1512.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <ScrollPane fx:id="activeVisitsScrollPane" fitToWidth="true" hbarPolicy="NEVER" layoutY="170.0" prefHeight="470.0" prefWidth="1512.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
             <GridPane maxHeight="1495.0" prefHeight="50.0" prefWidth="1495.0" AnchorPane.bottomAnchor="622.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -260,7 +260,7 @@
                         <Font size="25.0" />
                      </font>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Date" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Patient" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font size="25.0" />
                      </font>
@@ -275,7 +275,7 @@
                         <Font size="25.0" />
                      </font>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Day" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Date" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font size="25.0" />
                      </font>
@@ -288,26 +288,17 @@
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="activeSessionsFinishButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" text="Finish" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets />
-                     </GridPane.margin>
+                  <Button fx:id="activeVisitsPutBackButton" mnemonicParsing="false" onAction="#handleActiveVisitsPutBackButtonAction" prefHeight="40.0" prefWidth="200.0" text="Put Back" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Arial" size="21.0" />
                      </font>
                   </Button>
-                  <Button fx:id="activeSessionsPutBackButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" text="Put Back" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                     <font>
-                        <Font name="Arial" size="21.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="activeSessionsStartButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="200.0" text="Start" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="activeVisitsStartButton" mnemonicParsing="false" onAction="#handleActiveVisitsStartButton" prefHeight="40.0" prefWidth="200.0" text="Start" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Arial" size="21.0" />
                      </font>

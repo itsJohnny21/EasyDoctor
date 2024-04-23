@@ -40,6 +40,7 @@ public class App extends Application {
         });
 
 		WelcomeController.getInstance().load();
+		Bypass.toWorkPortal();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException, Exception {
