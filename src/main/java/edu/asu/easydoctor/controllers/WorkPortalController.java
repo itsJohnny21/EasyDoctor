@@ -21,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -254,7 +255,19 @@ public class WorkPortalController extends Controller {
         
         SelectableTable activeVisitsTable = new SelectableTable();
         activeVisitsTable
-            .withRowAction(null)
+            .withRowAction(row -> {
+                row.setOnMouseClicked(event2 -> {
+                    try {
+                        HashMap<String, Object> data = new HashMap<>();
+                        data.put("rowID", row.rowID);
+                        loadDialog(ActiveVisitController.getInstance(), data);
+                        refreshPane(activeVisitsPane);
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            })
             .isToggable(true)
             .withRows(rows)
             .build();
@@ -269,9 +282,20 @@ public class WorkPortalController extends Controller {
         SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
         HashSet<Row> selectedRows = activeVisitsTable.getSelectedRows();
 
+        if (selectedRows.isEmpty()) return;
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Put Back Visit");
+        alert.setHeaderText("Are you sure you want to put back these visits?");
+        alert.setContentText("These visits will be marked as 'MISSED' if they are no longer within the grace period.");
+        alert.showAndWait();
+
+        if (alert.getResult().getText().equals("Cancel")) return;
+
         for (Row row : selectedRows) {
             Database.updateVisitPutBack(row.rowID);
         }
+
         refreshPane(currentTab);
     }
 

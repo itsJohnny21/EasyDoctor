@@ -58,7 +58,7 @@ VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 01:45:00', 'America/P
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', '2024-04-19', DATE(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-19 22:30:00', 'America/Phoenix', '+00:00')), 2, 3, 'Checkup', 'Mental health checkup'); -- Duplicate key error for date and time
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
-VALUES('ONLINE', '2024-04-20', DATE(CONVERT_TZ('2024-04-20 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-20 22:30:00', 'America/Phoenix', '+00:00')), 182, 3, 'Checkup', 'Mental health checkup'); -- Duplicate key error for patientID and localdate
+VALUES('ONLINE', '2024-04-22', DATE(CONVERT_TZ('2024-04-22 22:30:00', 'America/Phoenix', '+00:00')), TIME(CONVERT_TZ('2024-04-22 22:30:00', 'America/Phoenix', '+00:00')), 226, 3, 'Checkup', 'Mental health checkup'); -- Duplicate key error for patientID and localdate
 
 -- Retrieve all visits
 SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description, 
@@ -135,7 +135,7 @@ VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW(
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 207, 3, 'Checkup', 'Mental health checkup');
 delete from visits where localdate = '2024-04-22';
-
+select * from patients;
 
 -- Get upcoming visit for a patient
 SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1; -- Statement for Java
