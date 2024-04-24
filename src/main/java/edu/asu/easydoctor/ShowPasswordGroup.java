@@ -3,14 +3,12 @@ package edu.asu.easydoctor;
 import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventDispatchChain;
 import javafx.event.EventHandler;
-import javafx.event.EventTarget;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ToggleButton;
 
-public class ShowPasswordGroup implements EventTarget {
+public class ShowPasswordGroup {
 
     public ArrayList<PasswordField> passwordFields = new ArrayList<>();
     public ToggleButton showPasswordToggle;
@@ -81,15 +79,11 @@ public class ShowPasswordGroup implements EventTarget {
             if (showPasswordToggle.isSelected()) {
                 showPasswordToggle.fire();
             }
-            
+
             if (originalAction != null) {
                 originalAction.handle(event);
             }
 
         });
-    }
-
-    public EventDispatchChain buildEventDispatchChain(EventDispatchChain tail) {
-        return tail;
     }
 }
