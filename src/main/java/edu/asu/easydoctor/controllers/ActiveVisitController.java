@@ -80,6 +80,48 @@ public class ActiveVisitController extends DialogController {
         return instance;
     }
 
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        rowID = (Integer) data.get("rowID");
+        ResultSet activeVisit = Database.getVisit(rowID);
+        
+        if (activeVisit.next()) {
+            patientID = activeVisit.getInt("patientID");
+            String height = activeVisit.getString("height");
+            String weight = activeVisit.getString("weight");
+            String systolicBloodPressure = activeVisit.getString("systolicBloodPressure");
+            String diastolicBloodPressure = activeVisit.getString("diastolicBloodPressure");
+            String heartRate = activeVisit.getString("heartRate");
+            String bodyTemperature = activeVisit.getString("bodyTemperature");
+            String notes = activeVisit.getString("notes");
+            currentPaneIndex = activeVisit.getInt("currentPage");
+            
+            patientNameLabel.setText(Database.getPatientNameFor(patientID));
+            heightTextField.setText(height);
+            weightTextField.setText(weight);
+            systolicBloodPressureTextField.setText(systolicBloodPressure);
+            diastolicBloodPressureTextField.setText(diastolicBloodPressure);
+            heartRateTextField.setText(heartRate);
+            bodyTemperatureTextField.setText(bodyTemperature);
+            notesTextArea.setText(notes);
+
+            int nurseID = activeVisit.getInt("nurseID");
+            if (activeVisit.wasNull()) {
+                Database.updateActiveVisitNurse(rowID, Database.getMyID());
+            }
+        }
+        activeVisit.close();
+
+        panes = new AnchorPane[]{vitalsPane, healthConditionsPane, allergiesPane, vaccinesPane, notesPane};
+
+        for (AnchorPane pane : panes) {
+            pane.setDisable(true);
+            pane.setVisible(false);
+        }
+
+        currentPaneIndex = Math.min(panes.length - 1, Math.max(0, currentPaneIndex));
+        switchPane(0);
+    }
+
     @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
         closeAndNullify();
     }
@@ -283,48 +325,6 @@ public class ActiveVisitController extends DialogController {
                 loadVaccinesPane();
                 break;
         }
-    }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
-        rowID = (Integer) data.get("rowID");
-        ResultSet activeVisit = Database.getVisit(rowID);
-        
-        if (activeVisit.next()) {
-            patientID = activeVisit.getInt("patientID");
-            String height = activeVisit.getString("height");
-            String weight = activeVisit.getString("weight");
-            String systolicBloodPressure = activeVisit.getString("systolicBloodPressure");
-            String diastolicBloodPressure = activeVisit.getString("diastolicBloodPressure");
-            String heartRate = activeVisit.getString("heartRate");
-            String bodyTemperature = activeVisit.getString("bodyTemperature");
-            String notes = activeVisit.getString("notes");
-            currentPaneIndex = activeVisit.getInt("currentPage");
-            
-            patientNameLabel.setText(Database.getPatientNameFor(patientID));
-            heightTextField.setText(height);
-            weightTextField.setText(weight);
-            systolicBloodPressureTextField.setText(systolicBloodPressure);
-            diastolicBloodPressureTextField.setText(diastolicBloodPressure);
-            heartRateTextField.setText(heartRate);
-            bodyTemperatureTextField.setText(bodyTemperature);
-            notesTextArea.setText(notes);
-
-            int nurseID = activeVisit.getInt("nurseID");
-            if (activeVisit.wasNull()) {
-                Database.updateActiveVisitNurse(rowID, Database.getMyID());
-            }
-        }
-        activeVisit.close();
-
-        panes = new AnchorPane[]{vitalsPane, healthConditionsPane, allergiesPane, vaccinesPane, notesPane};
-
-        for (AnchorPane pane : panes) {
-            pane.setDisable(true);
-            pane.setVisible(false);
-        }
-
-        currentPaneIndex = Math.min(panes.length - 1, Math.max(0, currentPaneIndex));
-        switchPane(0);
     }
 
     public void closeAndNullify() throws SQLException {

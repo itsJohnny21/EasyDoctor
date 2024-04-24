@@ -1,6 +1,5 @@
 package edu.asu.easydoctor.controllers;
 
-import edu.asu.easydoctor.Database;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -34,8 +33,7 @@ public class WelcomeController extends Controller {
         return instance;
     }
 
-    public void initialize() throws Exception {
-        Database.connect();
+    public void loadHelper() throws Exception {
     }
 
     @FXML public void handleSignInButtonAction(ActionEvent event) throws Exception {

@@ -47,7 +47,7 @@ public class ForgotUsernamePasswordController extends Controller {
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         for (Role role : Role.values()) {
             roleChoiceBox.getItems().add(role.toString());
         }
@@ -58,7 +58,10 @@ public class ForgotUsernamePasswordController extends Controller {
         });
     }
 
-    @FXML public void handleSendEmailButtonAction() throws IOException {
+
+    public void loadHelper() throws Exception {}
+    
+    @FXML public void handleSendEmailButtonAction() throws Exception {
         boolean valid = Utilities.validate(emailTextField, styleFilename) & Utilities.validate(roleChoiceBox);
         if (!valid) return;
 
@@ -88,8 +91,6 @@ public class ForgotUsernamePasswordController extends Controller {
         SignInController.getInstance().load();
     }
 
-    public void loadHelper() {}
-    
     public void closeAndNullify() {
         instance = null;
         close();

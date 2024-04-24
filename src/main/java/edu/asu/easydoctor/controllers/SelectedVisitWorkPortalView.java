@@ -54,23 +54,6 @@ public class SelectedVisitWorkPortalView extends DialogController {
         return instance;
     }
 
-    public void initialize() throws Exception {
-    }
-
-    @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
-        closeAndNullify();
-    }
-
-    @FXML public void handleContactButtonAction(ActionEvent event) throws Exception {
-        result.put("patientID", patientID);
-        closeAndNullify();
-    }
-
-    @FXML public void handleStartButtonAction(ActionEvent event) throws Exception {
-        result.put("start", true);
-        closeAndNullify();
-    }
-
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
         rowID = (Integer) data.get("rowID");
         ResultSet visit = Database.getVisit(rowID);
@@ -100,6 +83,20 @@ public class SelectedVisitWorkPortalView extends DialogController {
             }
         }
         visit.close();
+    }
+    
+    @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
+        closeAndNullify();
+    }
+
+    @FXML public void handleContactButtonAction(ActionEvent event) throws Exception {
+        result.put("patientID", patientID);
+        closeAndNullify();
+    }
+
+    @FXML public void handleStartButtonAction(ActionEvent event) throws Exception {
+        result.put("start", true);
+        closeAndNullify();
     }
 
     public void closeAndNullify() {

@@ -19,8 +19,8 @@ public class RegexTests {
     public final Random RANDOM = new Random();
 
     @Test
-    @DisplayName("usernamevalidRegexTest")
-    public void usernamevalidRegexTest() throws Exception {
+    @DisplayName("usernamevalidRegex")
+    public void usernamevalidRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -32,8 +32,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameStartsWithLetterRegexTest")
-    public void usernameStartsWithLetterRegexTest() throws Exception {
+    @DisplayName("usernameStartsWithLetterRegex")
+    public void usernameStartsWithLetterRegex() throws Exception {
         StringBuilder username = new StringBuilder("_username123");
         
         for (int i = 0; i < ALPHABET.length(); i++) {
@@ -43,8 +43,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameStartsWithDigitRegexTest")
-    public void usernameStartsWithDigitRegexTest() throws Exception {
+    @DisplayName("usernameStartsWithDigitRegex")
+    public void usernameStartsWithDigitRegex() throws Exception {
         StringBuilder username = new StringBuilder("__username123");
         
         for (int i = 0; i < ALPHABET.length(); i++) {
@@ -57,8 +57,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameStartsWithUnderscoreRegexTest")
-    public void usernameStartsWithUnderscoreRegexTest() throws Exception {
+    @DisplayName("usernameStartsWithUnderscoreRegex")
+    public void usernameStartsWithUnderscoreRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -71,8 +71,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameStartsWithSpecialCharacterRegexTest")
-    public void usernameStartsWithSpecialCharacterRegexTest() throws Exception {
+    @DisplayName("usernameStartsWithSpecialCharacterRegex")
+    public void usernameStartsWithSpecialCharacterRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -88,8 +88,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameLessThanFourCharactersRegexTest")
-    public void usernameLessThanFourCharactersRegexTest() throws Exception {
+    @DisplayName("usernameLessThanFourCharactersRegex")
+    public void usernameLessThanFourCharactersRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -102,8 +102,8 @@ public class RegexTests {
     }   
 
     @Test
-    @DisplayName("usernameEndsWithSpecialCharacterRegexTest")
-    public void usernameEndsWithSpecialCharacterRegexTest() throws Exception {
+    @DisplayName("usernameEndsWithSpecialCharacterRegex")
+    public void usernameEndsWithSpecialCharacterRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -121,8 +121,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameEndsWithUnderscoreRegexTest")
-    public void usernameEndsWithUnderscoreRegexTest() throws Exception {
+    @DisplayName("usernameEndsWithUnderscoreRegex")
+    public void usernameEndsWithUnderscoreRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -135,8 +135,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernameEndsWithDigitRegexTest")
-    public void usernameEndsWithDigitRegexTest() throws Exception {
+    @DisplayName("usernameEndsWithDigitRegex")
+    public void usernameEndsWithDigitRegex() throws Exception {
         InputStream stream = getClass().getResourceAsStream("/valid_usernames.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -151,8 +151,8 @@ public class RegexTests {
     }
 
     @Test
-    @DisplayName("usernamesInDatabaseRegexTest")
-    public void usernamesInDatabaseRegexTest() throws Exception {
+    @DisplayName("usernamesInDatabaseRegex")
+    public void usernamesInDatabaseRegex() throws Exception {
         Database.connectAsAdmin();
         PreparedStatement statement = Database.connection.prepareStatement("SELECT username FROM users");
 

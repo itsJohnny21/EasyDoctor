@@ -28,6 +28,7 @@ CREATE TABLE visits (
     FOREIGN KEY (doctorID) REFERENCES employees(ID),
     FOREIGN KEY (nurseID) REFERENCES employees(ID),
     UNIQUE KEY (patientID, localdate),
+    UNIQUE KEY (date, time),
     CONSTRAINT check_only_one_status CHECK (
         (completed = TRUE AND active = FALSE AND cancelled = FALSE) OR
         (completed = FALSE AND active = TRUE AND cancelled = FALSE) OR

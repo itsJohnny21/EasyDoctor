@@ -1,5 +1,6 @@
 package edu.asu.easydoctor.controllers;
 
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -23,8 +24,28 @@ public abstract class BaseController {
         stage.setHeight(height);
         stage.toFront();
         stage.setScene(scene);
+
+        this.stage.setOnCloseRequest(event -> {
+            try {
+                closeAndNullify();
+            } catch (Exception e) {
+                System.out.println("Error closing dialog");
+                e.printStackTrace();
+            }
+        });
+
+        this.stage.setHeight(this.scene.getRoot().prefHeight(-1) + getTitleBarHeight());
     }
-    
+
+    public double getTitleBarHeight() {
+        Stage tempStage = new Stage();
+        Scene tempScene = new Scene(new Group(), 0, 0);
+        tempStage.setScene(tempScene);
+        tempStage.show();
+        double titleBarHeight = tempStage.getHeight() - tempScene.getHeight();
+        tempStage.close();
+        return titleBarHeight;
+    }
 
     public void close() {
         stage.close();

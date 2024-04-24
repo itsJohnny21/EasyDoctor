@@ -39,6 +39,7 @@ public class SignInController extends Controller {
     public static final boolean RESIZABLE = false;
     public static final String VIEW_FILENAME = "SignInView";
     public static final String STYLE_FILENAME = "SignUpView";
+    public ShowPasswordGroup spg;
 
     private SignInController() {
         title = TITLE;
@@ -66,11 +67,22 @@ public class SignInController extends Controller {
             }
         });
 
-        ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
+        spg = new ShowPasswordGroup(showPasswordToggle);
         spg.addPasswordField(passwordField);
+        spg.setConnectedButton(signInButton);
+    }
+
+    public void loadHelper() throws Exception {
+        if (showPasswordToggle.isSelected()) {
+            showPasswordToggle.fire();
+        }
     }
     
     @FXML public void handleSignInButtonAction(ActionEvent event) throws SQLException, UnknownHostException, IOException, Exception {
+        if (spg.showPasswordToggle.isSelected()) {
+            spg.showPasswordToggle.fire();
+        }
+
         rememberMe();
 
         if (usernameTextField.getText().isBlank()) {
@@ -101,6 +113,7 @@ public class SignInController extends Controller {
             usernameTextField.getStyleClass().add("error");
             passwordField.getStyleClass().add("error");
         }
+        
     }
 
     @FXML public void handleGoBackButtonAction(ActionEvent event) throws IOException, Exception {

@@ -66,8 +66,19 @@ public class FindPatientController extends DialogController {
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         nameAndBirthButton.fire();
+    }
+
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        nameAndBirthButton.fire();
+        
+        if (data.containsKey("patientID")) {
+            System.out.println("Patient ID: " + data.get("patientID"));
+            patientID = (Integer) data.get("patientID");
+            result.put("patientID", patientID);
+            closeAndNullify();
+        }
     }
 
     @FXML public void handleNameAndBirthButtonAction(ActionEvent event) {
@@ -129,8 +140,10 @@ public class FindPatientController extends DialogController {
 
         patientID = patientIDToFind;
         doneButton.setDisable(false);
-        patientLabel.setText(Database.getPatientNameFor(patientID));
+        String patientName = Database.getPatientNameFor(patientID);
+        patientLabel.setText(patientName);
         result.put("patientID", patientID);
+        result.put("patientName", patientName);
     }
 
     public void addErrorsToFields() {
@@ -144,15 +157,6 @@ public class FindPatientController extends DialogController {
             Utilities.addClass(emailTextField, "error");
         } else if (currentPane == phoneNumberPane) {
             Utilities.addClass(phoneNumberTextField, "error");
-        }
-    }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
-        if (data.containsKey("patientID")) {
-            System.out.println("Patient ID: " + data.get("patientID"));
-            patientID = (Integer) data.get("patientID");
-            result.put("patientID", patientID);
-            closeAndNullify();
         }
     }
 

@@ -55,27 +55,10 @@ public class SelectedVisitController extends DialogController {
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         addressLabel.setText("Address: 2601 E Roosevelt St Phoenix, AZ 85008 United States");
     }
 
-    @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
-        closeAndNullify();
-    }
-
-    @FXML public void handleCancelVisitButtonAction(ActionEvent event) throws Exception {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Cancel Visit");
-        alert.setHeaderText("Are you sure you want to cancel this visit?");
-        alert.setContentText("This action cannot be undone.");
-        alert.showAndWait();
-
-        if (alert.getResult().getText().equals("OK")) {
-            Database.updateVisitCancel(rowID);
-            result.put("deleted", true);
-            closeAndNullify();
-        }
-    }
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
         rowID = (Integer) data.get("rowID");
@@ -105,6 +88,24 @@ public class SelectedVisitController extends DialogController {
             }
         }
         visit.close();
+    }
+
+    @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
+        closeAndNullify();
+    }
+
+    @FXML public void handleCancelVisitButtonAction(ActionEvent event) throws Exception {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Cancel Visit");
+        alert.setHeaderText("Are you sure you want to cancel this visit?");
+        alert.setContentText("This action cannot be undone.");
+        alert.showAndWait();
+
+        if (alert.getResult().getText().equals("OK")) {
+            Database.updateVisitCancel(rowID);
+            result.put("deleted", true);
+            closeAndNullify();
+        }
     }
 
     public void closeAndNullify() {

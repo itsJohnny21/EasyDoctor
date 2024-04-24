@@ -148,16 +148,17 @@ public class WorkPortalController extends Controller {
         });
 
 
-        visitsButton.fire();
-
         //! DELETE ME
         for (AnchorPane tab : new AnchorPane[] {visitsPane, patientRecordsPane, activeVisitsPane, inboxPane, prescriptionToolPane, usernamePane}) {
             tab.setVisible(false);
             tab.setDisable(true);
         }
-        activeVisitsButton.fire();
         //! DELETE ME
+
+        visitsButton.fire();
     }
+
+    public void loadHelper() throws Exception {}
 
     @FXML public void handleKeyTyped(KeyEvent event) {
         Node source = (Node) event.getSource();
@@ -276,7 +277,7 @@ public class WorkPortalController extends Controller {
 
     }
 
-    @FXML public void handleActiveVisitsPutBackButtonAction(ActionEvent event) throws SQLException {
+    @FXML public void handleActiveVisitsPutBackButtonAction(ActionEvent event) throws SQLException, Exception {
         if (activeVisitsScrollPane.getContent() == null || !(activeVisitsScrollPane.getContent() instanceof SelectableTable)) return;
 
         SelectableTable activeVisitsTable = (SelectableTable) activeVisitsScrollPane.getContent();
@@ -297,6 +298,7 @@ public class WorkPortalController extends Controller {
         }
 
         refreshPane(currentTab);
+        currentDialog.closeAndNullify();
     }
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
@@ -320,16 +322,16 @@ public class WorkPortalController extends Controller {
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
         closeAndNullify();
-        Database.signOut();
         SignInController.getInstance().load();
+        Database.signOut();
     }
 
-    @FXML public void handleScheduleVisitButtonAction(ActionEvent event) {
+    @FXML public void handleScheduleVisitButtonAction(ActionEvent event) throws IOException, SQLException {
+        HashMap<String, Object> result = FindPatientController.getInstance().loadDialog();
 
-    }
+        if (result == null || !result.containsKey("patientID")) return;
 
-    @FXML public void handleScheduleVisitButton(ActionEvent event) {
-
+        ScheduleVisitController.getInstance().loadDialog(result);
     }
 
     @FXML public void handleChatGoBackButtonAction(ActionEvent event) {

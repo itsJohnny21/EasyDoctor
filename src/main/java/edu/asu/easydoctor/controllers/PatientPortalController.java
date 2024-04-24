@@ -102,7 +102,6 @@ public class PatientPortalController extends Controller {
     }
     
     public void initialize() throws Exception {
-
         usernameButton.setText(Database.getMy("username"));
 
         rootPane.setOnKeyPressed(event -> {
@@ -147,6 +146,8 @@ public class PatientPortalController extends Controller {
 
         myVisitsButton.fire();
     }
+
+    public void loadHelper() throws Exception {}
 
     @FXML public void handleMyVisitsButtonAction(ActionEvent event) throws Exception {
         setCurrentTab(myVisitsPane, myVisitsButton);

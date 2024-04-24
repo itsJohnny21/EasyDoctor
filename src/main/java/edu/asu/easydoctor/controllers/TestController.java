@@ -43,7 +43,7 @@ public class TestController extends Controller {
     
     public String title = "Test";
 
-    public void initialize() throws Exception {
+    public void loadHelper() throws Exception {
         rootPane.getStylesheets().add(App.class.getResource("/styles/test.css").toExternalForm());
         resizable = true;
         
@@ -211,7 +211,7 @@ public class TestController extends Controller {
     public void refresh() throws Exception {
         System.out.println("Refreshing...");
         contentPane.getChildren().clear();
-        initialize();
+        loadHelper();
     }
 
     public String getTitle() {

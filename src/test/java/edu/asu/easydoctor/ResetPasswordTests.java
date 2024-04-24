@@ -19,6 +19,7 @@ import edu.asu.easydoctor.exceptions.InvalidResetPasswordTokenException;
 public class ResetPasswordTests {
 
     public static final int USER_ID = 225;
+    public static final String OLD_PASSWORD_RAW = "itsJohnny21!";
     public static String oldPassword;
     public static String newPassword;
     public static ResultSet userData;
@@ -32,7 +33,7 @@ public class ResetPasswordTests {
         userData.next();
 
         oldPassword = userData.getString("password");
-        newPassword = oldPassword == Encrypter.SHA256("itsJohnny21!!") ? Encrypter.SHA256("itsJohnny21!") : Encrypter.SHA256("itsJohnny21!!");
+        newPassword = oldPassword == Encrypter.SHA256(OLD_PASSWORD_RAW) ? Encrypter.SHA256(OLD_PASSWORD_RAW + "!") : Encrypter.SHA256(OLD_PASSWORD_RAW);
     }
 
     @AfterEach
@@ -44,8 +45,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("generateResetPasswordTokenTest")
-    public void generateResetPasswordTokenTest() throws Exception {
+    @DisplayName("generateResetPasswordToken")
+    public void generateResetPasswordToken() throws Exception {
         for (int i = 0; i < 100; i++) {
             int token = Database.generateRandomToken();
     
@@ -55,8 +56,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("insertResetPasswordTokenTest")
-    public void insertResetPasswordTokenTest() throws Exception {
+    @DisplayName("insertResetPasswordToken")
+    public void insertResetPasswordToken() throws Exception {
         PreparedStatement statement;
 
         Database.insertResetPasswordToken(userData.getString("email"), Role.valueOf(userData.getString("role")));
@@ -70,8 +71,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("expiredResetTokenTest")
-    public void expiredResetTokenTest() throws Exception {
+    @DisplayName("expiredResetToken")
+    public void expiredResetToken() throws Exception {
         PreparedStatement statement;
 
         int userID = 225;
@@ -86,7 +87,7 @@ public class ResetPasswordTests {
         int token = result.getInt("token");
         result.close();
 
-        statement = Database.connection.prepareStatement("UPDATE resetPasswordTokens SET creationTime = DATE_SUB(NOW(3), INTERVAL " + String.valueOf(Database.TOKEN_LIFESPAN / 1000 + 60) + " SECOND) WHERE token = ?");
+        statement = Database.connection.prepareStatement("UPDATE resetPasswordTokens SET creationTime = DATE_SUB(NOW(3), INTERVAL " + String.valueOf(Database.TOKEN_LIFESPAN.toMinutes() + 1) + " MINUTE) WHERE token = ?");
         statement.setInt(1, token);
         statement.executeUpdate();
 
@@ -96,8 +97,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("invalidResetTokenTest")
-    public void invalidResetTokenTest() throws Exception {
+    @DisplayName("invalidResetToken")
+    public void invalidResetToken() throws Exception {
         PreparedStatement statement;
 
         int userID = 225;
@@ -119,8 +120,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("resetPasswordTest")
-    public void resetPasswordTest() throws Exception {
+    @DisplayName("resetPassword")
+    public void resetPassword() throws Exception {
         PreparedStatement statement;
 
         int userID = 225;
@@ -147,8 +148,8 @@ public class ResetPasswordTests {
     }
 
     @Test
-    @DisplayName("sendResetPasswordEmailTest")
-    public void sendResetPasswordEmailTest() throws Exception {
+    @DisplayName("sendResetPasswordEmail")
+    public void sendResetPasswordEmail() throws Exception {
         PreparedStatement statement;
         
         int token = Database.insertResetPasswordToken(userData.getString("email"), Role.valueOf(userData.getString("role")));

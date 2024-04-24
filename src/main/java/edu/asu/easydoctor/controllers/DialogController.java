@@ -23,15 +23,6 @@ public abstract class DialogController extends BaseController {
             this.scene = scene;
             this.scene.getStylesheets().add(App.class.getResource(String.format("styles/%s.css", styleFilename)).toExternalForm());
             initializeStage();
-
-            this.stage.setOnCloseRequest(event -> {
-                try {
-                    closeAndNullify();
-                } catch (Exception e) {
-                    System.out.println("Error closing dialog");
-                    e.printStackTrace();
-                }
-            });
         }
 
         if (data != null) {

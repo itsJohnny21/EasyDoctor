@@ -130,7 +130,10 @@ public class SignUpController extends Controller {
 
         ShowPasswordGroup spg = new ShowPasswordGroup(showPasswordToggle);
         spg.addPasswordFields(passwordField, confirmPasswordField);
+        spg.setConnectedButton(nextButton);
     }
+
+    public void loadHelper() throws Exception {}
 
     @FXML public void handleSignUpButtonAction() {
         boolean successful = false;
@@ -190,8 +193,6 @@ public class SignUpController extends Controller {
     }
 
     @FXML public void handleGoBackButtonAction(ActionEvent event) throws Exception {
-        System.out.println("Go back button clicked");
-
         if (currentForm == form1) {
             WelcomeController.getInstance().load();
         } else {

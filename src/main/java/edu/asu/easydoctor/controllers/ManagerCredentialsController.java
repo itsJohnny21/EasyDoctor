@@ -55,6 +55,8 @@ public class ManagerCredentialsController extends DialogController {
         spg.addPasswordField(managerPasswordField);
     }
 
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
+
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
         Utilities.removeClass(textField, "error");
@@ -112,8 +114,6 @@ public class ManagerCredentialsController extends DialogController {
 
         return true;
     }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
     public void closeAndNullify() {
         instance = null;

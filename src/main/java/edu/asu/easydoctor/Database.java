@@ -1,6 +1,5 @@
 package edu.asu.easydoctor;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -8,10 +7,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.
+PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,16 +105,16 @@ public abstract class Database {
     public static Connection connection;
     public static Integer userID;
     public static Role role;
-    public static HashMap<String, HashMap<String, Boolean>> updatePermissions;
+    public static HashMap<String, HashMap<String, Boolean>> updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
     public static HashMap<String, HashMap<String, Boolean>> selectPermissions;
     public static HashMap<String, HashMap<String, Boolean>> insertPermissions;
     public static HashMap<String, Boolean> deletePermissions;
     public final static Duration TOKEN_LIFESPAN = Duration.ofMinutes(5);
     public final static Duration VISIT_GRACE_PERIOD = Duration.ofMinutes(15);
-
-    static {
-        updatePermissions = new HashMap<String, HashMap<String, Boolean>>();
-    }
+    public final static LocalTime VISIT_START_TIME = LocalTime.of(8, 0);
+    public final static LocalTime VISIT_END_TIME = LocalTime.of(17, 0);
+    public final static Duration VISIT_DURATION = Duration.ofMinutes(15);
+    public final static Duration CONNECTION_TIMEOUT_LENGTH = Duration.ofSeconds(2);
 
     public static void changeRole(Role role) throws Exception {
         disconnect();
@@ -121,33 +122,35 @@ public abstract class Database {
         connect();
     }
 
-    public static void connectAsAdmin() throws SQLException, IOException {
+    public static void connectAsAdmin() throws SQLException {
         connection = DriverManager.getConnection(App.properties.getProperty("db_admin_url"));
     }
 
-    public static void connect() throws SQLException, IOException {
+    public static void ensureConnection() throws SQLException {
+        if (connection == null || !connection.isValid((int) CONNECTION_TIMEOUT_LENGTH.toSeconds())) {
+            connect();
+        }
+    }
+
+    public static void connect() throws SQLException {
+        if (connection != null && connection.isValid((int) CONNECTION_TIMEOUT_LENGTH.toSeconds())) return;
+
         String url = null;
 
-        if (Database.role == null) {
-            url = App.properties.getProperty("db_neutral_url");
-        } else if (role == Role.PATIENT) {
+        if (role == Role.PATIENT) {
             url = App.properties.getProperty("db_patient_url");
         } else if (role == Role.DOCTOR) {
             url = App.properties.getProperty("db_doctor_url");
         } else if (role == Role.NURSE) {
             url = App.properties.getProperty("db_nurse_url");
         } else {
-            throw new SQLException("Invalid role");
+            url = App.properties.getProperty("db_neutral_url");
         }
 
         connection = DriverManager.getConnection(url);
-
-        if (connection == null) {
-            throw new SQLException("Connection to the database failed");
-        }
     }
 
-    public static void disconnect() throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    public static void disconnect() throws SQLException {
         if (connection != null) {
             role = null;
             connection.close();
@@ -161,6 +164,8 @@ public abstract class Database {
     }
 
     public static String getPermissedColumns(String tableName, String operation) throws Exception {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = ? AND PRIVILEGE_TYPE = ? AND GRANTEE = %s;", getGrantee()));
         statement.setString(1, tableName);
         statement.setString(2, operation);
@@ -176,6 +181,8 @@ public abstract class Database {
     }
 
     public static boolean userExists(String username) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ?;");
         statement.setString(1, username);
 
@@ -189,6 +196,8 @@ public abstract class Database {
     public static ResultSet selectAllWithRole(Role role) throws Exception {
         String tableName = "users";
         String columns = getPermissedColumns(tableName, "SELECT");
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE role = ?;", columns, tableName));
         statement.setString(1, role.toString());
         ResultSet resultSet = statement.executeQuery();
@@ -197,6 +206,8 @@ public abstract class Database {
 
     public static ResultSet selectRow(int rowID, String tableName) throws Exception {
         String colummns = getPermissedColumns(tableName, "SELECT");
+        ensureConnection();
+        
         PreparedStatement statement2 = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE ID = ?;", colummns, tableName));
         statement2.setInt(1, rowID);
 
@@ -207,6 +218,8 @@ public abstract class Database {
 
     public static ResultSet selectMultiRow(int userID, String tableName) throws Exception {
         String colummns = getPermissedColumns(tableName, "SELECT");
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT %s FROM %s WHERE userID = ?;", colummns, tableName));
         statement.setInt(1, userID);
 
@@ -216,6 +229,8 @@ public abstract class Database {
     }
 
     public static void updateRow(int rowID, String table, String column, String newValue) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("UPDATE %s SET %s = ? WHERE ID = ?;", table, column));
         statement.setString(1, newValue);
         statement.setInt(2, rowID);
@@ -223,6 +238,8 @@ public abstract class Database {
     }
 
     public static Integer insertUser(String username, String password, Role role) throws Exception {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, ?, ?);");
         statement.setString(1, username);
         statement.setString(2, Encrypter.SHA256(password));
@@ -239,6 +256,8 @@ public abstract class Database {
     }
 
     public static void deleteRow(String tableName, int rowID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("DELETE FROM %s WHERE ID = ?;", tableName));
         statement.setInt(1, rowID);
         statement.executeUpdate();
@@ -249,6 +268,8 @@ public abstract class Database {
             throw new SQLException("Invalid role");
         }
 
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ? AND password = ? AND role = ?;");
         statement.setString(1, managerUsername);
         statement.setString(2, Encrypter.SHA256(managerPassword));
@@ -291,6 +312,8 @@ public abstract class Database {
     public static void insertPatient(String username, String password, String firstName, String lastName, Sex sex, String birthDate, String email, String phone, String address, Race race, Ethnicity ethnicity) throws Exception {
         Integer userID = insertUser(username, password, Role.PATIENT);
 
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("INSERT INTO patients (ID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         statement.setInt(1, userID);
         statement.setString(2, firstName);
@@ -314,6 +337,8 @@ public abstract class Database {
     }
 
     public static void refreshUpdatePermissions() throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME, COLUMN_NAME, IF(PRIVILEGE_TYPE = 'UPDATE', true, false) AS can_update FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE GRANTEE = %s;", getGrantee()));
         ResultSet resultSet = statement.executeQuery();
 
@@ -334,6 +359,8 @@ public abstract class Database {
     }
 
     public static void refreshDeletePermissions() throws Exception {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE PRIVILEGE_TYPE = 'DELETE' AND GRANTEE = %s;", getGrantee()));
         ResultSet resultSet = statement.executeQuery();
 
@@ -366,13 +393,14 @@ public abstract class Database {
     }
 
     public static boolean signIn(String username, String password) throws SQLException, UnknownHostException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
-        boolean successful = false;
-
+        changeRole(null);
+        
         PreparedStatement statement = connection.prepareStatement("SELECT ID, username, role FROM users WHERE username = ? AND password = ?;");
         statement.setString(1, username);
         statement.setString(2, Encrypter.SHA256(password));
-
+        
         ResultSet resultSet = statement.executeQuery();
+        boolean successful = false;
         successful = resultSet.next();
         
         if (successful) {
@@ -395,6 +423,8 @@ public abstract class Database {
     }
     
     public static void signOut() throws SQLException, UnknownHostException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, Exception {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("INSERT INTO logbook (userID, IP, type) VALUES (?, ?, ?);");
         String IP = InetAddress.getLocalHost().getHostAddress();
         
@@ -410,6 +440,8 @@ public abstract class Database {
 
     public static ArrayList<Datum> getOptionsFor(Datum datum) throws Exception {
         ArrayList<Datum> options = new ArrayList<Datum>();
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?;");
         statement.setString(1, datum.parent.tableName);
         statement.setString(2, datum.columnName);
@@ -428,6 +460,8 @@ public abstract class Database {
     }
 
     public static String getMy(String columnName) throws Exception {
+        ensureConnection();
+        
         PreparedStatement statement;
         if (role == Role.PATIENT) {
             statement = connection.prepareStatement(String.format("SELECT %s FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = ?;", columnName));
@@ -452,6 +486,8 @@ public abstract class Database {
         int token = generateRandomToken();
         String IP = InetAddress.getLocalHost().getHostAddress();
 
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT users.ID, email, users.username FROM users JOIN patients ON users.ID = patients.ID WHERE username = ? AND role = ? UNION SELECT patients.ID, email, users.username FROM patients JOIN users on users.ID = patients.ID WHERE email = ? AND role = ? UNION SELECT employees.ID, email, users.username FROM employees JOIN users ON users.ID = employees.ID WHERE email = ? AND role = ?;");
         statement.setString(1, usernameOrEmail);
         statement.setString(2, role.toString());
@@ -480,6 +516,8 @@ public abstract class Database {
     }
 
     public static void resetPassword(int token, String password) throws SQLException, ExpiredResetPasswordTokenException, InvalidResetPasswordTokenException, NoSuchAlgorithmException, UnsupportedEncodingException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT userID, UNIX_TIMESTAMP(creationTime) * 1000 AS 'creationTimeMillis', used, UNIX_TIMESTAMP() * 1000 AS 'nowTimeMillis' FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
         statement.setInt(1, token);
         ResultSet resultSet = statement.executeQuery();
@@ -513,7 +551,19 @@ public abstract class Database {
         }
     }
 
+    public static ResultSet getDoctors() throws SQLException {
+        ensureConnection();
+        
+        PreparedStatement statement = connection.prepareStatement("SELECT employees.ID, employees.firstName, employees.lastName FROM users JOIN employees ON users.ID = employees.ID WHERE users.role = ?;");
+        statement.setString(1, Role.DOCTOR.toString());
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
     public static Integer getMyDoctorID() throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
@@ -540,6 +590,8 @@ public abstract class Database {
     }
 
     public static String getEmployeeNameFor(int employeeID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName FROM employees WHERE employees.ID = ?;");
         statement.setInt(1, employeeID);
 
@@ -555,6 +607,8 @@ public abstract class Database {
     }
 
     public static String getPatientNameFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT firstName, lastName from patients WHERE ID = ?;");
         statement.setInt(1, patientID);
 
@@ -571,9 +625,11 @@ public abstract class Database {
 
 
     public static void insertVisitFor(int patientID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(
             "INSERT INTO visits (patientID, creationType, localdate, date, time, doctorID, reason, description) " +
-            "VALUES(? ?, ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?);");
+            "VALUES(?, ?, ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?);");
 
         String systemZoneId = ZoneId.systemDefault().getId();
         statement.setInt(1, patientID);
@@ -597,6 +653,8 @@ public abstract class Database {
     }
 
     public static ResultSet getVisitsFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(
             "SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', " +
             "CASE  " +
@@ -628,6 +686,8 @@ public abstract class Database {
     }
 
     public static ResultSet getVisit(int rowID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(
             "SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', " +
             "CASE  " +
@@ -656,6 +716,8 @@ public abstract class Database {
     }
 
     public static ResultSet getUpcomingVisitFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime' FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE AND active = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1;");
         String systemZoneId = ZoneId.systemDefault().getId();
         statement.setString(1, systemZoneId);
@@ -671,6 +733,8 @@ public abstract class Database {
     }
 
     public static ResultSet getTodaysVisits() throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement(
             "SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', " +
             "CASE  " +
@@ -700,6 +764,8 @@ public abstract class Database {
     }
 
     public static void updateVisitActivate(int visitID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET active = TRUE WHERE ID = ? AND CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -" + VISIT_GRACE_PERIOD.toMinutes() + ", NOW()) AND TIMESTAMPADD(MINUTE, " + VISIT_GRACE_PERIOD.toMinutes() + ", NOW());");
         statement.setInt(1, visitID);
         statement.executeUpdate();
@@ -710,6 +776,8 @@ public abstract class Database {
     }
 
     public static void updateVisitComplete(int visitID, int nurseID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, nurseID = ?, active = FALSE WHERE ID = ?;");
         statement.setInt(1, nurseID);
         statement.setInt(2, visitID);
@@ -721,6 +789,8 @@ public abstract class Database {
     }
 
     public static void updateVisitCancel(int visitID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET cancelled = TRUE WHERE active = FALSE AND completed = FALSE AND ID = ?;");
         statement.setInt(1, visitID);
         statement.executeUpdate();
@@ -731,6 +801,8 @@ public abstract class Database {
     }
 
     public static void updateVisitPutBack(int visitID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET active = FALSE WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, visitID);
         statement.executeUpdate();
@@ -741,6 +813,8 @@ public abstract class Database {
     }
 
     public static ResultSet getActiveViits() throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime' FROM visits WHERE active = TRUE;");
         String systemZoneId = ZoneId.systemDefault().getId();
         statement.setString(1, systemZoneId);
@@ -751,6 +825,8 @@ public abstract class Database {
     }
 
     public static void updateActiveVisitCurrentPage(int activeVisitID, int currentPage) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET currentPage = ? WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, currentPage);
         statement.setInt(2, activeVisitID);
@@ -758,6 +834,8 @@ public abstract class Database {
     }
 
     public static void updateActiveVisit(int activeVisitID, int currentPage, int weight, int height, int systolicBloodPressure, int diastolicBloodPressure, int heartRate, int bodyTemperature, String notes) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET currentPage = ?, weight = ?, height = ?, systolicBloodPressure = ?, diastolicBloodPressure = ?, heartRate = ?, bodyTemperature = ?, notes = ? WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, currentPage);
         statement.setInt(2, weight);
@@ -772,6 +850,8 @@ public abstract class Database {
     }
 
     public static void updateActiveVisitNurse(int activeVisitID, int nurseID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET nurseID = ? WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, nurseID);
         statement.setInt(2, activeVisitID);
@@ -779,6 +859,8 @@ public abstract class Database {
     }
 
     public static void finishVisit(int visitID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, active = FALSE WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, visitID);
         statement.executeUpdate();
@@ -793,6 +875,8 @@ public abstract class Database {
     }
 
     public static ResultSet getMessagesForEmployee(int userID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE receiverID = ? OR senderID = ? ORDER BY creationTime ASC;");
         statement.setInt(1, userID);
         statement.setInt(2, userID);
@@ -802,6 +886,8 @@ public abstract class Database {
     }
 
     public static ResultSet getMessagesForPatient(int userID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
@@ -821,6 +907,8 @@ public abstract class Database {
     }
 
     public static ResultSet getMyMessagesWith(int receiverID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT creationTime, message, readStatus, senderID, receiverID FROM conversations WHERE (receiverID = ? AND senderID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY creationTime ASC;");
         statement.setInt(1, receiverID);
         statement.setInt(2, userID);
@@ -832,6 +920,8 @@ public abstract class Database {
     }
 
     public static ResultSet getMyMessages2(boolean ascending) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement;
         
         if (ascending) {
@@ -852,6 +942,8 @@ public abstract class Database {
     }
 
     public static void sendMessageTo(int receiverID, String message) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("INSERT INTO conversations (senderID, receiverID, message) VALUES (?, ?, ?);");
         statement.setInt(1, userID);
         statement.setInt(2, receiverID);
@@ -861,6 +953,8 @@ public abstract class Database {
     }
 
     public static void sendMessageToMyDoctor(String message) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT preferredDoctorID from patients WHERE ID = ?;");
         statement.setInt(1, userID);
 
@@ -878,6 +972,8 @@ public abstract class Database {
     }
 
     public static void readAllMessagesWith(int senderID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("UPDATE conversations SET readStatus = TRUE WHERE receiverID = ? AND senderID = ?;");
         statement.setInt(1, getMyID());
         statement.setInt(2, senderID);
@@ -886,6 +982,8 @@ public abstract class Database {
     }
 
     public static ResultSet getPatient(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.ID = ? LIMIT 1;");
         statement.setInt(1, patientID);
 
@@ -894,6 +992,8 @@ public abstract class Database {
     }
 
     public static Integer getPatientIDByFirstNameLastNameBirthDate(String firstName, String lastName, String birthDate) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT patients.ID FROM patients JOIN users on users.ID = patients.ID WHERE patients.firstName = ? AND patients.lastName = ? AND patients.birthDate = ? LIMIT 1;");
         statement.setString(1, firstName);
         statement.setString(2, lastName);
@@ -909,6 +1009,8 @@ public abstract class Database {
     }
 
     public static Integer getPatientIDByUsername(String username) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT patients.ID FROM patients JOIN users on users.ID = patients.ID WHERE users.username = ? LIMIT 1;");
         statement.setString(1, username);
 
@@ -922,6 +1024,8 @@ public abstract class Database {
     }
 
     public static Integer getPatientIDByEmail(String email) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT patients.ID FROM patients JOIN users on users.ID = patients.ID WHERE patients.email = ? LIMIT 1;");
         statement.setString(1, email);
 
@@ -935,6 +1039,8 @@ public abstract class Database {
     }
 
     public static Integer getPatientIDByPhoneNumber(String phoneNumber) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT patients.ID FROM patients JOIN users on users.ID = patients.ID  WHERE patients.phone = ? LIMIT 1;");
         statement.setString(1, phoneNumber);
 
@@ -952,6 +1058,8 @@ public abstract class Database {
     }
 
     public static String getUsernameFor(int userID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT username FROM users WHERE ID = ?;");
         statement.setInt(1, userID);
 
@@ -962,6 +1070,8 @@ public abstract class Database {
     }
 
     public static ResultSet getHealthConditionsFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM healthConditions WHERE userID = ?;");
         statement.setInt(1, patientID);
 
@@ -970,6 +1080,8 @@ public abstract class Database {
     }
 
     public static ResultSet getAllergiesFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM allergies WHERE userID = ?;");
         statement.setInt(1, patientID);
 
@@ -978,6 +1090,8 @@ public abstract class Database {
     }
 
     public static ResultSet getVaccinesFor(int patientID) throws SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM vaccines WHERE userID = ? ORDER BY date ASC;");
         statement.setInt(1, patientID);
 
@@ -990,6 +1104,8 @@ public abstract class Database {
     }
 
     public static long getExpirationTimeForResetPasswordToken(int token) throws InvalidResetPasswordTokenException, SQLException {
+        ensureConnection();
+        
         PreparedStatement statement = connection.prepareStatement("SELECT UNIX_TIMESTAMP(creationTime) * 1000 AS 'creationTimeMillis' FROM resetPasswordTokens WHERE token = ? ORDER BY creationTime DESC LIMIT 1;");
         statement.setInt(1, token);
 
@@ -1001,5 +1117,15 @@ public abstract class Database {
 
         long creationTimeMillis = resultSet.getLong("creationTimeMillis");
         return creationTimeMillis + TOKEN_LIFESPAN.toMillis();
+    }
+
+    public static LocalTime[] getVisitTimes() {
+        LocalTime[] visitTimes = new LocalTime[(int) (Duration.between(VISIT_START_TIME, VISIT_END_TIME).toMinutes() / VISIT_DURATION.toMinutes()) + 1];
+
+        for (int i = 0; i < visitTimes.length; i++) {
+            visitTimes[i] = VISIT_START_TIME.plusMinutes(i * VISIT_DURATION.toMinutes());
+        }
+
+        return visitTimes;
     }
 }

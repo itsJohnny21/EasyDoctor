@@ -1,6 +1,5 @@
 package edu.asu.easydoctor.controllers;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
@@ -47,13 +46,15 @@ public class ResetPasswordController extends DialogController {
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         resetPasswordTokenTextField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             if (!event.getCharacter().matches("[0-9]") || event.getCharacter().length() == 0 || resetPasswordTokenTextField.getText().length() >= 6 && resetPasswordTokenTextField.getSelectedText().length() == 0) {
                 event.consume();
             }
         });
     }
+    
+    public void loadDialogHelper(HashMap<String, Object> data) {}
 
     @FXML public void handleTextFieldKeyTyped (KeyEvent event) {
         TextField textField = (TextField) event.getSource();
@@ -158,8 +159,6 @@ public class ResetPasswordController extends DialogController {
 
         return true;
     }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {}
 
     public void closeAndNullify() {
         instance = null;
