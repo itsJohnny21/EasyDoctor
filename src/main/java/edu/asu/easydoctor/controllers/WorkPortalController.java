@@ -65,6 +65,7 @@ public class WorkPortalController extends Controller {
     @FXML public Button scheduleVisitButton;
     
     @FXML public AnchorPane patientRecordsPane;
+    @FXML public Button patientRecordsFindPatientButton;
     @FXML public ScrollPane patientRecordsScrollPane;
     @FXML public Button patientRecordsButton;
     @FXML public Button patientRecordsEditButton;
@@ -101,6 +102,7 @@ public class WorkPortalController extends Controller {
     public static final String STYLE_FILENAME = "PatientPortalView";
     public final Integer myID = Database.getMyID();
     public static Integer chatPatientID;
+    public static Integer patientRecordsPatientID;
 
     private WorkPortalController() {
         title = TITLE;
@@ -237,23 +239,25 @@ public class WorkPortalController extends Controller {
 
     @FXML public void handlePatientRecordsButtonAction(ActionEvent event) throws Exception {
         if (currentTab == patientRecordsPane) return;
-
         setCurrentTab(patientRecordsPane, patientRecordsButton);
+
+        if (patientRecordsPatientID != null) return;
 
         patientRecordsEditButton.setDisable(true);
         patientRecordsCancelButton.setDisable(true);
         patientRecordsSaveButton.setDisable(true);
         
+        patientRecordsFindPatientButton.fire();
+    }
+
+    @FXML public void handlePatientRecordsFindPatientButtonAction(ActionEvent event) throws Exception {
         HashMap<String, Object> data = new HashMap<>();
         HashMap<String, Object> result = loadDialog(FindPatientController.getInstance(), data);
         
-        if (result == null || !result.containsKey("patientID")) {
-            setCurrentTab(visitsPane, visitsButton);
-            return;
-        }
+        if (result == null || !result.containsKey("patientID")) return;
         
-        int patientID = (int) result.get("patientID");
-        loadPatientRecordFor(patientID);
+        patientRecordsPatientID = (int) result.get("patientID");
+        loadPatientRecordFor(patientRecordsPatientID);
     }
 
     public void loadPatientRecordFor(int patientID) throws Exception {
@@ -265,25 +269,37 @@ public class WorkPortalController extends Controller {
         UpdateButtonGroup patientRecordsButtonGroup = new UpdateButtonGroup(patientRecordsEditButton, patientRecordsCancelButton, patientRecordsSaveButton); //TODO: Move to initialize function
         VBox contentPane = new VBox();
 
-        Form contactInformationForm = new Form()
-        .withTitle("Patient Information")
-        .connectedTo(patientRecordsButtonGroup)
-        .withColumnCount(2)
-        .withFields(
-            patient.firstName.createValueField("First Name"),
-            patient.lastName.createValueField("Last Name"),
-            Datum.createValueOptionForDoctors(patient.preferredDoctorID, "Preferred Doctor"),
-            Datum.createValueOptionFromEnum(Database.BloodType.class, patient.bloodType, "Blood Type"),
-            patient.email.createValueField("Email"),
-            patient.phone.createValueField("Phone"),
-            patient.address.createValueField("Address"),
-            Datum.createValueOptionFromEnum(Database.Sex.class, patient.sex, "Sex")
-        )
-        .build();
-
+        Form contactInformationForm = generatePatientContactInformationForm(patient, patientRecordsButtonGroup);
         contentPane.getChildren().add(contactInformationForm);
 
-        ArrayList<Surgery> patientSurgeries = DataRow.Surgery.getAllFor(patientID);
+        EditableTable patientSurgeriesTable = generatePatientSurgeriesTable(patient, patientRecordsButtonGroup);
+        contentPane.getChildren().add(patientSurgeriesTable);
+
+        patientRecordsScrollPane.setContent(contentPane);
+    }
+
+    public Form generatePatientContactInformationForm(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        Form contactInformationForm = new Form()
+            .withTitle("Patient Information")
+            .connectedTo(ubg)
+            .withColumnCount(2)
+            .withFields(
+                patient.firstName.createValueField("First Name"),
+                patient.lastName.createValueField("Last Name"),
+                Datum.createValueOptionForDoctors(patient.preferredDoctorID, "Preferred Doctor"),
+                Datum.createValueOptionFromEnum(Database.BloodType.class, patient.bloodType, "Blood Type"),
+                patient.email.createValueField("Email"),
+                patient.phone.createValueField("Phone"),
+                patient.address.createValueField("Address"),
+                Datum.createValueOptionFromEnum(Database.Sex.class, patient.sex, "Sex")
+            )
+            .build();
+
+        return contactInformationForm;
+    }
+
+    public EditableTable generatePatientSurgeriesTable(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        ArrayList<Surgery> patientSurgeries = DataRow.Surgery.getAllFor(patient.rowID);
         ArrayList<Row> patientSurgeryRows = new ArrayList<>();
 
         for (Surgery surgery : patientSurgeries) {
@@ -299,7 +315,7 @@ public class WorkPortalController extends Controller {
         
         EditableTable contactInformationTable = new EditableTable();
         contactInformationTable
-            .connectedTo(patientRecordsButtonGroup)
+            .connectedTo(ubg)
             .withDeleteAction(row -> {
                 Alert alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle(String.format("Delete from %s", row.tableName));
@@ -322,9 +338,8 @@ public class WorkPortalController extends Controller {
             .withHeader("Surgeon", "Type", "Date", "Notes")
             .withRows(patientSurgeryRows)
             .build();
-        contentPane.getChildren().add(contactInformationTable);
 
-        patientRecordsScrollPane.setContent(contentPane);
+        return contactInformationTable;
     }
 
     @FXML public void handleActiveVisitsButton(ActionEvent event) throws SQLException {
