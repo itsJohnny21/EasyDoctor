@@ -105,7 +105,7 @@
          <children>
             <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleCloseButtonAction" prefWidth="100.0" text="Close" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="cancelVisitButton" disable="true" mnemonicParsing="false" onAction="#handleCancelVisitButtonAction" prefWidth="100.0" text="Cancel Visit" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            <Button fx:id="patientInfoButton" mnemonicParsing="false" onAction="#handleContactButtonAction" prefWidth="100.0" text="Patient Info" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="patientInfoButton" mnemonicParsing="false" onAction="#handlePatientInfoButtonAction" prefWidth="100.0" text="Patient Info" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButtonAction" prefWidth="100.0" text="Make Active" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>
       </GridPane>

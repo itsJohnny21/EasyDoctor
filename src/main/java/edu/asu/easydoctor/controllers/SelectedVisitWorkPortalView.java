@@ -90,10 +90,21 @@ public class SelectedVisitWorkPortalView extends DialogController {
         closeAndNullify();
     }
 
-    @FXML public void handleContactButtonAction(ActionEvent event) throws Exception {
+    @FXML public void handlePatientInfoButtonAction(ActionEvent event) throws Exception {
         result.put("patientID", patientID);
         closeAndNullify();
     }
+
+    @FXML public void handleCancelVisitButtonAction(ActionEvent event) throws Exception {
+        WorkPortalController workPortalController  = WorkPortalController.getInstance();
+        workPortalController.loadPatientRecordFor(patientID);
+        closeAndNullify();
+    }
+
+    // @FXML public void handleContactButtonAction(ActionEvent event) throws Exception {
+    //     result.put("patientID", patientID);
+    //     closeAndNullify();
+    // }
 
     @FXML public void handleStartButtonAction(ActionEvent event) throws Exception {
         result.put("start", true);

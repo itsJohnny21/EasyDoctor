@@ -53,7 +53,7 @@ SELECT TIME(CONVERT_TZ(time, '+00:00', 'America/Phoenix')) AS 'takenTime' FROM v
 -- Schedule a new visit
 
 SET @dateInput = '2024-04-25';
-SET @timeInput = '11:30:00';
+SET @timeInput = '12:00:00';
 SET @timezone = 'America/Phoenix';
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', @dateInput, DATE(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), TIME(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), 222, 3, 'Checkup', 'Mental health checkup');

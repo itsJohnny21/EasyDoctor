@@ -10,10 +10,17 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import edu.asu.easydoctor.App;
+import edu.asu.easydoctor.DataRow;
+import edu.asu.easydoctor.DataRow.Patient;
+import edu.asu.easydoctor.DataRow.Surgery;
 import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.VisitStatus;
+import edu.asu.easydoctor.Datum;
+import edu.asu.easydoctor.EditableTable;
+import edu.asu.easydoctor.Form;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
+import edu.asu.easydoctor.UpdateButtonGroup;
 import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.ValueLabel;
 import javafx.application.Platform;
@@ -22,6 +29,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -166,6 +174,8 @@ public class WorkPortalController extends Controller {
     }
 
     @FXML public void handleVisitsButtonAction(ActionEvent event) throws Exception {
+        if (currentTab == visitsPane) return;
+
         setCurrentTab(visitsPane, visitsButton);
 
         ResultSet visits = Database.getTodaysVisits();
@@ -202,6 +212,7 @@ public class WorkPortalController extends Controller {
                         data.put("rowID", row.rowID);
 
                         HashMap<String, Object> result = loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
+                        loadDialog(SelectedVisitWorkPortalView.getInstance(), data);
 
                         if ((boolean) result.containsKey("start")) {
                             Database.updateVisitActivate(row.rowID);
@@ -224,11 +235,101 @@ public class WorkPortalController extends Controller {
         visitsScrollPane.setContent(visitsTable);
     }   
 
-    @FXML public void handlePatientRecordsButtonAction(ActionEvent event) {
+    @FXML public void handlePatientRecordsButtonAction(ActionEvent event) throws Exception {
+        if (currentTab == patientRecordsPane) return;
+
         setCurrentTab(patientRecordsPane, patientRecordsButton);
+
+        patientRecordsEditButton.setDisable(true);
+        patientRecordsCancelButton.setDisable(true);
+        patientRecordsSaveButton.setDisable(true);
+        
+        HashMap<String, Object> data = new HashMap<>();
+        HashMap<String, Object> result = loadDialog(FindPatientController.getInstance(), data);
+        
+        if (result == null || !result.containsKey("patientID")) {
+            setCurrentTab(visitsPane, visitsButton);
+            return;
+        }
+        
+        int patientID = (int) result.get("patientID");
+        loadPatientRecordFor(patientID);
+    }
+
+    public void loadPatientRecordFor(int patientID) throws Exception {
+        patientRecordsEditButton.setDisable(false);
+        patientRecordsCancelButton.setDisable(false);
+        patientRecordsSaveButton.setDisable(false);
+
+        Patient patient = DataRow.Patient.getFor(patientID);
+        UpdateButtonGroup patientRecordsButtonGroup = new UpdateButtonGroup(patientRecordsEditButton, patientRecordsCancelButton, patientRecordsSaveButton); //TODO: Move to initialize function
+        VBox contentPane = new VBox();
+
+        Form contactInformationForm = new Form()
+        .withTitle("Patient Information")
+        .connectedTo(patientRecordsButtonGroup)
+        .withColumnCount(2)
+        .withFields(
+            patient.firstName.createValueField("First Name"),
+            patient.lastName.createValueField("Last Name"),
+            Datum.createValueOptionForDoctors(patient.preferredDoctorID, "Preferred Doctor"),
+            Datum.createValueOptionFromEnum(Database.BloodType.class, patient.bloodType, "Blood Type"),
+            patient.email.createValueField("Email"),
+            patient.phone.createValueField("Phone"),
+            patient.address.createValueField("Address"),
+            Datum.createValueOptionFromEnum(Database.Sex.class, patient.sex, "Sex")
+        )
+        .build();
+
+        contentPane.getChildren().add(contactInformationForm);
+
+        ArrayList<Surgery> patientSurgeries = DataRow.Surgery.getAllFor(patientID);
+        ArrayList<Row> patientSurgeryRows = new ArrayList<>();
+
+        for (Surgery surgery : patientSurgeries) {
+            int rowID = surgery.rowID;
+            ValueLabel surgeonLabel = new ValueLabel(surgery.doctorID);
+            ValueLabel typeLabel = new ValueLabel(surgery.type);
+            ValueLabel dateLabel = new ValueLabel(surgery.date);
+            ValueLabel notesLabel = new ValueLabel(surgery.notes);
+
+            Row row = new Row("surgeries", rowID, surgeonLabel, typeLabel, dateLabel, notesLabel);
+            patientSurgeryRows.add(row);
+        }
+        
+        EditableTable contactInformationTable = new EditableTable();
+        contactInformationTable
+            .connectedTo(patientRecordsButtonGroup)
+            .withDeleteAction(row -> {
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle(String.format("Delete from %s", row.tableName));
+                alert.setHeaderText(String.format("Are you sure you want to delete this row from %s?", row.tableName));
+                alert.setContentText("This action cannot be undone.");
+                if (alert.showAndWait().get().getText().equals("OK")) {
+                    try {
+                        Database.deleteRow(row.tableName, row.rowID);
+
+                    } catch (SQLException e) {
+                        alert = new Alert(AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("An error occurred while deleting the row.");
+                        alert.setContentText(e.getMessage());
+                        alert.showAndWait();
+                    }
+                }
+            })
+            .withTitle("Surgeries")
+            .withHeader("Surgeon", "Type", "Date", "Notes")
+            .withRows(patientSurgeryRows)
+            .build();
+        contentPane.getChildren().add(contactInformationTable);
+
+        patientRecordsScrollPane.setContent(contentPane);
     }
 
     @FXML public void handleActiveVisitsButton(ActionEvent event) throws SQLException {
+        if (currentTab == activeVisitsPane) return;
+        
         setCurrentTab(activeVisitsPane, activeVisitsButton);
         
         ResultSet activeVisits = Database.getActiveViits();
@@ -303,20 +404,28 @@ public class WorkPortalController extends Controller {
 
     @FXML public void handleInboxButtonAction(ActionEvent event) throws Exception {
         if (chatPatientID != null) {
+            if (currentTab == chatPane) return;
+
             setCurrentTab(chatPane, inboxButton);
             loadChatFor(chatPatientID);
             return;
         }
-        
+
+        if (currentTab == inboxPane) return;
+
         setCurrentTab(inboxPane, inboxButton);
         loadInboxMessages();
     }
 
     @FXML public void handlePrescriptionToolButtonAction(ActionEvent event) {
+        if (currentTab == prescriptionToolPane) return;
+
         setCurrentTab(prescriptionToolPane, prescriptionToolButton);
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
+        if (currentTab == usernamePane) return;
+
         setCurrentTab(usernamePane, usernameButton);
     }
 
@@ -509,10 +618,6 @@ public class WorkPortalController extends Controller {
     }
 
     public void setCurrentTab(AnchorPane pane) {
-        if (currentTab == pane) {
-            return;
-        }
-
         if (currentTab != null) {
             currentTab.setVisible(false);
             currentTab.setDisable(true);
@@ -524,10 +629,6 @@ public class WorkPortalController extends Controller {
     }
 
     public void setCurrentTab(AnchorPane pane, Button button) {
-        if (currentTab == pane) {
-            return;
-        }
-
         if (currentTab != null) {
             currentTab.setVisible(false);
             currentTab.setDisable(true);

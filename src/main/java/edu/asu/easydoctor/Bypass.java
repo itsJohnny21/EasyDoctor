@@ -84,6 +84,36 @@ public class Bypass {
 		workPortalController.scheduleVisitButton.fire();
 	}
 
+	public static void toWorkPortalPatientRecords(String username) throws Exception {
+		Bypass.toWorkPortal();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			Platform.runLater(() -> {
+				for (Window window : Window.getWindows()) {
+					if (window instanceof Stage) {
+						Stage stage = (Stage) window;
+
+						if (stage.getTitle().equals(FindPatientController.TITLE)) {
+							FindPatientController findPatientController = FindPatientController.getInstance();
+							findPatientController.usernameButton.fire();
+							findPatientController.usernameTextField.setText(username);
+							// findPatientController.findPatientButton.fire();
+						}
+					}
+				}
+			});
+		}).start();
+
+		workPortalController.patientRecordsButton.fire();
+	}
+
 	public static void toWorkPortal() throws Exception {
 		Bypass.toPortal("john123", "john123");
 	}

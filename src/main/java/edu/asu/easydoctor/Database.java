@@ -20,7 +20,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -1183,25 +1182,9 @@ public abstract class Database {
         LocalTime startTime = resultSet.getTime("startTime").toLocalTime();
         LocalTime endTime = resultSet.getTime("endTime").toLocalTime();
 
-        statement = connection.prepareStatement("SELECT TIME(CONVERT_TZ(time, '+00:00', ?)) AS 'takenTime' FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?));");
-        String systemZoneId = ZoneId.systemDefault().getId();
-        statement.setString(1, systemZoneId);
-        statement.setString(2, systemZoneId);
-        statement.setString(3, systemZoneId);
-        resultSet = statement.executeQuery();
-
-        HashSet<LocalTime> takenTimes = new HashSet<LocalTime>();
-        while (resultSet.next()) {
-            LocalTime takenTime = resultSet.getTime("takenTime").toLocalTime();
-            takenTimes.add(takenTime);
-        }
-
-
         ArrayList<LocalTime> visitTimes = new ArrayList<LocalTime>();
         while (startTime.isBefore(endTime)) {
-            if (!takenTimes.contains(startTime)) {
-                visitTimes.add(startTime);
-            }
+            visitTimes.add(startTime);
 
             startTime = startTime.plusMinutes(VISIT_DURATION.toMinutes());
         }
