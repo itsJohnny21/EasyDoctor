@@ -33,6 +33,8 @@ public class App extends Application {
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		App.primaryStage = primaryStage;
 		WelcomeController.getInstance().load();
+		Bypass.toWorkPortalScheduleVisit("barb123");
+		// Bypass.toWorkPortal();
 		// SignUpController.getInstance().load();
 		// Bypass.toWorkPortal();
 	}
@@ -61,3 +63,6 @@ public class App extends Application {
 //TODO: Delete branches: PrimaryStage, DialogController, Polish-MyVists, PatientPortal-Base
 //TODO: Combine common functionality between PatientPortal and WorkPortal into a single class called Portal. For example, loading the inbox, sending messages, loading the visits, signing out, and much more!
 //TODO: Testing getVisitStatusWorkPortal from Utilities class (edge cases)
+//TODO: Add manager as a role
+//TODO: WorkPortal.Visits tab should allow the user to filter visits by status, patient, doctor, and date
+//TODO: For WorkPortalVisit controller, add a Patient Info button and a Cancel button to cancel the visit

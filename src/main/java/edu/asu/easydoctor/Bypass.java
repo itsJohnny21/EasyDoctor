@@ -1,14 +1,20 @@
 package edu.asu.easydoctor;
 
+import edu.asu.easydoctor.Database.CreationType;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Database.Sex;
+import edu.asu.easydoctor.controllers.FindPatientController;
 import edu.asu.easydoctor.controllers.ForgotUsernamePasswordController;
+import edu.asu.easydoctor.controllers.ScheduleVisitController;
 import edu.asu.easydoctor.controllers.SignInController;
 import edu.asu.easydoctor.controllers.SignUpController;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import edu.asu.easydoctor.controllers.WorkPortalController;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class Bypass {
 
@@ -21,6 +27,62 @@ public class Bypass {
         signInController.passwordField.setText(password);
         signInController.signInButton.fire();
     }
+
+	public static void toWorkPortalScheduleVisit(String username) throws Exception {
+		Bypass.toWorkPortal();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			Platform.runLater(() -> {
+				for (Window window : Window.getWindows()) {
+					if (window instanceof Stage) {
+						Stage stage = (Stage) window;
+
+						if (stage.getTitle().equals(FindPatientController.TITLE)) {
+							FindPatientController findPatientController = FindPatientController.getInstance();
+							findPatientController.usernameButton.fire();
+							findPatientController.usernameTextField.setText(username);
+							findPatientController.findPatientButton.fire();
+
+							new Thread(() -> {
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+					
+								Platform.runLater(() -> {
+									for (Window window2 : Window.getWindows()) {
+										if (window2 instanceof Stage) {
+											Stage stage2 = (Stage) window2;
+					
+											if (stage2.getTitle().equals(ScheduleVisitController.TITLE)) {
+												ScheduleVisitController scheduleVisitController = ScheduleVisitController.getInstance();
+												scheduleVisitController.dateTextField.setText("2021-12-31");
+												scheduleVisitController.timeChoiceBox.setValue("12:00 PM");
+												scheduleVisitController.creationTypeChoiceBox.setValue(CreationType.ONLINE.toString());
+												return;
+											}
+										}
+									}
+								});
+							}).start();
+							findPatientController.doneButton.fire();
+							return;
+						}
+					}
+				}
+			});
+		}).start();
+
+		workPortalController.scheduleVisitButton.fire();
+	}
 
 	public static void toWorkPortal() throws Exception {
 		Bypass.toPortal("john123", "john123");

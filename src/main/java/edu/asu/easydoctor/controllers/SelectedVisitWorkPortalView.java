@@ -18,7 +18,8 @@ public class SelectedVisitWorkPortalView extends DialogController {
 
     @FXML public AnchorPane rootPane;
     @FXML public Button closeButton;
-    @FXML public Button contactButton;
+    @FXML public Button cancelVisitButton;
+    @FXML public Button patientInfoButton;
     @FXML public Button startButton;
 
     @FXML public Label patientLabel;

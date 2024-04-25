@@ -1,12 +1,15 @@
 package edu.asu.easydoctor;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -35,13 +38,10 @@ public class ScheduleVisitTests {
         patientData = statement.executeQuery();
         patientData.next();
 
-        statement = Database.connection.prepareStatement("DELETE FROM visits WHERE patientID = ?");
-        statement.setInt(1, PATIENT_ID);
-        statement.executeUpdate();
-        statement.close();
+        deleteVisits();
     }
 
-    public void deleteVisits() throws Exception {
+    public static void deleteVisits() throws Exception {
         PreparedStatement statement = Database.connection.prepareStatement("DELETE FROM visits WHERE patientID = ?");
         statement.setInt(1, PATIENT_ID);
         statement.executeUpdate();
@@ -56,7 +56,8 @@ public class ScheduleVisitTests {
         String description = "Mental health checkup";
         String date = LocalDate.now().plusYears(10).toString();
         String time = "10:30:00";
-    
+        
+        deleteVisits();
         Database.insertVisitFor(PATIENT_ID, creationType, DOCTOR_ID, reason, description, date, time);
         ResultSet visit = Database.getUpcomingVisitFor(PATIENT_ID);
 
@@ -69,19 +70,69 @@ public class ScheduleVisitTests {
     }
 
     @Test
+    @DisplayName("scheduleVisitForThePast")
+    public void scheduleVisitForThePast() throws Exception {
+        CreationType creationType = CreationType.ONLINE;
+        String reason = "Checkup";
+        String description = "Mental health checkup";
+        String date = LocalDate.now().minusDays(1).toString();
+        String time = "10:30:00";
+        
+        deleteVisits();
+        assertThrows(SQLException.class, () -> Database.insertVisitFor(PATIENT_ID, creationType, DOCTOR_ID, reason, description, date, time));
+        deleteVisits();
+    }
+
+    @Test
+    @DisplayName("scheduleVisitWhenPatientAlreadyHasUpcomingVisit")
+    public void scheduleVisitWhenPatientAlreadyHasUpcomingVisit() throws Exception {
+        CreationType creationType = CreationType.ONLINE;
+        String reason = "Checkup";
+        String description = "Mental health checkup";
+        String date = LocalDate.now().plusYears(10).toString();
+        String time = "10:30:00";
+        
+        deleteVisits();
+        Database.insertVisitFor(PATIENT_ID, creationType, DOCTOR_ID, reason, description, date, time);
+        
+        CreationType creationType2 = CreationType.ONLINE;
+        String reason2 = "Checkup";
+        String description2 = "Mental health checkup";
+        String date2 = LocalDate.now().plusYears(10).toString();
+        String time2 = "10:30:00";
+        
+        assertThrows(SQLException.class, () -> Database.insertVisitFor(PATIENT_ID, creationType2, DOCTOR_ID, reason2, description2, date2, time2));
+
+        ResultSet upcomingVisit = Database.getUpcomingVisitFor(PATIENT_ID);
+        assertTrue(upcomingVisit.next());
+        assertTrue(upcomingVisit.getDate("localdate").toLocalDate().equals(LocalDate.parse(date)));
+        assertTrue(upcomingVisit.getTime("localtime").toString().equals(time));
+
+        upcomingVisit.close();
+        deleteVisits();
+    }
+
+    @Test
     @DisplayName("getVisitTimes")
     public void getVisitTimes() throws Exception {
-        LocalTime visitTimes[] = Database.getVisitTimes();
-        assertTrue(visitTimes.length > 0);
-        assertTrue(visitTimes[0] == Database.VISIT_START_TIME);
-        assertTrue(visitTimes[visitTimes.length - 1] == Database.VISIT_END_TIME);
+        PreparedStatement statement = Database.connection.prepareStatement("SELECT startTime, endTime FROM visitTimes WHERE dayOfWeek = 'MONDAY';");
+        ResultSet resultSet = statement.executeQuery();
+        
+        assertTrue(resultSet.next());
 
-        for (int i = 1; i < visitTimes.length; i++) {
-            Duration.between(visitTimes[i], visitTimes[i - 1]).equals(Database.VISIT_DURATION);
-            assertTrue(visitTimes[i].isAfter(visitTimes[i - 1]));
-            assertTrue(Duration.between(visitTimes[i - 1], visitTimes[i]).toMinutes() == Database.VISIT_DURATION.toMinutes());
+        LocalTime startTime = resultSet.getTime("startTime").toLocalTime();
+        LocalTime endTime = resultSet.getTime("endTime").toLocalTime();
+
+        ArrayList<LocalTime> visitTimes = new ArrayList<>();
+
+        for (LocalTime time = startTime; time.isBefore(endTime); time = time.plusMinutes(Database.VISIT_DURATION.toMinutes())) {
+            visitTimes.add(time);
         }
+        visitTimes.add(endTime);
 
+        assertTrue(visitTimes.get(0) == startTime);
+        assertTrue(visitTimes.size() == Duration.ofHours(1).toMinutes() / Database.VISIT_DURATION.toMinutes() * Duration.between(startTime, endTime).toHours() + 1);
+        assertTrue(visitTimes.get(visitTimes.size() - 1) == endTime);
     }
 }
 

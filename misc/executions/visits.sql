@@ -28,18 +28,41 @@ CREATE TABLE visits (
     FOREIGN KEY (doctorID) REFERENCES employees(ID),
     FOREIGN KEY (nurseID) REFERENCES employees(ID),
     UNIQUE KEY (patientID, localdate),
-    UNIQUE KEY (date, time),
     CONSTRAINT check_only_one_status CHECK (
         (completed = TRUE AND active = FALSE AND cancelled = FALSE) OR
         (completed = FALSE AND active = TRUE AND cancelled = FALSE) OR
         (completed = FALSE AND active = FALSE AND cancelled = TRUE) OR
         (completed = FALSE AND active = FALSE AND cancelled = FALSE)
-    )
+    ),
+    CONSTRAINT check_visit_time CHECK (MINUTE(time) MOD 15 = 0 AND TIME(time) BETWEEN '16:00:00' AND '24:00:00') AND CONCAT(date, ' ', time) >= NOW()
 );
 
+use easydoctor;
+
+SELECT CHECK_CLAUSE FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS WHERE CONSTRAINT_NAME = 'check_visit_time';
 show create table visits;
+alter table visits drop constraint check_visit_time;
+alter table visits add CONSTRAINT check_visit_time CHECK (MINUTE(time) MOD 15 = 0 AND TIME(time) BETWEEN '16:00:00' AND '24:00:00');
+select CONVERT_TZ(CONCAT('2024-04-24', ' ', '12:30:00'), '+00:00', 'America/Phoenix');
+SELECT * FROM visits WHERE CONCAT(date, ' ', time) = CONVERT_TZ(CONCAT('2024-04-24', ' ', '11:30:00'), 'America/Phoenix', '+00:00') LIMIT 1;
+
+-- Get taken visit times
+SELECT TIME(CONVERT_TZ(time, '+00:00', ?)) AS 'takenTime' FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?));
+SELECT TIME(CONVERT_TZ(time, '+00:00', 'America/Phoenix')) AS 'takenTime' FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) = DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix'));
 
 -- Schedule a new visit
+
+SET @dateInput = '2024-04-25';
+SET @timeInput = '11:30:00';
+SET @timezone = 'America/Phoenix';
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', @dateInput, DATE(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), TIME(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), 222, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', @dateInput, DATE(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), TIME(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), 2, 3, 'Checkup', 'Mental health checkup');
+INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
+VALUES('ONLINE', @dateInput, DATE(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), TIME(CONVERT_TZ(CONCAT(@dateInput, ' ', @timeInput), @timezone, '+00:00')), 207, 3, 'Checkup', 'Mental health checkup');
+DELETE FROM visits WHERE localdate = @dateInput;
+
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', ?, DATE(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), TIME(CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00')), ?, ?, ?, ?); -- Statement for Java
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
@@ -135,12 +158,24 @@ INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, re
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 224, 3, 'Checkup', 'Mental health checkup');
 INSERT INTO visits (creationType, localdate, date, time, patientID, doctorID, reason, description)
 VALUES('ONLINE', DATE(CONVERT_TZ(NOW(), '+00:00', 'America/Phoenix')), DATE(NOW()), TIME(NOW()), 207, 3, 'Checkup', 'Mental health checkup');
-delete from visits where localdate = '2024-04-22';
+delete from visits where localdate = '2024-04-25';
 select * from patients;
 
 -- Get upcoming visit for a patient
 SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1; -- Statement for Java
-SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = 207 AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE AND completed = FALSE AND active = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1; -- Upcoming visits for patient with ID = 207
+SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description FROM visits WHERE patientID = 207 AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE AND completed = FALSE AND active = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1;
+SELECT * FROM (
+    SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', 'America/Phoenix')) AS 'localtime', patientID, doctorID, reason, description,
+    CASE 
+        WHEN completed = TRUE THEN 'COMPLETE'
+        WHEN active = TRUE THEN 'ACTIVE'
+        WHEN cancelled = TRUE THEN 'CANCELLED'
+        WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN 'MISSED'
+        WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN 'PENDING'
+        ELSE 'UPCOMING'
+    END AS 'status'
+    FROM visits WHERE patientID = 2
+) AS visits WHERE status = 'UPCOMING' ORDER BY localdate ASC LIMIT 1;
 
 -- Get a patient's visits
 SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description,

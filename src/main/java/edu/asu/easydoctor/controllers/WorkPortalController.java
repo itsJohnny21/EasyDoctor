@@ -331,6 +331,18 @@ public class WorkPortalController extends Controller {
 
         if (result == null || !result.containsKey("patientID")) return;
 
+        int patientID = (int) result.get("patientID");
+        ResultSet upcomingVisit = Database.getUpcomingVisitFor(patientID);
+
+        if (upcomingVisit.next()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Visit Already Scheduled");
+            alert.setHeaderText("A visit is already scheduled for this patient.");
+            alert.setContentText("Please wait until the current visit is completed before scheduling another.");
+            alert.showAndWait();
+            return;
+        }
+
         ScheduleVisitController.getInstance().loadDialog(result);
     }
 

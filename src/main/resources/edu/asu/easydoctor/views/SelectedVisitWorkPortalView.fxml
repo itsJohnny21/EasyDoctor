@@ -95,6 +95,7 @@
       <GridPane layoutX="100.0" layoutY="500.0" minHeight="100.0" minWidth="1000.0" prefHeight="100.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -102,9 +103,10 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButtonAction" prefWidth="100.0" text="Make Active" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleCloseButtonAction" prefWidth="100.0" text="Close" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-            <Button fx:id="contactButton" mnemonicParsing="false" onAction="#handleContactButtonAction" prefWidth="100.0" text="Contact" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="cancelVisitButton" disable="true" mnemonicParsing="false" onAction="#handleCancelVisitButtonAction" prefWidth="100.0" text="Cancel Visit" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="patientInfoButton" mnemonicParsing="false" onAction="#handleContactButtonAction" prefWidth="100.0" text="Patient Info" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButtonAction" prefWidth="100.0" text="Make Active" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>
       </GridPane>
       <GridPane layoutY="100.0" prefHeight="350.0" prefWidth="1000.0" AnchorPane.bottomAnchor="250.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="150.0">

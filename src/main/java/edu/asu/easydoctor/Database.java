@@ -11,11 +11,16 @@ import java.sql.
 PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -78,10 +83,6 @@ public abstract class Database {
          TABLET , CAPSULE , LIQUID , INJECTION , CREAM , OINTMENT , INHALER , SUPPOSITORY , SOLUTION , SUSPENSION , SYRUP , SPRAY , LOZENGE , POWDER , GEL;
     }
 
-    public enum DayOfWeek {
-        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
-    }
-
     public enum HealthConditionType {
         PHYSICAL, MENTAL;
     }
@@ -111,8 +112,6 @@ public abstract class Database {
     public static HashMap<String, Boolean> deletePermissions;
     public final static Duration TOKEN_LIFESPAN = Duration.ofMinutes(5);
     public final static Duration VISIT_GRACE_PERIOD = Duration.ofMinutes(15);
-    public final static LocalTime VISIT_START_TIME = LocalTime.of(8, 0);
-    public final static LocalTime VISIT_END_TIME = LocalTime.of(17, 0);
     public final static Duration VISIT_DURATION = Duration.ofMinutes(15);
     public final static Duration CONNECTION_TIMEOUT_LENGTH = Duration.ofSeconds(2);
 
@@ -273,7 +272,7 @@ public abstract class Database {
         PreparedStatement statement = connection.prepareStatement("SELECT ID FROM users WHERE username = ? AND password = ? AND role = ?;");
         statement.setString(1, managerUsername);
         statement.setString(2, Encrypter.SHA256(managerPassword));
-        statement.setString(3, Role.DOCTOR.toString()); //! Change to manager in the future
+        statement.setString(3, Role.DOCTOR.toString());
 
         ResultSet resultSet = statement.executeQuery();
 
@@ -626,6 +625,22 @@ public abstract class Database {
 
     public static void insertVisitFor(int patientID, CreationType creationType, int doctorID, String reason, String description, String date, String time) throws SQLException {
         ensureConnection();
+
+        ResultSet visit = getUpcomingVisitFor(patientID);
+
+        if (visit.next()) {
+            throw new SQLException("Patient already has an upcoming visit");
+        }
+
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(date + "T" + time);
+
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                throw new SQLException("Cannot schedule a visit for the past");
+            }
+        } catch (DateTimeParseException e) {
+            throw new SQLException("Invalid date or time");
+        }
         
         PreparedStatement statement = connection.prepareStatement(
             "INSERT INTO visits (patientID, creationType, localdate, date, time, doctorID, reason, description) " +
@@ -718,11 +733,29 @@ public abstract class Database {
     public static ResultSet getUpcomingVisitFor(int patientID) throws SQLException {
         ensureConnection();
         
-        PreparedStatement statement = connection.prepareStatement("SELECT visits.*, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime' FROM visits WHERE patientID = ? AND CONCAT(date, ' ', time) >= NOW() AND cancelled = FALSE AND active = FALSE ORDER BY CONCAT(date, ' ', time) ASC LIMIT 1;");
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT * FROM ( " +
+                "SELECT ID, creationType, DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localdate', TIME(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) AS 'localtime', patientID, doctorID, reason, description,  " +
+                "CASE  " +
+                    "WHEN completed = TRUE THEN ? " +
+                    "WHEN active = TRUE THEN ? " +
+                    "WHEN cancelled = TRUE THEN ? " +
+                    "WHEN CONCAT(date, ' ', time) < TIMESTAMPADD(MINUTE, -15, NOW()) THEN ? " +
+                    "WHEN CONCAT(date, ' ', time) BETWEEN TIMESTAMPADD(MINUTE, -15, NOW()) AND TIMESTAMPADD(MINUTE, 15, NOW()) THEN ? " +
+                    "ELSE ? " +
+                "END AS 'status' " +
+                "FROM visits WHERE patientID = ? " +
+            ") AS visits WHERE status = 'UPCOMING' ORDER BY localdate ASC LIMIT 1;");
         String systemZoneId = ZoneId.systemDefault().getId();
         statement.setString(1, systemZoneId);
         statement.setString(2, systemZoneId);
-        statement.setInt(3, patientID);
+        statement.setString(3, VisitStatus.COMPLETED.toString());
+        statement.setString(4, VisitStatus.ACTIVE.toString());
+        statement.setString(5, VisitStatus.CANCELLED.toString());
+        statement.setString(6, VisitStatus.MISSED.toString());
+        statement.setString(7, VisitStatus.PENDING.toString());
+        statement.setString(8, VisitStatus.UPCOMING.toString());
+        statement.setInt(9, patientID);
 
         ResultSet resultSet = statement.executeQuery();
         return resultSet;
@@ -864,6 +897,26 @@ public abstract class Database {
         PreparedStatement statement = connection.prepareStatement("UPDATE visits SET completed = TRUE, active = FALSE WHERE active = TRUE AND ID = ?;");
         statement.setInt(1, visitID);
         statement.executeUpdate();
+    }
+
+    public static boolean isVisitAvailable(String date, String time) throws SQLException {
+        ensureConnection();
+
+        LocalDateTime localDate = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
+        if (localDate.isBefore(LocalDateTime.now())) {
+            return false;
+        }
+        
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM visits WHERE CONCAT(date, ' ', time) = CONVERT_TZ(CONCAT(?, ' ', ?), ?, '+00:00') LIMIT 1;");
+        statement.setString(1, date);
+        statement.setString(2, time);
+        statement.setString(3, ZoneId.systemDefault().getId());
+
+        ResultSet resultSet = statement.executeQuery();
+        boolean available = !resultSet.next();
+        resultSet.close();
+
+        return available;
     }
 
     public static ResultSet getMyMessages() throws SQLException {
@@ -1119,11 +1172,38 @@ public abstract class Database {
         return creationTimeMillis + TOKEN_LIFESPAN.toMillis();
     }
 
-    public static LocalTime[] getVisitTimes() {
-        LocalTime[] visitTimes = new LocalTime[(int) (Duration.between(VISIT_START_TIME, VISIT_END_TIME).toMinutes() / VISIT_DURATION.toMinutes()) + 1];
+    public static ArrayList<LocalTime> getVisitTimesFor(DayOfWeek dayOfWeek) throws SQLException {
+        ensureConnection();
 
-        for (int i = 0; i < visitTimes.length; i++) {
-            visitTimes[i] = VISIT_START_TIME.plusMinutes(i * VISIT_DURATION.toMinutes());
+        PreparedStatement statement = connection.prepareStatement("SELECT startTime, endTime FROM visitTimes WHERE dayOfWeek = ?;");
+        statement.setString(1, dayOfWeek.toString());
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        LocalTime startTime = resultSet.getTime("startTime").toLocalTime();
+        LocalTime endTime = resultSet.getTime("endTime").toLocalTime();
+
+        statement = connection.prepareStatement("SELECT TIME(CONVERT_TZ(time, '+00:00', ?)) AS 'takenTime' FROM visits WHERE DATE(CONVERT_TZ(CONCAT(date, ' ', time), '+00:00', ?)) = DATE(CONVERT_TZ(NOW(), '+00:00', ?));");
+        String systemZoneId = ZoneId.systemDefault().getId();
+        statement.setString(1, systemZoneId);
+        statement.setString(2, systemZoneId);
+        statement.setString(3, systemZoneId);
+        resultSet = statement.executeQuery();
+
+        HashSet<LocalTime> takenTimes = new HashSet<LocalTime>();
+        while (resultSet.next()) {
+            LocalTime takenTime = resultSet.getTime("takenTime").toLocalTime();
+            takenTimes.add(takenTime);
+        }
+
+
+        ArrayList<LocalTime> visitTimes = new ArrayList<LocalTime>();
+        while (startTime.isBefore(endTime)) {
+            if (!takenTimes.contains(startTime)) {
+                visitTimes.add(startTime);
+            }
+
+            startTime = startTime.plusMinutes(VISIT_DURATION.toMinutes());
         }
 
         return visitTimes;

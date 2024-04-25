@@ -42,5 +42,5 @@ public abstract class DialogController extends BaseController {
         return result;
     }
 
-    public abstract void loadDialogHelper(HashMap<String, Object> data) throws SQLException;
+    public abstract void loadDialogHelper(HashMap<String, Object> data) throws SQLException, IOException;
 }

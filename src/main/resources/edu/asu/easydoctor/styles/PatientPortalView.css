@@ -209,3 +209,7 @@
 .error {
     -fx-border-color: #ff0000
 }
+
+.valid {
+    -fx-border-color: #00ff00
+}

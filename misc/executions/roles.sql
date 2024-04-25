@@ -238,4 +238,7 @@ GRANT UPDATE (weight, height, systolicBloodPressure, diastolicBloodPressure, hea
 GRANT SELECT (creationTime, userID, vaccineGroup, date, provider, notes) ON vaccines TO 'nurse'@'%';
 GRANT UPDATE (completed) ON activeVisits TO 'doctor'@'%';
 GRANT INSERT ON resetPasswordTokens TO 'doctor'@'%';
+GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'doctor'@'%';
+GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'nurse'@'%';
+GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'patient'@'%';
 use easydoctor;
