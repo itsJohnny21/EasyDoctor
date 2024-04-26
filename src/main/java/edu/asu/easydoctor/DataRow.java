@@ -128,7 +128,7 @@ public abstract  class DataRow {
     }
 
     public static class Patient extends DataRow {
-        public Datum userID;
+        public Datum username;
         public Datum firstName;
         public Datum lastName;
         public Datum sex;
@@ -155,7 +155,7 @@ public abstract  class DataRow {
             this.tableName = "patients";
 
             String rowIDColumn = "ID";
-            String userIDColumn = "ID";
+            String usernameColumn = "username";
             String firstNameColumn = "firstName";
             String lastNameColumn = "lastName";
             String sexColumn = "sex";
@@ -179,7 +179,7 @@ public abstract  class DataRow {
             String fatherLastNameColumn = "fatherLastName";
 
             this.rowID = resultSet.getInt(rowIDColumn);
-            this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
+            this.username = new Datum(this, resultSet.getString(usernameColumn), usernameColumn);
             this.firstName = new Datum(this, resultSet.getString(firstNameColumn), firstNameColumn);
             this.lastName = new Datum(this, resultSet.getString(lastNameColumn), lastNameColumn);
             this.sex = new Datum(this, resultSet.getString(sexColumn), sexColumn);
@@ -204,7 +204,7 @@ public abstract  class DataRow {
         }
 
         public static Patient getFor(int userID) throws Exception {
-            ResultSet resultSet = Database.selectRow(userID, "patients");
+            ResultSet resultSet = Database.getPatient(userID);
 
             if (!resultSet.next()) {
                 return null;
@@ -357,6 +357,61 @@ public abstract  class DataRow {
             this.completed = new Datum(this, resultSet.getString(completedColumn), completedColumn);
             this.reason = new Datum(this, resultSet.getString(reasonColumn), reasonColumn);
             this.description = new Datum(this, resultSet.getString(descriptionColumn), descriptionColumn);
+        }
+    }
+
+    public static class Vaccine extends DataRow {
+        public Datum creationTime;
+        public Datum userID;
+        public Datum vaccineGroup;
+        public Datum date;
+        public Datum provider;
+        public Datum notes;
+
+        public static ArrayList<Vaccine> getAllFor(int userID) throws Exception {
+            ResultSet resultSet = Database.selectMultiRow(userID, "vaccines");
+            ArrayList<Vaccine> vaccines = new ArrayList<Vaccine>();
+            
+            while (resultSet.next()) {
+                Vaccine visit = new Vaccine(resultSet);
+                vaccines.add(visit);
+            }
+            resultSet.close();
+
+            return vaccines;
+        }
+
+        public static Vaccine getFor(int rowID) throws Exception {
+            ResultSet resultSet = Database.selectRow(rowID, "vaccines");
+
+            if (!resultSet.next()) {
+                return null;
+            }
+
+            Vaccine visit = new Vaccine(resultSet);
+            resultSet.close();
+
+            return visit;
+        }
+
+        public Vaccine(ResultSet resultSet) throws Exception {
+            this.tableName = "vaccines";
+            
+
+            String creationTimeColumn = "creationTime";
+            String userIDColumn = "userID";
+            String vaccineGroupColumn = "vaccineGroup";
+            String dateColumn = "date";
+            String providerColumn = "provider";
+            String notesColumn = "notes";
+
+            this.rowID = resultSet.getInt("ID");
+            this.creationTime = new Datum(this, resultSet.getString(creationTimeColumn), creationTimeColumn);
+            this.userID = new Datum(this, resultSet.getString(userIDColumn), userIDColumn);
+            this.vaccineGroup = new Datum(this, resultSet.getString(vaccineGroupColumn), vaccineGroupColumn);
+            this.date = new Datum(this, resultSet.getString(dateColumn), dateColumn);
+            this.provider = new Datum(this, resultSet.getString(providerColumn), providerColumn);
+            this.notes = new Datum(this, resultSet.getString(notesColumn), notesColumn);
         }
     }
 }

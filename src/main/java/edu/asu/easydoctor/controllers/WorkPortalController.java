@@ -7,21 +7,31 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.DataRow;
+import edu.asu.easydoctor.DataRow.Allergy;
 import edu.asu.easydoctor.DataRow.Patient;
 import edu.asu.easydoctor.DataRow.Surgery;
+import edu.asu.easydoctor.DataRow.Vaccine;
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Database.BloodType;
+import edu.asu.easydoctor.Database.Ethnicity;
+import edu.asu.easydoctor.Database.Race;
+import edu.asu.easydoctor.Database.Sex;
+import edu.asu.easydoctor.Database.VaccineGroup;
 import edu.asu.easydoctor.Database.VisitStatus;
 import edu.asu.easydoctor.Datum;
 import edu.asu.easydoctor.EditableTable;
 import edu.asu.easydoctor.Form;
+import edu.asu.easydoctor.Form.RowStyle;
 import edu.asu.easydoctor.Row;
 import edu.asu.easydoctor.SelectableTable;
 import edu.asu.easydoctor.UpdateButtonGroup;
 import edu.asu.easydoctor.Utilities;
+import edu.asu.easydoctor.ValueField;
 import edu.asu.easydoctor.ValueLabel;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -257,6 +267,7 @@ public class WorkPortalController extends Controller {
         if (result == null || !result.containsKey("patientID")) return;
         
         patientRecordsPatientID = (int) result.get("patientID");
+
         loadPatientRecordFor(patientRecordsPatientID);
     }
 
@@ -265,37 +276,105 @@ public class WorkPortalController extends Controller {
         patientRecordsCancelButton.setDisable(false);
         patientRecordsSaveButton.setDisable(false);
 
-        Patient patient = DataRow.Patient.getFor(patientID);
+        Patient patient;
+        try {
+            patient = DataRow.Patient.getFor(patientID);
+        } catch (Exception e) {
+            showDefaultErrorAlert(e);
+            patientRecordsCancelButton.fire();
+            return;
+        }
+
         UpdateButtonGroup patientRecordsButtonGroup = new UpdateButtonGroup(patientRecordsEditButton, patientRecordsCancelButton, patientRecordsSaveButton); //TODO: Move to initialize function
         VBox contentPane = new VBox();
 
         Form contactInformationForm = generatePatientContactInformationForm(patient, patientRecordsButtonGroup);
         contentPane.getChildren().add(contactInformationForm);
 
+        Form medicalInformationForm = generatePatientMedicalInformationForm(patient, patientRecordsButtonGroup);
+        contentPane.getChildren().add(medicalInformationForm);
+
         EditableTable patientSurgeriesTable = generatePatientSurgeriesTable(patient, patientRecordsButtonGroup);
         contentPane.getChildren().add(patientSurgeriesTable);
+
+        EditableTable patientAllergiesTable = generatePatientAllergiesTable(patient, patientRecordsButtonGroup);
+        contentPane.getChildren().add(patientAllergiesTable);
+
+        EditableTable patientVaccinesTable = generatePatientVaccinesTable(patient, patientRecordsButtonGroup);
+        contentPane.getChildren().add(patientVaccinesTable);
 
         patientRecordsScrollPane.setContent(contentPane);
     }
 
+    public Form generatePatientMedicalInformationForm(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        Form medicalInformationForm = new Form()
+            .withRowStyle(RowStyle.VERTICAL)
+            .withTitle("Medical Information")
+            .connectedTo(ubg)
+            .withColumnCount(3)
+            .withFields(
+                patient.birthDate.createValueField("Birth Date"),
+                patient.height.createValueField("Height"),
+                patient.weight.createValueField("Weight"),
+                patient.insuranceProvider.createValueField("Insurance Provider"),
+                patient.insuranceID.createValueField("Insurance ID"),
+                Datum.createValueOptionFromEnum(BloodType.class, patient.bloodType, "Blood Type"),
+                Datum.createValueOptionFromEnum(Sex.class, patient.sex, "Sex"),
+                Datum.createValueOptionFromEnum(Ethnicity.class, patient.ethnicity, "Ethnicity"),
+                Datum.createValueOptionFromEnum(Race.class, patient.race, "Race")
+            )
+            .build();
+
+        return medicalInformationForm;
+    }
+
     public Form generatePatientContactInformationForm(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
         Form contactInformationForm = new Form()
-            .withTitle("Patient Information")
+            .withRowStyle(RowStyle.VERTICAL)
+            .withTitle("Contact Information")
             .connectedTo(ubg)
-            .withColumnCount(2)
+            .withColumnCount(3)
             .withFields(
                 patient.firstName.createValueField("First Name"),
                 patient.lastName.createValueField("Last Name"),
-                Datum.createValueOptionForDoctors(patient.preferredDoctorID, "Preferred Doctor"),
-                Datum.createValueOptionFromEnum(Database.BloodType.class, patient.bloodType, "Blood Type"),
+                patient.username.createValueField("Username"),
                 patient.email.createValueField("Email"),
                 patient.phone.createValueField("Phone"),
                 patient.address.createValueField("Address"),
-                Datum.createValueOptionFromEnum(Database.Sex.class, patient.sex, "Sex")
+                patient.motherFirstName.createValueField("Mother's First Name"),
+                patient.motherLastName.createValueField("Mother's Last Name"),
+                patient.emergencyContactName.createValueField("Emergency Contact Name"),
+                patient.emergencyContactPhone.createValueField("Emergency Contact Phone")
             )
             .build();
 
         return contactInformationForm;
+    }
+
+    public EditableTable generatePatientAllergiesTable(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        ArrayList<Allergy> patientAllergies = DataRow.Allergy.getAllFor(patient.rowID);
+        ArrayList<Row> patientAllergyRows = new ArrayList<>();
+
+        for (Allergy allergy : patientAllergies) {
+            int rowID = allergy.rowID;
+            ValueField nameLabel = new ValueField(allergy.allergen);
+            ValueField reactionLabel = new ValueField(allergy.type);
+            ValueField severityLabel = new ValueField(allergy.severity);
+            ValueField notesLabel = new ValueField(allergy.notes);
+
+            Row row = new Row(allergy.tableName, rowID, nameLabel, reactionLabel, severityLabel, notesLabel);
+            patientAllergyRows.add(row);
+        }
+
+        EditableTable allergiesTable = new EditableTable();
+        allergiesTable
+            .connectedTo(ubg)
+            .withTitle("Allergies")
+            .withHeader("Name", "Reaction", "Severity", "Notes")
+            .withRows(patientAllergyRows)
+            .build();
+
+        return allergiesTable;
     }
 
     public EditableTable generatePatientSurgeriesTable(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
@@ -304,42 +383,68 @@ public class WorkPortalController extends Controller {
 
         for (Surgery surgery : patientSurgeries) {
             int rowID = surgery.rowID;
-            ValueLabel surgeonLabel = new ValueLabel(surgery.doctorID);
+            ValueLabel surgeonLabel = new ValueLabel(Database.getEmployeeNameFor(Integer.parseInt(surgery.doctorID.originalValue)));
             ValueLabel typeLabel = new ValueLabel(surgery.type);
             ValueLabel dateLabel = new ValueLabel(surgery.date);
             ValueLabel notesLabel = new ValueLabel(surgery.notes);
 
-            Row row = new Row("surgeries", rowID, surgeonLabel, typeLabel, dateLabel, notesLabel);
+            Row row = new Row(surgery.tableName, rowID, surgeonLabel, typeLabel, dateLabel, notesLabel);
             patientSurgeryRows.add(row);
         }
         
         EditableTable contactInformationTable = new EditableTable();
         contactInformationTable
             .connectedTo(ubg)
-            .withDeleteAction(row -> {
-                Alert alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle(String.format("Delete from %s", row.tableName));
-                alert.setHeaderText(String.format("Are you sure you want to delete this row from %s?", row.tableName));
-                alert.setContentText("This action cannot be undone.");
-                if (alert.showAndWait().get().getText().equals("OK")) {
-                    try {
-                        Database.deleteRow(row.tableName, row.rowID);
-
-                    } catch (SQLException e) {
-                        alert = new Alert(AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("An error occurred while deleting the row.");
-                        alert.setContentText(e.getMessage());
-                        alert.showAndWait();
-                    }
-                }
-            })
             .withTitle("Surgeries")
             .withHeader("Surgeon", "Type", "Date", "Notes")
             .withRows(patientSurgeryRows)
             .build();
 
         return contactInformationTable;
+    }
+    public EditableTable generatePatientVaccinesTable(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        ArrayList<Vaccine> patientVaccines = DataRow.Vaccine.getAllFor(patient.rowID);
+
+        LinkedHashMap<String, Row> vaccineGroups = new LinkedHashMap<String, Row>();
+
+        for (VaccineGroup vaccineGroup : VaccineGroup.values()) {
+            Row row = new Row("vaccines");
+            row.getStyleClass().add("table-row");
+            ValueLabel vaccineGroupLabel = new ValueLabel(vaccineGroup.toString());
+            row.addValue(vaccineGroupLabel);
+            
+            vaccineGroups.put(vaccineGroup.toString(), row);
+        }
+
+        for (Vaccine vaccine : patientVaccines) {
+            if (!vaccineGroups.containsKey(vaccine.vaccineGroup.originalValue)) {
+                vaccineGroups.put(vaccine.vaccineGroup.originalValue, new Row("vaccines"));
+            }
+
+            Row row = vaccineGroups.get(vaccine.vaccineGroup.originalValue);
+            
+            ValueField dateLabel = new ValueField(vaccine.date);
+            row.addValue(dateLabel);
+        }
+
+        for (Row row : vaccineGroups.values()) {
+            while (row.getChildren().size() < 6) {
+                ValueField NALabel = new ValueField("N/A");
+                row.addValue(NALabel);
+            }
+        }
+
+        ArrayList<Row> patientVaccineRows = new ArrayList<Row>(vaccineGroups.values());
+
+        EditableTable vaccinesTable = new EditableTable();
+        vaccinesTable
+            .connectedTo(ubg)
+            .withTitle("Vaccines")
+            .withHeader("Vaccine", "Dose 1", "Dose 2", "Dose 3", "Dose 4", "Dose 5")
+            .withRows(patientVaccineRows)
+            .build();
+
+        return vaccinesTable;
     }
 
     @FXML public void handleActiveVisitsButton(ActionEvent event) throws SQLException {
@@ -677,6 +782,14 @@ public class WorkPortalController extends Controller {
         } else if (pane == chatPane) {
             chatGoBackButton.fire();
         }
+    }
+
+    public void showDefaultErrorAlert(Exception e) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("An error occurred.");
+        alert.setContentText(e.getMessage());
+        alert.showAndWait();
     }
 
     public void closeAndNullify() throws Exception {

@@ -236,9 +236,16 @@ SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 
 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = 'visits' AND PRIVILEGE_TYPE = 'UPDATE' AND GRANTEE = "'patient'@'%'";
 GRANT UPDATE (weight, height, systolicBloodPressure, diastolicBloodPressure, heartRate, respiratoryRate, bodyTemperature, notes, currentPage) ON activeVisits TO 'nurse'@'%';
 GRANT SELECT (creationTime, userID, vaccineGroup, date, provider, notes) ON vaccines TO 'nurse'@'%';
-GRANT UPDATE (completed) ON activeVisits TO 'doctor'@'%';
 GRANT INSERT ON resetPasswordTokens TO 'doctor'@'%';
 GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'doctor'@'%';
 GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'nurse'@'%';
 GRANT SELECT (dayOfWeek, openTime, closeTime) ON visitTimes TO 'patient'@'%';
+GRANT SELECT (username) ON users TO 'doctor'@'%';
+GRANT SELECT (username) ON users TO 'patient'@'%';
+GRANT SELECT (username) ON users TO 'nurse'@'%';
+GRANT UPDATE (sex) ON patients TO 'patient'@'%';
+GRANT UPDATE (allergen, commonSource, severity, type, notes) ON allergies TO 'doctor'@'%';
+GRANT UPDATE (allergen, commonSource, severity, type, notes) ON allergies TO 'patient'@'%';
+GRANT UPDATE (allergen, commonSource, severity, type, notes) ON allergies TO 'nurse'@'%';
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE PRIVILEGE_TYPE = 'DELETE' AND GRANTEE = "'doctor'@'%'";
 use easydoctor;

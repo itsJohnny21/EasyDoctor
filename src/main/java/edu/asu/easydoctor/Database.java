@@ -361,11 +361,11 @@ public abstract class Database {
         
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE PRIVILEGE_TYPE = 'DELETE' AND GRANTEE = %s;", getGrantee()));
         ResultSet resultSet = statement.executeQuery();
+        deletePermissions = new HashMap<String, Boolean>();
 
         while (resultSet.next()) {
             String tableName = resultSet.getString("TABLE_NAME");
 
-            deletePermissions = new HashMap<String, Boolean>();
             deletePermissions.put(tableName, true);
         }
     }
@@ -1036,7 +1036,7 @@ public abstract class Database {
     public static ResultSet getPatient(int patientID) throws SQLException {
         ensureConnection();
         
-        PreparedStatement statement = connection.prepareStatement("SELECT patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.ID = ? LIMIT 1;");
+        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.ID = ? LIMIT 1;");
         statement.setInt(1, patientID);
 
         ResultSet resultSet = statement.executeQuery();

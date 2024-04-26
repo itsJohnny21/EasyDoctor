@@ -36,8 +36,6 @@ VALUES ('test', 'test', 'PATIENT');
 INSERT INTO patients (userID, firstName, lastName, sex, birthDate, email, phone, address, race, ethnicity)
 VALUES (2, 'test', 'test',  'OTHER', '2000-01-01', 'test@test.com', '1234567890', '123 Test St', 'WHITE', 'HISPANIC');
 
-CREATE ROLE 'patients';
-GRANT UPDATE (sex, email, phone, address, race, ethnicity) ON patients TO 'patients';
 SELECT * FROM patients;
 
 

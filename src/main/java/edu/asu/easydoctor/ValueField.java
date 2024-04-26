@@ -17,8 +17,15 @@ public class ValueField extends TextField implements Connectable {
         updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
     }
 
+    public ValueField(Datum datum) {
+        super(datum.displayValue);
+        this.datum = datum;
+        this.label = "";
+        updatable = Database.canUpdate(datum.parent.tableName, datum.columnName);
+    }
+
     public ValueField(String label) {
-        super();
+        super(label);
         this.label = label;
     }
 
@@ -29,8 +36,8 @@ public class ValueField extends TextField implements Connectable {
     public void onSave() throws SQLException {
         if (!updatable) return;
 
-        if (!getText().equals(datum.originalValue)) {
-            System.out.printf("new value! %s -> %s\n", datum.originalValue, this);
+        if (!getText().equals(datum.displayValue)) {
+            System.out.printf("new value! %s -> %s\n", datum.displayValue, this);
             datum.displayValue = getText();
             Database.updateRow(datum.parent.rowID, datum.parent.tableName, datum.columnName, datum.convertValue());
             datum.originalValue = datum.displayValue;
@@ -42,13 +49,14 @@ public class ValueField extends TextField implements Connectable {
     
     public void onCancel() {
         setEditable(false);
-        undo();
+        setText(datum.originalValue);
         setStyle("-fx-border-color: transparent;");
     }
 
     public void onError() {
-        undo();
         PseudoClass errorClass = PseudoClass.getPseudoClass("error");
+        setText(datum.originalValue);
+        datum.displayValue = datum.originalValue;
         pseudoClassStateChanged(errorClass, true);
         requestFocus();
     }

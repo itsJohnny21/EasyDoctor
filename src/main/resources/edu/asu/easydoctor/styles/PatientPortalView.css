@@ -11,6 +11,7 @@
     -fx-background-radius: 0;
     -fx-alignment: center;
     -fx-pref-width: 9999px;
+    -fx-padding: 0px 0px 100px 0px;
 }
 
 .table-title {
@@ -84,6 +85,7 @@
     -fx-background-radius: 0;
     -fx-alignment: center;
     -fx-pref-width: 9999px;
+    -fx-padding: 0px 0px 100px 0px;
 }
 
 .form-title {

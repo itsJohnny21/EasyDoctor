@@ -53,9 +53,10 @@ public class UpdateButtonGroup {
             alert.setHeaderText("Are you sure you want to save the changes?");
             alert.setContentText("This action cannot be undone.");
 
-            if (alert.showAndWait().get().getText().equals("CANCEL")) {
+            if (alert.showAndWait().get().getText().equals("Cancel")) {
                 return;
             }
+
             for (Connectable connection : connections) {
                 try {
                     connection.onSave();
@@ -82,6 +83,7 @@ public class UpdateButtonGroup {
     }
 
     public void addConnection(Connectable connection) {
+        connection.initialize();
         connections.add(connection);
     }
 }

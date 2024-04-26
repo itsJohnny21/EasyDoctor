@@ -104,7 +104,9 @@ public class Bypass {
 							FindPatientController findPatientController = FindPatientController.getInstance();
 							findPatientController.usernameButton.fire();
 							findPatientController.usernameTextField.setText(username);
-							// findPatientController.findPatientButton.fire();
+							findPatientController.findPatientButton.fire();
+							findPatientController.doneButton.fire();
+							return;
 						}
 					}
 				}

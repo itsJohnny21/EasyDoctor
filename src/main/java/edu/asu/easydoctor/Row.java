@@ -19,28 +19,35 @@ public class Row extends HBox implements Connectable {
         this.tableName = tableName;
         this.rowID = rowID;
 
+        addValues(values);
+    }
+
+    public void addValues (Connectable... values) {
         for (Connectable value : values) {
-            if (value instanceof ValueField) {
-                ValueField field = (ValueField) value;
-                field.getStyleClass().add("table-field");
-                getChildren().add(field);
-                
-            } else if (value instanceof ValueLabel) {
-                ValueLabel label = (ValueLabel) value;
-                label.getStyleClass().add("table-label");
-                getChildren().add(label);
-                
-            } else if (value instanceof ValueOption) {
-                ValueOption option = (ValueOption) value;
-                option.getStyleClass().add("table-option");
-                getChildren().add(option);
-            }
+            addValue(value);
+        }
+    }
+
+    public void addValue(Connectable value) {
+        if (value instanceof ValueField) {
+            ValueField field = (ValueField) value;
+            field.getStyleClass().add("table-field");
+            getChildren().add(field);
+            
+        } else if (value instanceof ValueLabel) {
+            ValueLabel label = (ValueLabel) value;
+            label.getStyleClass().add("table-label");
+            getChildren().add(label);
+            
+        } else if (value instanceof ValueOption) {
+            ValueOption option = (ValueOption) value;
+            option.getStyleClass().add("table-option");
+            getChildren().add(option);
         }
     }
 
     public void makeDeletable(Consumer<Row> deleteAction) {
         deleteButton = new Button("Delete");
-        deleteButton.setDisable(true);
         getChildren().add(deleteButton);
         
         deleteButton.setOnAction(event -> {
@@ -73,5 +80,8 @@ public class Row extends HBox implements Connectable {
     }
 
     public void initialize() {
+        if (deleteButton != null) {
+            deleteButton.setDisable(true);
+        }
     }
 }

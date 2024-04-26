@@ -104,7 +104,7 @@ public class ActiveVisitController extends DialogController {
             bodyTemperatureTextField.setText(bodyTemperature);
             notesTextArea.setText(notes);
 
-            int nurseID = activeVisit.getInt("nurseID");
+            activeVisit.getInt("nurseID");
             if (activeVisit.wasNull()) {
                 Database.updateActiveVisitNurse(rowID, Database.getMyID());
             }
