@@ -8,19 +8,32 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class Form extends GridPane {
+
+    public enum RowStyle {
+        HORIZONTAL, VERTICAL
+    }
+
     public String title;
     public ArrayList<Connectable> fields;
     public int rowCounter;
     public int columnCount;
     public Consumer<Form> submitAction;
     public UpdateButtonGroup ubg;
+    public RowStyle rowStyle;
     
     public Form() {
         getStyleClass().add("form");
         fields = new ArrayList<>();
         columnCount = 2;
+        rowStyle = RowStyle.HORIZONTAL;
+    }
+
+    public Form withRowStyle(RowStyle rowStyle) {
+        this.rowStyle = rowStyle;
+        return this;
     }
 
     public Form withSubmitAction(Consumer<Form> submitAction) {
@@ -60,7 +73,7 @@ public class Form extends GridPane {
         this.add(titleBox, 0, rowCounter++);
     }
 
-    public void buildRows() {
+    public void buildRowsHorizontal() {
         HBox row = new HBox();
         row.getStyleClass().add("form-row");
 
@@ -136,6 +149,56 @@ public class Form extends GridPane {
         }
     }
 
+    public void buildRowsVertical() {
+        HBox row = new HBox();
+        row.getStyleClass().add("form-row");
+
+        for (int i = 0; i < fields.size(); i++) {
+            VBox fieldBox = new VBox();
+            fieldBox.getStyleClass().add("form-field-box");
+            HBox.setMargin(fieldBox, new Insets(0, 200 / columnCount, 0, 200 / columnCount));
+
+            Connectable value = fields.get(i);
+
+            Label valueLabel = new Label();
+            valueLabel.getStyleClass().add("form-label");
+            fieldBox.getChildren().add(valueLabel);
+
+            if (value instanceof ValueField) {
+                ValueField valueField = (ValueField) value;
+                valueLabel.setText(valueField.label);
+                valueField.getStyleClass().add("form-field");
+                
+                if (ubg != null) {
+                    valueField.setEditable(false);
+                    ubg.addConnection(value);
+                }
+
+                fieldBox.getChildren().add(valueField);
+                
+            } else if (value instanceof ValueOption) {
+                ValueOption valueOption = (ValueOption) value;
+                valueLabel.setText(valueOption.label);
+                valueOption.getStyleClass().add("form-option");
+                
+                if (ubg != null) {
+                    valueOption.setDisable(true);
+                    ubg.addConnection(value);
+                }
+
+                fieldBox.getChildren().add(valueOption);
+            }
+
+            row.getChildren().add(fieldBox);
+
+            if (i % columnCount == columnCount - 1) {
+                add(row, 0, rowCounter++);
+                row = new HBox();
+                row.getStyleClass().add("form-row");
+            }
+        }
+    }
+
     public void buildSubmitButton() {
         if (submitAction != null) {
             HBox row = new HBox();
@@ -156,7 +219,13 @@ public class Form extends GridPane {
 
     public Form build() {
         buildTitle();
-        buildRows();
+
+        if (rowStyle == RowStyle.HORIZONTAL) {
+            buildRowsHorizontal();
+        } else {
+            buildRowsVertical();
+        }
+        
         buildSubmitButton();
         return this;
     }

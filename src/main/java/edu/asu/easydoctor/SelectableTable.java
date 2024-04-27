@@ -1,13 +1,17 @@
 package edu.asu.easydoctor;
 
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 import edu.asu.easydoctor.UI.Table;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.layout.HBox;
 
 public class SelectableTable extends UI.Table {
     public Consumer<Row> rowAction;
+    public boolean isToggable;
+    public HashSet<Row> selectedRows = new HashSet<>();
 
     public SelectableTable() {
         super();
@@ -16,6 +20,15 @@ public class SelectableTable extends UI.Table {
     public SelectableTable withRowAction(Consumer<Row> rowAction) {
         this.rowAction = rowAction;
         return this;
+    }
+
+    public SelectableTable isToggable(boolean isToggable) {
+        this.isToggable = isToggable;
+        return this;
+    }
+
+    public HashSet<Row> getSelectedRows() {
+        return selectedRows;
     }
 
     public void buildHeader() {
@@ -38,10 +51,30 @@ public class SelectableTable extends UI.Table {
     public void buildRows() {
         for (Row row : this.rows) {
             this.add(row, 0, this.rowCounter++);
+
+            if (isToggable) {
+                RadioButton radioButton = new RadioButton();
+                radioButton.getStyleClass().add("table-radio-button");
+
+                radioButton.setOnAction(event -> {
+                    if (radioButton.isSelected()) {
+                        selectedRows.add(row);
+                    } else {
+                        selectedRows.remove(row);
+                    }
+                });
+
+                row.getChildren().add(radioButton);
+            }
             
             if (rowAction != null) {
-                rowAction.accept(row);
+                row.setOnMouseClicked(event -> {
+                    rowAction.accept(row);
+                });
+                
                 row.getStyleClass().add("table-selectable-row");
+            } else {
+                row.getStyleClass().add("table-row");
             }
         }
     }

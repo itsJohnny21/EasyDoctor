@@ -103,7 +103,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="cancelVisitButton" mnemonicParsing="false" onAction="#handleCancelVisitButtonAction" prefWidth="100.0" text="Cancel Visit" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+            <Button fx:id="cancelVisitButton" disable="true" mnemonicParsing="false" onAction="#handleCancelVisitButtonAction" prefWidth="100.0" text="Cancel Visit" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
             <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleCloseButtonAction" prefWidth="100.0" text="Close" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
          </children>
       </GridPane>

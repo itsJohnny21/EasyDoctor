@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import edu.asu.easydoctor.Database;
+import edu.asu.easydoctor.Database.VisitStatus;
 import edu.asu.easydoctor.Utilities;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -54,8 +55,39 @@ public class SelectedVisitController extends DialogController {
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
         addressLabel.setText("Address: 2601 E Roosevelt St Phoenix, AZ 85008 United States");
+    }
+
+
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        rowID = (Integer) data.get("rowID");
+        ResultSet visit = Database.getVisit(rowID);
+
+        if (visit.next()) {
+            String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
+            String dayOfWeek = visit.getDate("localdate").toLocalDate().getDayOfWeek().toString();
+            String time = Utilities.prettyTime(visit.getTime("localtime"));
+            String date = Utilities.prettyDate(visit.getDate("localdate"));
+            String reason = visit.getString("reason");
+            String description = visit.getString("description");
+            String status = VisitStatus.valueOf(visit.getString("status")).toString();
+
+            doctorLabel.setText(doctor);
+            dateLabel.setText(date);
+            dayLabel.setText(dayOfWeek);
+            timeLabel.setText(time);
+            reasonLabel.setText(reason);
+            statusLabel.setText(status);
+            descriptionTextArea.setText(description);
+
+            if (VisitStatus.valueOf(status).equals(VisitStatus.PENDING) || VisitStatus.valueOf(status).equals(VisitStatus.UPCOMING)) {
+                cancelVisitButton.setDisable(false);
+            } else {
+                cancelVisitButton.setDisable(true);
+            }
+        }
+        visit.close();
     }
 
     @FXML public void handleCloseButtonAction(ActionEvent event) throws Exception {
@@ -70,34 +102,10 @@ public class SelectedVisitController extends DialogController {
         alert.showAndWait();
 
         if (alert.getResult().getText().equals("OK")) {
-            Database.deleteRow("visits", rowID);
+            Database.updateVisitCancel(rowID);
             result.put("deleted", true);
             closeAndNullify();
         }
-    }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
-        rowID = (Integer) data.get("rowID");
-        ResultSet visit = Database.getVisit(rowID);
-
-        if (visit.next()) {
-            String doctor = Database.getEmployeeNameFor(visit.getInt("doctorID"));
-            String dayOfWeek = visit.getDate("date").toLocalDate().getDayOfWeek().toString();
-            String time = Utilities.prettyTime(visit.getTime("time"));
-            String date = Utilities.prettyDate(visit.getDate("date"));
-            String reason = visit.getString("reason");
-            String description = visit.getString("description");
-            boolean completed = visit.getBoolean("completed");
-
-            doctorLabel.setText(doctor);
-            dateLabel.setText(date);
-            dayLabel.setText(dayOfWeek);
-            timeLabel.setText(time);
-            reasonLabel.setText(reason);
-            statusLabel.setText(Utilities.getVisitStatus(visit.getDate("date"), visit.getTime("time"), completed));
-            descriptionTextArea.setText(description);
-        }
-        visit.close();
     }
 
     public void closeAndNullify() {

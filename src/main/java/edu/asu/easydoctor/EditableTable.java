@@ -1,15 +1,39 @@
 package edu.asu.easydoctor;
 
+import java.sql.SQLException;
 import java.util.function.Consumer;
 
 import edu.asu.easydoctor.UI.Table;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
 public class EditableTable extends UI.Table {
     public UpdateButtonGroup ubg;
     public Consumer<Row> deleteAction;
+    public static final Consumer<Row> DEFAULT_DELETE_ACTION = (row) -> {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(String.format("Delete from %s", row.tableName));
+        alert.setHeaderText(String.format("Are you sure you want to delete this row from %s?", row.tableName));
+        alert.setContentText("This action cannot be undone.");
+        if (alert.showAndWait().get().getText().equals("OK")) {
+            try {
+                Database.deleteRow(row.tableName, row.rowID);
+                EditableTable table = (EditableTable) row.getParent();
+                table.rows.remove(row);
+                table.getChildren().remove(row);
+
+            } catch (SQLException e) {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("An error occurred while deleting the row.");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            }
+        }
+    };
 
     public EditableTable() {
         super();
@@ -26,6 +50,8 @@ public class EditableTable extends UI.Table {
     }
 
     public void buildHeader() {
+        if (this.headers == null) return;
+
         HBox headerBox = new HBox();
         headerBox.getStyleClass().add("table-header");
         
@@ -49,17 +75,19 @@ public class EditableTable extends UI.Table {
             row.getStyleClass().add("table-row");
 
             if (ubg != null) {
-                for (Node node : row.getChildren()) {
-                    Connectable value = ((Connectable) node);
-                    value.initialize();
-                    ubg.addConnection(value);
-                }
-            }
 
-            if (deleteAction != null) {
-                ubg.addConnection(row);
-                row.makeDeletable(deleteAction);
-                row.deleteButton.getStyleClass().add("table-delete-button");
+                if (deleteAction != null) {
+                    row.makeDeletable(deleteAction);
+                    ubg.addConnection(row);
+                    row.deleteButton.getStyleClass().add("table-delete-button");
+                }
+
+                for (Node node : row.getChildren()) {
+                    if (node instanceof Connectable) {
+                        Connectable value = ((Connectable) node);
+                        ubg.addConnection(value);
+                    }
+                }
             }
 
             this.add(row, 0, this.rowCounter++);

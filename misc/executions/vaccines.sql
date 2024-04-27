@@ -22,7 +22,7 @@ CREATE TABLE vaccines (
 );
 
 INSERT INTO vaccines (userID, vaccineGroup, dose1, dose2, dose3, dose4, dose5, dose6, provider1, provider2, provider3, provider4, provider5, provider6, notes)
-VALUES (2, "COVID-19", "2021-01-01", "2021-01-29", "2021-02-26", "2021-03-26", "2021-04-23", "2021-05-21", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "No adverse reactions");
+VALUES (2, "COVID_19", "2021-01-01", "2021-01-29", "2021-02-26", "2021-03-26", "2021-04-23", "2021-05-21", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, dose1, dose2, dose3, dose4, dose5, dose6, provider1, provider2, provider3, provider4, provider5, provider6, notes)
 VALUES (2, "Influenza", "2021-01-01", "2021-01-29", "2021-02-26", "2021-03-26", "2021-04-23", "2021-05-21", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, dose1, dose2, dose3, dose4, dose5, dose6, provider1, provider2, provider3, provider4, provider5, provider6, notes)
@@ -49,22 +49,37 @@ CREATE TABLE vaccines (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     userID INT NOT NULL,
-    vaccineGroup ENUM('COVID-19', 'Influenza', 'Hepatitis A', 'Hepatitis B', 'Varicella', 'Polio', 'Pneumococcal', 'MMR', 'HPV', 'Shingles') NOT NULL,
+    vaccineGroup ENUM('COVID_19', 'Influenza', 'Hepatitis_A', 'Hepatitis_B', 'Varicella', 'Polio', 'Pneumococcal', 'MMR', 'HPV', 'Shingles') NOT NULL,
     date DATE,
     provider VARCHAR(100),
     notes TEXT,
+    UNIQUE (userID, vaccineGroup, date),
     FOREIGN KEY (userID) REFERENCES users(ID)
 );
+show create table vaccines;
+alter table vaccines add UNIQUE (userID, vaccineGroup, date);
+
 INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
-VALUES (2, "COVID-19", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+VALUES (2, "COVID_19", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
-VALUES (2, "COVID-19", "2024-01-01", "Pfizer-BioNTech", "No adverse reactions");
+VALUES (2, "COVID_19", "2024-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (2, "COVID_19", "2022-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (2, "COVID_19", "2023-01-01", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
 VALUES (2, "Influenza", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
-VALUES (2, "Hepatitis A", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+VALUES (2, "Hepatitis_A", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
 INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
-VALUES (29, "Hepatitis A", "2021-01-01", "Pfizer-BioNTech", "No adverse reactions");
+VALUES (2, "Hepatitis_A", "2019-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (2, "Hepatitis_A", "2012-01-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (2, "Hepatitis_A", "2010-02-01", "Pfizer-BioNTech", "No adverse reactions");
+INSERT INTO vaccines (userID, vaccineGroup, date, provider, notes)
+VALUES (2, "Hepatitis_A", "1990-01-01", "Pfizer-BioNTech", "No adverse reactions");
 
 SELECT * FROM vaccines;
+SELECT * FROM vaccines WHERE userID = 2 ORDER BY date ASC;
 SELECT username, role, ID FROM users WHERE userID = 3;

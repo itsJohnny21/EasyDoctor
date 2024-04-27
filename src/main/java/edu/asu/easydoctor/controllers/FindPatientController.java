@@ -14,7 +14,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
-public class NewMessageWorkPortal extends DialogController {
+public class FindPatientController extends DialogController {
     
     @FXML public AnchorPane rootPane;
     @FXML public Button cancelButton;
@@ -42,32 +42,47 @@ public class NewMessageWorkPortal extends DialogController {
 
     @FXML public Label patientLabel;
 
-    public static NewMessageWorkPortal instance = null;
-    public final static String TITLE = "Send Message";
+    public static FindPatientController instance = null;
+    public final static String TITLE = "Find Patient";
     public final static boolean RESIZABLE = false;
-    public final static String VIEW_FILENAME = "NewMessageWorkPortalView";
+    public final static String VIEW_FILENAME = "FindPatientView";
     public final static String STYLE_FILENAME = "PatientPortalView";
     public Integer patientID;
     public Button currentButton;
     public GridPane currentPane;
 
-    private NewMessageWorkPortal() {
+    private FindPatientController() {
         title = TITLE;
         resizable = RESIZABLE;
         viewFilename = VIEW_FILENAME;
         styleFilename = STYLE_FILENAME;
     }
 
-    public static NewMessageWorkPortal getInstance() {
+    public static FindPatientController getInstance() {
         if (instance == null) {
-            instance = new NewMessageWorkPortal();
+            instance = new FindPatientController();
         }
 
         return instance;
     }
 
-    public void initialize() throws Exception {
+    public void initialize() {
+        for (GridPane pane : new GridPane[] {nameAndBirthPane, usernamePane, emailPane, phoneNumberPane}) {
+            pane.setVisible(false);
+            pane.setDisable(true);
+        }
+
+        setCurrentPane(nameAndBirthPane, nameAndBirthButton);
         nameAndBirthButton.fire();
+    }
+
+    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
+        if (data.containsKey("patientID")) {
+            System.out.println("Patient ID: " + data.get("patientID"));
+            patientID = (Integer) data.get("patientID");
+            result.put("patientID", patientID);
+            closeAndNullify();
+        }
     }
 
     @FXML public void handleNameAndBirthButtonAction(ActionEvent event) {
@@ -129,8 +144,10 @@ public class NewMessageWorkPortal extends DialogController {
 
         patientID = patientIDToFind;
         doneButton.setDisable(false);
-        patientLabel.setText(Database.getPatientNameFor(patientID));
+        String patientName = Database.getPatientNameFor(patientID);
+        patientLabel.setText(patientName);
         result.put("patientID", patientID);
+        result.put("patientName", patientName);
     }
 
     public void addErrorsToFields() {
@@ -145,9 +162,6 @@ public class NewMessageWorkPortal extends DialogController {
         } else if (currentPane == phoneNumberPane) {
             Utilities.addClass(phoneNumberTextField, "error");
         }
-    }
-
-    public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
     }
 
     public void setCurrentPane(GridPane pane, Button button) {

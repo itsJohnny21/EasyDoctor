@@ -1,6 +1,7 @@
 package edu.asu.easydoctor;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import edu.asu.easydoctor.DataRow.Employee;
 import javafx.util.StringConverter;
@@ -10,6 +11,7 @@ public class Datum {
     public String displayValue;
     public String columnName;
     public DataRow parent;
+    public Function<Datum, String> convertAction;
 
     public Datum(DataRow parent, String originalValue, String columnName) {
         this.parent = parent;
@@ -26,6 +28,10 @@ public class Datum {
     }
 
     public Datum() {}
+
+    public void setConvertAction(Function<Datum, String> convertAction) {
+        this.convertAction = convertAction;
+    }
 
     public static ValueOption createValueOptionForDoctors(Datum doctorID, String label) throws Exception {
         ArrayList<Datum> options = new ArrayList<>();
@@ -120,6 +126,8 @@ public class Datum {
     }
 
     public String convertValue() {
-        return displayValue;
+        if (convertAction == null) return displayValue;
+
+        return convertAction.apply(this);
     }
 }

@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 public class ExampleTest {
     @Test
-    @DisplayName("exampleTest")
-    public void exampleTest() {
+    @DisplayName("example")
+    public void example() {
         assertEquals(1, 1);
     }
 }

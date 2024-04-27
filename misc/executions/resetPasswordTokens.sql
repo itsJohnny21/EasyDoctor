@@ -14,3 +14,5 @@ SELECT userID, creationTime, used FROM resetPasswordTokens WHERE token = 946930 
 use easydoctor;
 select * from users;
 select * from resetPasswordTokens;
+
+SELECT userID, UNIX_TIMESTAMP(creationTime) * 1000 AS 'creationTime', used, UNIX_TIMESTAMP() * 1000 AS 'nowTime' FROM resetPasswordTokens WHERE token = 322131 ORDER BY creationTime DESC LIMIT 1;

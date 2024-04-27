@@ -6,8 +6,11 @@ CREATE TABLE healthConditions (
     severity ENUM('ACUTE', 'CHRONIC') NOT NULL,
     type ENUM('PHYSICAL', 'MENTAL') NOT NULL,
     notes TEXT,
-    FOREIGN KEY (patientID) REFERENCES users(ID)
+    FOREIGN KEY (patientID) REFERENCES users(ID) ON DELETE CASCADE,
 );
+
+alter table healthConditions drop foreign key healthConditions_ibfk_1;
+alter table healthConditions add FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE;
 
 INSERT INTO healthConditions (patientID, healthCondition, severity, type, notes)
 VALUES (2, 'Diabetes', 'CHRONIC', 'PHYSICAL', 'Type 2 diabetes cus he be eatin too much sugar');

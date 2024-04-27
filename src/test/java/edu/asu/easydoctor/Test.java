@@ -1,4 +1,4 @@
-package tests;
+package edu.asu.easydoctor;
 
 
 import java.net.UnknownHostException;
@@ -9,13 +9,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.CountDownLatch;
 
-import edu.asu.easydoctor.App;
-import edu.asu.easydoctor.Database;
 import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Database.Sex;
-import edu.asu.easydoctor.Utilities;
 import edu.asu.easydoctor.controllers.ForgotUsernamePasswordController;
 import edu.asu.easydoctor.controllers.ResetPasswordController;
 import edu.asu.easydoctor.controllers.SignInController;

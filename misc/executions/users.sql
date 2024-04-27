@@ -7,7 +7,7 @@ CREATE TABLE users (
     password VARCHAR(100) NOT NULL CHECK(LENGTH(username) >= 8),
     role ENUM('PATIENT', 'NURSE', 'PATIENT') NOT NULL
 );
-
+use easydoctor;
 INSERT INTO users (username, password, role)
 VALUES ('jonis6421', SHA2('123', 256), 'ADMIN');
 
@@ -16,6 +16,5 @@ use easydoctor;
 SELECT * FROM users;
 SELECT * FROM patients;
 SELECT * FROM employees;
-delete from users where ID = 196;
 
 SELECT username FROM patients JOIN users ON users.ID = patients.ID WHERE patients.ID = 184;

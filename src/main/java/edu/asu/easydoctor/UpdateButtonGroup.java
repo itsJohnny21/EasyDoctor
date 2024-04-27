@@ -3,12 +3,15 @@ package edu.asu.easydoctor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 
 public class UpdateButtonGroup {
     public Button editButton;
+    public Button addButton;
     public Button cancelButton;
     public Button saveButton;
     public ArrayList<Connectable> connections;
@@ -28,6 +31,10 @@ public class UpdateButtonGroup {
             cancelButton.setDisable(false);
             saveButton.setDisable(false);
 
+            if (addButton != null) {
+                addButton.setDisable(false);
+            }
+
             for (Connectable connection : connections) {
                 connection.onEdit();
             }
@@ -37,6 +44,10 @@ public class UpdateButtonGroup {
             cancelButton.setDisable(true);
             editButton.setDisable(false);
             saveButton.setDisable(true);
+
+            if (addButton != null) {
+                addButton.setDisable(true);
+            }
 
             for (Connectable connection : connections) {
                 connection.onCancel();
@@ -53,9 +64,10 @@ public class UpdateButtonGroup {
             alert.setHeaderText("Are you sure you want to save the changes?");
             alert.setContentText("This action cannot be undone.");
 
-            if (alert.showAndWait().get().getText().equals("CANCEL")) {
+            if (alert.showAndWait().get().getText().equals("Cancel")) {
                 return;
             }
+
             for (Connectable connection : connections) {
                 try {
                     connection.onSave();
@@ -75,13 +87,23 @@ public class UpdateButtonGroup {
             editButton.setDisable(false);
             cancelButton.setDisable(true);
 
+            if (addButton != null) {
+                addButton.setDisable(true);
+            }
+
             if (error) {
                 editButton.fire();
             }
         });
     }
 
+    public void addAddButton(Button addButton, EventHandler<ActionEvent> event) {
+        this.addButton = addButton;
+        addButton.setOnAction(event);
+    }
+
     public void addConnection(Connectable connection) {
+        connection.initialize();
         connections.add(connection);
     }
 }

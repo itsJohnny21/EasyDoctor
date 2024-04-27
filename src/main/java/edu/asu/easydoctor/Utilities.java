@@ -20,12 +20,15 @@ public class Utilities {
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d, h:mm a");
     public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+    public static final DateTimeFormatter standardTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static final String OPTIONAL_MESSAGE_REGEX = "^[\\p{Print}]{0,255}$";
     public static final String MESSAGE_REGEX = "^[\\p{Print}]{1,255}$";
     public static final String NAME_REGEX = "^[a-zA-Z'\\-\\u00c0-\\u01ff]{2,}$";
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     public static final String PHONE_REGEX = "^[0-9]{10}$";
     public static final String BIRTH_DATE_REGEX = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
-    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{4,}$";
+    public static final String USERNAME_REGEX = "^[a-zA-Z][a-zA-Z0-9_]{3,}$";
+    public static final String DIGITS_ONLY_REGEX = "^[0-9]+$";
 
     public static String prettyCapitalize(String s) {
         if (s == null || s.isEmpty()) {
@@ -46,7 +49,7 @@ public class Utilities {
     }
 
     public static boolean validate(TextField textField, String regex) { //! maybe remove
-        if (textField.getText().isBlank() || !textField.getText().matches(regex)) {
+        if (textField.getText() == null || textField.getText().isBlank() || !textField.getText().matches(regex)) {
             textField.requestFocus();
             textField.getStyleClass().add("error");
             return false;
@@ -55,8 +58,36 @@ public class Utilities {
         return true;
     }
 
+    public static boolean validate(TextField textField, String... regexes) { //! maybe remove
+        if (textField.getText() == null) {
+            textField.requestFocus();
+            textField.getStyleClass().add("error");
+            return false;
+        }
+
+        for (String regex : regexes) {
+            if (textField.getText().matches(regex)) {
+                textField.getStyleClass().remove("error");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean validate(TextField textField, String regex, int min, int max) { //! maybe remove
+        if (textField.getText() == null || textField.getText().isBlank() || textField.getText().length() < min || textField.getText().length() > max || !textField.getText().matches(regex)) {
+            textField.requestFocus();
+            textField.getStyleClass().add("error");
+            return false;
+        }
+
+        textField.getStyleClass().remove("error");
+        return true;
+    }
+
     public static boolean validate(TextArea textArea, String regex) { //! maybe remove
-        if (textArea.getText().isBlank() || !textArea.getText().matches(regex)) {
+        if (textArea.getText() == null || textArea.getText().isBlank() || !textArea.getText().matches(regex)) {
             textArea.requestFocus();
             textArea.getStyleClass().add("error");
             return false;
@@ -66,7 +97,15 @@ public class Utilities {
     }
 
     public static boolean validate(String text, String regex) { //! maybe remove
-        if (text.isBlank() || !text.matches(regex)) {
+        if (text == null || text.isBlank() || !text.matches(regex)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean validate(String text, String regex, int min, int max) {
+        if (text == null || text.isBlank() || text.length() < min || text.length() > max || !text.matches(regex)) {
             return false;
         }
 
@@ -102,15 +141,28 @@ public class Utilities {
         }
     }
 
-    public static LocalDate convertUTCtoLocal(Date date) {
+    public static String getVisitStatusWorkPortal(LocalDate date, LocalTime time, boolean completed) { //!! remove me use database instead
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
+        if (completed) {
+            return "Completed";
+        } else if (LocalDateTime.now().isAfter(dateTime.plusMinutes(15))) {
+            return "Missed";
+        } else if (LocalDateTime.now().isAfter(dateTime.minusMinutes(15))) {
+            return "Pending";
+        } else {
+            return "Upcoming";
+        }
+    }
+
+    public static LocalDate convertUTCtoLocal(Date date) { //! remove
         return date.toLocalDate().minusDays(LocalDate.now(ZoneId.of("UTC")).getDayOfYear() - LocalDate.now().getDayOfYear());
     }
 
-    public static LocalTime convertUTCtoLocal(Time time) {
+    public static LocalTime convertUTCtoLocal(Time time) { //! remove
         return time.toLocalTime().minusHours(LocalTime.now(ZoneId.of("UTC")).getHour() - LocalTime.now().getHour());
     }
 
-    public static LocalDateTime convertUTCtoLocal(Timestamp timestamp) {
+    public static LocalDateTime convertUTCtoLocal(Timestamp timestamp) { //! remove
         return timestamp.toLocalDateTime().minusHours(LocalDateTime.now(ZoneId.of("UTC")).getHour() - LocalDateTime.now().getHour());
     }
 
@@ -118,7 +170,7 @@ public class Utilities {
         return localDate.format(dateFormatter);
     }
 
-    public static String prettyDate(Date date) {
+    public static String prettyDate(Date date) { //! remove
         LocalDate localDate = convertUTCtoLocal(date);
         return prettyDate(localDate);
     }
@@ -127,7 +179,15 @@ public class Utilities {
         return localTime.format(timeFormatter);
     }
 
-    public static String prettyTime(Time time) {
+    public static LocalTime parsePrettyTime(String prettyTime) {
+        return LocalTime.parse(prettyTime, timeFormatter);
+    }
+
+    public static String standardTime(LocalTime localTime) {
+        return localTime.format(standardTimeFormatter);
+    }
+
+    public static String prettyTime(Time time) { //! remove
         LocalTime localTime = convertUTCtoLocal(time);
         return prettyTime(localTime);
     }
@@ -136,7 +196,7 @@ public class Utilities {
         return localDateTime.format(dateTimeFormatter);
     }
 
-    public static String prettyDateTime(Timestamp tiemstamp) {
+    public static String prettyDateTime(Timestamp tiemstamp) { //! remove
         LocalDateTime localDateTime = convertUTCtoLocal(tiemstamp);
         return prettyDateTime(localDateTime);
     }

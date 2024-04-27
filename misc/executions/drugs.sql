@@ -7,8 +7,10 @@ CREATE TABLE drugs (
     description TEXT,
     sideEffects TEXT,
     storageInformation TEXT,
-    activeIngredients TEXT
+    activeIngredients TEXT,
+    UNIQUE(name)
 )
+
 
 INSERT INTO drugs (name, manufacturer, shelfLife, instructions, description, sideEffects, storageInformation, activeIngredients) VALUES
 ('Aspirin', 'Bayer', 24, 'Take 1-2 tablets every 4 to 6 hours.', 'Used to reduce fever and relieve mild to moderate pain.', 'Nausea, vomiting, stomach pain.', 'Store at room temperature away from moisture and heat.', 'Aspirin'),
