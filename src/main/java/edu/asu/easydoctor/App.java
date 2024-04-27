@@ -33,12 +33,6 @@ public class App extends Application {
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		App.primaryStage = primaryStage;
 		WelcomeController.getInstance().load();
-		Bypass.toWorkPortalAddPrescription("barb123");
-		// Bypass.toWorkPortalPrescriptionTool("barb123");
-		// Bypass.toWorkPortalScheduleVisit("barb123");
-		// Bypass.toWorkPortal();
-		// SignUpController.getInstance().load();
-		// Bypass.toWorkPortal();
 	}
 
 	public static void quit() throws SQLException, UnknownHostException {
