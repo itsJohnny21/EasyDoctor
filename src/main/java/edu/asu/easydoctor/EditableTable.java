@@ -50,6 +50,8 @@ public class EditableTable extends UI.Table {
     }
 
     public void buildHeader() {
+        if (this.headers == null) return;
+
         HBox headerBox = new HBox();
         headerBox.getStyleClass().add("table-header");
         

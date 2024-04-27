@@ -67,12 +67,16 @@ public class FindPatientController extends DialogController {
     }
 
     public void initialize() {
+        for (GridPane pane : new GridPane[] {nameAndBirthPane, usernamePane, emailPane, phoneNumberPane}) {
+            pane.setVisible(false);
+            pane.setDisable(true);
+        }
+
+        setCurrentPane(nameAndBirthPane, nameAndBirthButton);
         nameAndBirthButton.fire();
     }
 
     public void loadDialogHelper(HashMap<String, Object> data) throws SQLException {
-        nameAndBirthButton.fire();
-        
         if (data.containsKey("patientID")) {
             System.out.println("Patient ID: " + data.get("patientID"));
             patientID = (Integer) data.get("patientID");

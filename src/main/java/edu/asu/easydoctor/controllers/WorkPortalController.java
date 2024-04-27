@@ -14,6 +14,7 @@ import edu.asu.easydoctor.App;
 import edu.asu.easydoctor.DataRow;
 import edu.asu.easydoctor.DataRow.Allergy;
 import edu.asu.easydoctor.DataRow.Patient;
+import edu.asu.easydoctor.DataRow.Prescription;
 import edu.asu.easydoctor.DataRow.Surgery;
 import edu.asu.easydoctor.DataRow.Vaccine;
 import edu.asu.easydoctor.Database;
@@ -44,6 +45,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -64,6 +66,7 @@ public class WorkPortalController extends Controller {
     @FXML public GridPane tabsPane;
     
     @FXML public Button signOutButton;
+    @FXML public Button findPatientButton;
     
     @FXML public AnchorPane usernamePane;
     @FXML public Button usernameButton;
@@ -97,6 +100,15 @@ public class WorkPortalController extends Controller {
     @FXML public AnchorPane prescriptionToolPane;
     @FXML public ScrollPane prescriptionToolScrollPane;
     @FXML public Button prescriptionToolButton;
+    @FXML public Button prescriptionToolEditButton;
+    @FXML public Button prescriptionToolAddButton;
+    @FXML public Button prescriptionToolCancelButton;
+    @FXML public Button prescriptionToolSaveButton;
+    @FXML public Button prescriptionToolFindPatientButton;
+    @FXML public Label prescriptionToolPatientNameLabel;
+    @FXML public Label prescriptionToolPatientPharmacyNameLabel;
+    @FXML public TextField prescriptionToolFilterTextField;
+    @FXML public Button prescriptionToolFilterButton;
     
     @FXML public Label chatPatientNameLabel;
     @FXML public ScrollPane chatScrollPane;
@@ -111,8 +123,9 @@ public class WorkPortalController extends Controller {
     public static final String VIEW_FILENAME = "WorkPortalView";
     public static final String STYLE_FILENAME = "PatientPortalView";
     public final Integer myID = Database.getMyID();
-    public static Integer chatPatientID;
-    public static Integer patientRecordsPatientID;
+    public Integer chatPatientID;
+    public Integer patientRecordsPatientID;
+    public Integer prescriptionToolPatientID;
 
     private WorkPortalController() {
         title = TITLE;
@@ -251,13 +264,15 @@ public class WorkPortalController extends Controller {
         if (currentTab == patientRecordsPane) return;
         setCurrentTab(patientRecordsPane, patientRecordsButton);
 
-        if (patientRecordsPatientID != null) return;
+        if (patientRecordsPatientID == null) {
+            patientRecordsEditButton.setDisable(true);
+            patientRecordsCancelButton.setDisable(true);
+            patientRecordsSaveButton.setDisable(true);
+            return;
 
-        patientRecordsEditButton.setDisable(true);
-        patientRecordsCancelButton.setDisable(true);
-        patientRecordsSaveButton.setDisable(true);
-        
-        patientRecordsFindPatientButton.fire();
+        } else {
+            loadPatientRecordFor(patientRecordsPatientID);
+        }
     }
 
     @FXML public void handlePatientRecordsFindPatientButtonAction(ActionEvent event) throws Exception {
@@ -273,19 +288,16 @@ public class WorkPortalController extends Controller {
 
     public void loadPatientRecordFor(int patientID) throws Exception {
         patientRecordsEditButton.setDisable(false);
-        patientRecordsCancelButton.setDisable(false);
-        patientRecordsSaveButton.setDisable(false);
 
         Patient patient;
         try {
             patient = DataRow.Patient.getFor(patientID);
         } catch (Exception e) {
             showDefaultErrorAlert(e);
-            patientRecordsCancelButton.fire();
             return;
         }
 
-        UpdateButtonGroup patientRecordsButtonGroup = new UpdateButtonGroup(patientRecordsEditButton, patientRecordsCancelButton, patientRecordsSaveButton); //TODO: Move to initialize function
+        UpdateButtonGroup patientRecordsButtonGroup = new UpdateButtonGroup(patientRecordsEditButton, patientRecordsCancelButton, patientRecordsSaveButton);
         VBox contentPane = new VBox();
 
         Form contactInformationForm = generatePatientContactInformationForm(patient, patientRecordsButtonGroup);
@@ -316,7 +328,7 @@ public class WorkPortalController extends Controller {
                 patient.birthDate.createValueField("Birth Date"),
                 patient.height.createValueField("Height"),
                 patient.weight.createValueField("Weight"),
-                patient.insuranceProvider.createValueField("Insurance Provider"),
+                patient.insuranceProviderName.createValueField("Insurance Provider"),
                 patient.insuranceID.createValueField("Insurance ID"),
                 Datum.createValueOptionFromEnum(BloodType.class, patient.bloodType, "Blood Type"),
                 Datum.createValueOptionFromEnum(Sex.class, patient.sex, "Sex"),
@@ -537,10 +549,135 @@ public class WorkPortalController extends Controller {
         loadInboxMessages();
     }
 
-    @FXML public void handlePrescriptionToolButtonAction(ActionEvent event) {
+    @FXML public void handlePrescriptionToolButtonAction(ActionEvent event) throws Exception {
         if (currentTab == prescriptionToolPane) return;
-
         setCurrentTab(prescriptionToolPane, prescriptionToolButton);
+
+        if (prescriptionToolPatientID == null) {
+            prescriptionToolEditButton.setDisable(true);
+            prescriptionToolAddButton.setDisable(true);
+            prescriptionToolCancelButton.setDisable(true);
+            prescriptionToolSaveButton.setDisable(true);
+            return;
+        } else {
+            loadPrescriptionsTableFor(prescriptionToolPatientID);
+        }
+    }
+
+    @FXML public void handlePrescriptionToolFilterButtonAction(ActionEvent event) throws Exception {
+        if (prescriptionToolPatientID == null) return;
+
+        if (prescriptionToolFilterTextField.getText().isEmpty()) {
+            loadPrescriptionsTableFor(prescriptionToolPatientID);
+            return;
+        }
+
+        String filter = prescriptionToolFilterTextField.getText();
+        ArrayList<Prescription> filteredPrescriptions = DataRow.Prescription.getAllFilteredFor(prescriptionToolPatientID, filter);
+
+        ArrayList<Row> patientPrescriptionRows = new ArrayList<>();
+
+        for (Prescription prescription : filteredPrescriptions) {
+            int rowID = prescription.rowID;
+            DataRow.Drug drug = DataRow.Drug.getFor(Integer.parseInt(prescription.drugID.originalValue));
+
+            ValueLabel drugNameLabel = new ValueLabel(drug.name);
+            ValueLabel dosageQuantityLabel = new ValueLabel(prescription.dosageQuantity);
+            ValueLabel dosageUnitsLabel = new ValueLabel(prescription.dosageUnits);
+            ValueLabel intakeDayLabel = new ValueLabel(prescription.intakeDay);
+            ValueLabel intakeTimeLabel = new ValueLabel(prescription.intakeTime);
+
+            Row row = new Row(prescription.tableName, rowID, drugNameLabel, dosageQuantityLabel, dosageUnitsLabel, intakeDayLabel, intakeTimeLabel);
+            patientPrescriptionRows.add(row);
+        }
+
+        EditableTable patientPrescriptionsTable = new EditableTable();
+        patientPrescriptionsTable
+            .connectedTo(new UpdateButtonGroup(prescriptionToolEditButton, prescriptionToolCancelButton, prescriptionToolSaveButton))
+            .withDeleteAction(row -> {
+                EditableTable.DEFAULT_DELETE_ACTION.accept(row);
+                refreshPane(currentTab);
+            })
+            .withTitle("Prescriptions")
+            .withHeader("Name", "Dosage Quantity", "Dosage Units", "Intake Day", "Intake Time")
+            .withRows(patientPrescriptionRows)
+            .build();
+
+        prescriptionToolScrollPane.setContent(patientPrescriptionsTable);
+    }
+
+    public void loadPrescriptionsTableFor(int patientID) throws Exception {
+        prescriptionToolEditButton.setDisable(false);
+
+        Patient patient;
+        try {
+            patient = DataRow.Patient.getFor(patientID);
+        } catch (Exception e) {
+            showDefaultErrorAlert(e);
+            return;
+        }
+
+        prescriptionToolPatientNameLabel.setText(patient.firstName.originalValue + " " + patient.lastName.originalValue);
+        prescriptionToolPatientPharmacyNameLabel.setText(patient.pharmacyName.originalValue);
+
+        UpdateButtonGroup prescriptionToolButtonGroup = new UpdateButtonGroup(prescriptionToolEditButton, prescriptionToolCancelButton, prescriptionToolSaveButton);
+        prescriptionToolButtonGroup.addAddButton(prescriptionToolAddButton, event -> {
+            try {
+                loadDialog(AddPrescriptionController.getInstance());
+                refreshPane(currentTab);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        
+        });
+
+        VBox contentPane = new VBox();
+
+        EditableTable patientPrescriptionsTable = generatePatientPrescriptionsTable(patient, prescriptionToolButtonGroup);
+        contentPane.getChildren().add(patientPrescriptionsTable);
+
+        prescriptionToolScrollPane.setContent(contentPane);
+    }
+
+    @FXML public void handlePresciptionToolFindPatientButtonAction(ActionEvent event) throws Exception {
+        HashMap<String, Object> result = loadDialog(FindPatientController.getInstance());
+        if (result == null || !result.containsKey("patientID")) return;
+
+        prescriptionToolPatientID = (int) result.get("patientID");
+        loadPrescriptionsTableFor(prescriptionToolPatientID);
+    }
+
+    public EditableTable generatePatientPrescriptionsTable(DataRow.Patient patient, UpdateButtonGroup ubg) throws Exception {
+        ArrayList<Prescription> patientPrescriptions = DataRow.Prescription.getAllFor(patient.rowID);
+        ArrayList<Row> patientPrescriptionRows = new ArrayList<>();
+
+        for (Prescription prescription : patientPrescriptions) {
+            int rowID = prescription.rowID;
+            DataRow.Drug drug = DataRow.Drug.getFor(Integer.parseInt(prescription.drugID.originalValue));
+
+            ValueLabel drugNameLabel = new ValueLabel(drug.name);
+            ValueLabel dosageQuantityLabel = new ValueLabel(prescription.dosageQuantity);
+            ValueLabel dosageUnitsLabel = new ValueLabel(prescription.dosageUnits);
+            ValueLabel intakeDayLabel = new ValueLabel(prescription.intakeDay);
+            ValueLabel intakeTimeLabel = new ValueLabel(prescription.intakeTime);
+
+            Row row = new Row(prescription.tableName, rowID, drugNameLabel, dosageQuantityLabel, dosageUnitsLabel, intakeDayLabel, intakeTimeLabel);
+            patientPrescriptionRows.add(row);
+        }
+
+        EditableTable prescriptionsTable = new EditableTable();
+        prescriptionsTable
+            .connectedTo(ubg)
+            .withDeleteAction(row -> {
+                EditableTable.DEFAULT_DELETE_ACTION.accept(row);
+                    refreshPane(currentTab);
+            })
+            .withTitle("Prescriptions")
+            .withHeader("Name", "Dosage Quantity", "Dosage Units", "Intake Day", "Intake Time")
+            .withRows(patientPrescriptionRows)
+            .build();
+
+        return prescriptionsTable;
     }
 
     @FXML public void handleUsernameButtonAction(ActionEvent event) {
@@ -551,8 +688,8 @@ public class WorkPortalController extends Controller {
 
     @FXML public void handleSignOutButtonAction(ActionEvent event) throws Exception {
         closeAndNullify();
-        SignInController.getInstance().load();
         Database.signOut();
+        SignInController.getInstance().load();
     }
 
     @FXML public void handleScheduleVisitButtonAction(ActionEvent event) throws IOException, SQLException {
@@ -749,6 +886,10 @@ public class WorkPortalController extends Controller {
     }
 
     public void setCurrentTab(AnchorPane pane, Button button) {
+        if (currentDialog != null) {
+            currentDialog.closeAndNullify();
+        }
+
         if (currentTab != null) {
             currentTab.setVisible(false);
             currentTab.setDisable(true);
@@ -766,7 +907,13 @@ public class WorkPortalController extends Controller {
         return dialogController.loadDialog(data);
     }
 
+    public HashMap<String, Object> loadDialog(DialogController dialogController) throws Exception {
+        currentDialog = dialogController;
+        return dialogController.loadDialog();
+    }
+
     public void refreshPane(AnchorPane pane) {
+        currentTab = null;
         if (pane == inboxPane) {
             inboxButton.fire();
         } else if (pane == visitsPane) {
@@ -784,7 +931,7 @@ public class WorkPortalController extends Controller {
         }
     }
 
-    public void showDefaultErrorAlert(Exception e) {
+    public static void showDefaultErrorAlert(Exception e) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("An error occurred.");
@@ -792,12 +939,11 @@ public class WorkPortalController extends Controller {
         alert.showAndWait();
     }
 
-    public void closeAndNullify() throws Exception {
-        instance = null;
+    public void closeAndNullify() {
         close();
-        
         if (currentDialog != null) {
             currentDialog.closeAndNullify();
         }
+        instance = null;
     }
 }

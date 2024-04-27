@@ -327,10 +327,14 @@ public class ActiveVisitController extends DialogController {
         }
     }
 
-    public void closeAndNullify() throws SQLException {
+    public void closeAndNullify() {
         instance = null;
         close();
 
-        Database.updateActiveVisitCurrentPage(rowID, currentPaneIndex);
+        try {
+            Database.updateActiveVisitCurrentPage(rowID, currentPaneIndex);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

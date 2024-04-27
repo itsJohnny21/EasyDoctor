@@ -361,7 +361,7 @@ public class PatientPortalController extends Controller {
         return dialogController.loadDialog(data);
     }
 
-    public void closeAndNullify() throws Exception {
+    public void closeAndNullify() {
         instance = null;
         close();
         

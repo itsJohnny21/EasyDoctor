@@ -161,7 +161,7 @@ public abstract class Database {
         return String.format("\"'%s'@'%%'\"", role.toString().toLowerCase());
     }
 
-    public static String getPermissedColumns(String tableName, String operation) throws Exception {
+    public static String getPermissedColumns(String tableName, String operation) throws SQLException {
         ensureConnection();
         
         PreparedStatement statement = connection.prepareStatement(String.format("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TABLE_NAME = ? AND PRIVILEGE_TYPE = ? AND GRANTEE = %s;", getGrantee()));
@@ -191,7 +191,7 @@ public abstract class Database {
         return userExists;
     }
 
-    public static ResultSet selectAllWithRole(Role role) throws Exception {
+    public static ResultSet selectAllWithRole(Role role) throws SQLException {
         String tableName = "users";
         String columns = getPermissedColumns(tableName, "SELECT");
         ensureConnection();
@@ -202,7 +202,7 @@ public abstract class Database {
         return resultSet;
     }
 
-    public static ResultSet selectRow(int rowID, String tableName) throws Exception {
+    public static ResultSet selectRow(int rowID, String tableName) throws SQLException {
         String colummns = getPermissedColumns(tableName, "SELECT");
         ensureConnection();
         
@@ -214,7 +214,7 @@ public abstract class Database {
         return resultSet2;
     }
 
-    public static ResultSet selectMultiRow(int userID, String tableName) throws Exception {
+    public static ResultSet selectMultiRow(int userID, String tableName) throws SQLException {
         String colummns = getPermissedColumns(tableName, "SELECT");
         ensureConnection();
         
@@ -1036,7 +1036,7 @@ public abstract class Database {
     public static ResultSet getPatient(int patientID) throws SQLException {
         ensureConnection();
         
-        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, patients.* FROM patients JOIN users on users.ID = patients.ID WHERE patients.ID = ? LIMIT 1;");
+        PreparedStatement statement = connection.prepareStatement("SELECT users.username, users.role, insuranceProviders.name AS 'insuranceProviderName', pharmacies.name AS 'pharmacyName', employees.firstName AS 'preferredDoctorFirstName', employees.lastName AS 'preferredDoctorLastName', patients.* FROM patients JOIN users ON users.ID = patients.ID LEFT JOIN insuranceProviders ON patients.insuranceProviderID = insuranceProviders.ID LEFT JOIN pharmacies ON patients.pharmacyID = pharmacies.ID LEFT JOIN employees ON patients.preferredDoctorID = employees.ID WHERE patients.ID = ?;");
         statement.setInt(1, patientID);
 
         ResultSet resultSet = statement.executeQuery();
@@ -1190,5 +1190,45 @@ public abstract class Database {
         }
 
         return visitTimes;
+    }
+
+    public static void insertPrescriptionFor(int patientID, int doctorID, int drugID, String intakeDay, String intakeTime, String dosageQuantity, String dosageUnits, String description ) throws SQLException {
+        ensureConnection();
+
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO prescriptions (userID, doctorID, drugID, intakeDay, intakeTime, dosageQuantity, dosageUnits, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+        statement.setInt(1, patientID);
+        statement.setInt(2, doctorID);
+        statement.setInt(3, drugID);
+        statement.setString(4, intakeDay);
+        statement.setString(5, intakeTime);
+        statement.setString(6, dosageQuantity);
+        statement.setString(7, dosageUnits);
+        statement.setString(8, description);
+
+        statement.executeUpdate();
+    }
+
+    public static ResultSet getFilteredPrescriptionsFor(int userID, String filter) throws SQLException {
+        ensureConnection();
+        
+        filter = "%" + filter + "%";
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM prescriptions WHERE drugID IN (SELECT ID FROM drugs WHERE name LIKE ?) OR dosageQuantity LIKE ? OR dosageUnits LIKE ? OR intakeDay LIKE ? OR intakeTime LIKE ? OR description LIKE ?;");
+        statement.setString(1, filter);
+        statement.setString(2, filter);
+        statement.setString(3, filter);
+        statement.setString(4, filter);
+        statement.setString(5, filter);
+        statement.setString(6, filter);
+
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
+    }
+
+    public static ResultSet getAllDrugs() throws SQLException {
+        ensureConnection();
+        
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM drugs;");
+        ResultSet resultSet = statement.executeQuery();
+        return resultSet;
     }
 }

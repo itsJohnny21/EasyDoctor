@@ -14,16 +14,16 @@ public abstract class BaseController {
     public String styleFilename;
 
     public void initializeStage() {
-        stage.setTitle(title);
-        stage.setResizable(resizable);
-        stage.centerOnScreen();
-        Pane root = (Pane) scene.getRoot();
+        this.stage.setTitle(title);
+        this.stage.setResizable(resizable);
+        this.stage.centerOnScreen();
+        Pane root = (Pane) this.scene.getRoot();
         double width = root.getPrefWidth();
         double height = root.getPrefHeight();
-        stage.setWidth(width);
-        stage.setHeight(height);
-        stage.toFront();
-        stage.setScene(scene);
+        this.stage.setWidth(width);
+        this.stage.setHeight(height);
+        this.stage.toFront();
+        this.stage.setScene(this.scene);
 
         this.stage.setOnCloseRequest(event -> {
             try {
@@ -33,7 +33,7 @@ public abstract class BaseController {
                 e.printStackTrace();
             }
         });
-
+        
         this.stage.setHeight(this.scene.getRoot().prefHeight(-1) + getTitleBarHeight());
     }
 
@@ -51,5 +51,5 @@ public abstract class BaseController {
         stage.close();
         scene = null;
     }
-    public abstract void closeAndNullify() throws Exception;
+    public abstract void closeAndNullify();
 }

@@ -5,6 +5,7 @@ import edu.asu.easydoctor.Database.Ethnicity;
 import edu.asu.easydoctor.Database.Race;
 import edu.asu.easydoctor.Database.Role;
 import edu.asu.easydoctor.Database.Sex;
+import edu.asu.easydoctor.controllers.AddPrescriptionController;
 import edu.asu.easydoctor.controllers.FindPatientController;
 import edu.asu.easydoctor.controllers.ForgotUsernamePasswordController;
 import edu.asu.easydoctor.controllers.ScheduleVisitController;
@@ -12,6 +13,7 @@ import edu.asu.easydoctor.controllers.SignInController;
 import edu.asu.easydoctor.controllers.SignUpController;
 import edu.asu.easydoctor.controllers.WelcomeController;
 import edu.asu.easydoctor.controllers.WorkPortalController;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -27,6 +29,72 @@ public class Bypass {
         signInController.passwordField.setText(password);
         signInController.signInButton.fire();
     }
+
+	public static void toWorkPortalAddPrescription(String username) throws Exception {
+		Bypass.toWorkPortal();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+		workPortalController.prescriptionToolButton.fire();
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			Platform.runLater(() -> {
+				for (Window window : Window.getWindows()) {
+					if (window instanceof Stage) {
+						Stage stage = (Stage) window;
+
+						if (stage.getTitle().equals(FindPatientController.TITLE)) {
+							FindPatientController findPatientController = FindPatientController.getInstance();
+							findPatientController.usernameButton.fire();
+							findPatientController.usernameTextField.setText(username);
+							findPatientController.findPatientButton.fire();
+							findPatientController.doneButton.fire();
+							
+							PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(2));
+							pause.setOnFinished(event -> {
+								workPortalController.prescriptionToolEditButton.fire();
+							});
+							pause.play();
+
+
+							new Thread(() -> {
+								try {
+									Thread.sleep(3000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+					
+								Platform.runLater(() -> {
+									for (Window window2 : Window.getWindows()) {
+										if (window2 instanceof Stage) {
+											Stage stage2 = (Stage) window2;
+					
+											if (stage2.getTitle().equals(AddPrescriptionController.TITLE)) {
+												AddPrescriptionController addPrescriptionController = AddPrescriptionController.getInstance();
+												addPrescriptionController.drugTextField.setText("Advil");
+												addPrescriptionController.quantityTextField.setText("1");
+												addPrescriptionController.unitsChoiceBox.setValue("PILL");
+												addPrescriptionController.intakeDayChoiceBox.setValue("MONDAY");
+												addPrescriptionController.intakeTimeChoiceBox.setValue("12:00 PM");
+												return;
+											}
+										}
+									}
+								});
+							}).start();
+							return;
+						}
+					}
+				}
+			});
+		}).start();
+
+		workPortalController.prescriptionToolFindPatientButton.fire();
+	}
 
 	public static void toWorkPortalScheduleVisit(String username) throws Exception {
 		Bypass.toWorkPortal();
@@ -114,6 +182,38 @@ public class Bypass {
 		}).start();
 
 		workPortalController.patientRecordsButton.fire();
+	}
+
+	public static void toWorkPortalPrescriptionTool(String username) throws Exception {
+		Bypass.toWorkPortal();
+		WorkPortalController workPortalController = WorkPortalController.getInstance();
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			Platform.runLater(() -> {
+				for (Window window : Window.getWindows()) {
+					if (window instanceof Stage) {
+						Stage stage = (Stage) window;
+
+						if (stage.getTitle().equals(FindPatientController.TITLE)) {
+							FindPatientController findPatientController = FindPatientController.getInstance();
+							findPatientController.usernameButton.fire();
+							findPatientController.usernameTextField.setText(username);
+							findPatientController.findPatientButton.fire();
+							findPatientController.doneButton.fire();
+							return;
+						}
+					}
+				}
+			});
+		}).start();
+
+		workPortalController.prescriptionToolButton.fire();
 	}
 
 	public static void toWorkPortal() throws Exception {

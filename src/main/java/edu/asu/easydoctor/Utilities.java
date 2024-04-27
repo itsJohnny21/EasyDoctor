@@ -21,6 +21,7 @@ public class Utilities {
     public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
     public static final DateTimeFormatter standardTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static final String OPTIONAL_MESSAGE_REGEX = "^[\\p{Print}]{0,255}$";
     public static final String MESSAGE_REGEX = "^[\\p{Print}]{1,255}$";
     public static final String NAME_REGEX = "^[a-zA-Z'\\-\\u00c0-\\u01ff]{2,}$";
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";

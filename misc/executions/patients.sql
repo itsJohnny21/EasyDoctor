@@ -16,7 +16,7 @@ CREATE TABLE patients (
     weight DECIMAL(5, 2),
     race ENUM('WHITE', 'BLACK', 'HISPANIC', 'ASIAN', 'NATIVE_AMERICAN', 'PACIFIC_ISLANDER', 'OTHER') NOT NULL,
     ethnicity ENUM('HISPANIC', 'NON_HISPANIC') NOT NULL,
-    insuranceProvider VARCHAR(100),
+    insuranceProviderID INT DEFAULT NULL,
     insuranceID VARCHAR(100),
     emergencyContactName VARCHAR(255),
     emergencyContactPhone VARCHAR(255),
@@ -24,9 +24,16 @@ CREATE TABLE patients (
     motherLastName VARCHAR(255),
     fatherFirstName VARCHAR(255),
     fatherLastName VARCHAR(255),
-    FOREIGN KEY (ID) REFERENCES users(ID) ON CASCADE DELETE,
-    FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON CASCADE DELETE
+    pharmacyID INT DEFAULT NULL,
+    UNIQUE(email),
+    UNIQUE(phone),
+    UNIQUE(insuranceProvider, insuranceID),
+    FOREIGN KEY (ID) REFERENCES users(ID) ON DELETE, CASCADE,
+    FOREIGN KEY (preferredDoctorID) REFERENCES users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (pharmacyID) REFERENCES pharmacies(ID),
+    FOREIGN KEY (insuranceProviderID) REFERENCES insuranceProviders(ID)
 );
+select * from patients;
 use easydoctor;
 show create table patients;
 
@@ -39,7 +46,8 @@ VALUES (2, 'test', 'test',  'OTHER', '2000-01-01', 'test@test.com', '1234567890'
 SELECT * FROM patients;
 
 
-SELECT patients.firstName, patients.lastName, patients.sex, patients.birthDate, patients.phone, patients.email, patients.address, users.username, patients.race, patients.ethnicity, patients.emergencyContactName, patients.emergencyContactPhone, patients.motherFirstName, patients.motherLastName, patients.fatherFirstName, patients.fatherLastName FROM patients JOIN users ON users.ID = patients.userID WHERE userID = 2;
+SELECT users.username, users.role, insuranceProviders.name AS 'insuranceProviderName', pharmacies.name AS 'pharmacyName', employees.firstName AS 'preferredDoctorFirstName', employees.lastName AS 'preferredDoctorLastName', patients.* FROM patients JOIN users ON users.ID = patients.ID LEFT JOIN insuranceProviders ON patients.insuranceProviderID = insuranceProviders.ID LEFT JOIN pharmacies ON patients.pharmacyID = pharmacies.ID LEFT JOIN employees ON patients.preferredDoctorID = employees.ID WHERE patients.ID = 2;
 use easydoctor;
 SELECT * FROM patients;
+update patients set pharmacyID = 15 where ID = 2;
 SELECT * FROM users;

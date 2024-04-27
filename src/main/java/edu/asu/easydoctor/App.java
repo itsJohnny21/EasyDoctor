@@ -33,7 +33,8 @@ public class App extends Application {
 	public void start(Stage primaryStage) throws IOException, SQLException, UnknownHostException, Exception {
 		App.primaryStage = primaryStage;
 		WelcomeController.getInstance().load();
-		Bypass.toWorkPortalPatientRecords("barb123");
+		Bypass.toWorkPortalAddPrescription("barb123");
+		// Bypass.toWorkPortalPrescriptionTool("barb123");
 		// Bypass.toWorkPortalScheduleVisit("barb123");
 		// Bypass.toWorkPortal();
 		// SignUpController.getInstance().load();
@@ -67,3 +68,4 @@ public class App extends Application {
 //TODO: Add manager as a role
 //TODO: WorkPortal.Visits tab should allow the user to filter visits by status, patient, doctor, and date
 //TODO: For WorkPortalVisit controller, add a Patient Info button and a Cancel button to cancel the visit
+//TODO: Add patient name label to WorkPortal.PatientRecords
